@@ -1,12 +1,22 @@
 @model Odontari.Web.Models.Cita
 @{
     var tratamientos = ViewBag.Tratamientos as IList<Odontari.Web.Models.Tratamiento> ?? new List<Odontari.Web.Models.Tratamiento>();
+    var odontogramaJson = ViewBag.OdontogramaEstadoJson as string ?? "{}";
+    var pacienteId = ViewBag.PacienteId as int? ?? (Model != null ? Model.PacienteId : 0);
+    var historial = ViewBag.Historial as IEnumerable<Odontari.Web.ViewModels.HistorialEventoViewModel> ?? Enumerable.Empty<Odontari.Web.ViewModels.HistorialEventoViewModel>();
     ViewData["Title"] = "Expediente - " + Model.Paciente?.Nombre;
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/odontograma.css" asp-append-version="true" />
 }
 
 <h1>Expediente - @Model.Paciente?.Nombre @Model.Paciente?.Apellidos</h1>
 <p>Cita: @Model.FechaHora.ToString("dd/MM/yyyy HH:mm") - Estado: <strong>@Model.Estado</strong></p>
-<p><a asp-controller="Agenda" asp-action="Index" asp-route-fecha="@Model.FechaHora.Date">Volver a agenda</a></p>
+<p>
+    <a asp-controller="Agenda" asp-action="Index" asp-route-fecha="@Model.FechaHora.Date">Volver a agenda</a>
+    |
+    <a asp-controller="Expediente" asp-action="Index" asp-route-id="@Model.PacienteId">Expediente completo del paciente</a>
+</p>
 
 @if (Model.Estado == Odontari.Web.Models.Enums.EstadoCita.EnSala)
 {
@@ -18,53 +28,133 @@
     </form>
 }
 
-<h2>Procedimientos</h2>
-<table class="table">
-    <thead>
-        <tr><th>Tratamiento</th><th>Precio</th><th>Realizado</th><th></th></tr>
-    </thead>
-    <tbody>
-        @foreach (var pr in Model.ProcedimientosRealizados)
-        {
-            <tr>
-                <td>@pr.Tratamiento?.Nombre</td>
-                <td>RD$ @pr.PrecioAplicado.ToString("N2")</td>
-                <td>@(pr.MarcadoRealizado ? "Sí" : "No")</td>
-                <td>
-                    @if (!pr.MarcadoRealizado)
-                    {
-                        <form asp-action="MarcarRealizado" method="post" class="d-inline">
-                            <input type="hidden" name="procedimientoId" value="@pr.Id" />
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-sm btn-outline-primary">Marcar realizado</button>
-                        </form>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<ul class="nav nav-tabs mb-3" role="tablist">
+    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabProcedimientos">Procedimientos</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabOdontograma">Odontograma</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabHistograma">Histograma</a></li>
+</ul>
 
-<h3>Agregar procedimiento</h3>
-<form asp-action="AgregarProcedimiento" method="post">
-    <input type="hidden" name="citaId" value="@Model.Id" />
-    <select name="tratamientoId" class="form-control d-inline-block w-auto" required>
-        <option value="">-- Seleccionar tratamiento --</option>
-        @foreach (var t in tratamientos)
-        {
-            <option value="@t.Id">@t.Nombre - RD$ @t.PrecioBase.ToString("N2")</option>
-        }
-    </select>
-    @Html.AntiForgeryToken()
-    <button type="submit" class="btn btn-primary">Agregar</button>
-</form>
+<div class="tab-content">
+    <div id="tabProcedimientos" class="tab-pane fade show active">
+        <h2>Procedimientos</h2>
+        <table class="table">
+            <thead>
+                <tr><th>Tratamiento</th><th>Precio</th><th>Realizado</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var pr in Model.ProcedimientosRealizados)
+                {
+                    <tr>
+                        <td>@pr.Tratamiento?.Nombre</td>
+                        <td>RD$ @pr.PrecioAplicado.ToString("N2")</td>
+                        <td>@(pr.MarcadoRealizado ? "Sí" : "No")</td>
+                        <td>
+                            @if (!pr.MarcadoRealizado)
+                            {
+                                <form asp-action="MarcarRealizado" method="post" class="d-inline">
+                                    <input type="hidden" name="procedimientoId" value="@pr.Id" />
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Marcar realizado</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
 
-@if (Model.Estado == Odontari.Web.Models.Enums.EstadoCita.EnAtencion && Model.ProcedimientosRealizados.Any(pr => pr.MarcadoRealizado))
-{
-    <hr />
-    <form asp-action="FinalizarAtencion" method="post">
-        <input type="hidden" name="id" value="@Model.Id" />
-        @Html.AntiForgeryToken()
-        <button type="submit" class="btn btn-success">Finalizar atención (generar orden de cobro)</button>
-    </form>
+        <h3>Agregar procedimiento</h3>
+        <form asp-action="AgregarProcedimiento" method="post">
+            <input type="hidden" name="citaId" value="@Model.Id" />
+            <select name="tratamientoId" class="form-control d-inline-block w-auto" required>
+                <option value="">-- Seleccionar tratamiento --</option>
+                @foreach (var t in tratamientos)
+                {
+                    <option value="@t.Id">@t.Nombre - RD$ @t.PrecioBase.ToString("N2")</option>
+                }
+            </select>
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-primary">Agregar</button>
+        </form>
+
+        @if (Model.Estado == Odontari.Web.Models.Enums.EstadoCita.EnAtencion && Model.ProcedimientosRealizados.Any(pr => pr.MarcadoRealizado))
+        {
+            <hr />
+            <form asp-action="FinalizarAtencion" method="post">
+                <input type="hidden" name="id" value="@Model.Id" />
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-success">Finalizar atención (generar orden de cobro)</button>
+            </form>
+        }
+    </div>
+
+    <div id="tabOdontograma" class="tab-pane fade">
+        <h2>Odontograma</h2>
+        <p class="text-muted">Actualiza el estado dental del paciente. Los cambios se guardan en el expediente.</p>
+        <div class="odontograma-container">
+            <div class="odontograma-tools">
+                <h5>Herramientas</h5>
+                <div class="mb-2">
+                    <label>Modo:</label>
+                    <div><input type="radio" name="modoAt" id="modoAtSuperficie" value="superficie" /><label for="modoAtSuperficie" class="ms-1">Superficie</label></div>
+                    <div><input type="radio" name="modoAt" id="modoAtDiente" value="diente" checked /><label for="modoAtDiente" class="ms-1">Diente</label></div>
+                </div>
+                <div id="panelAtSuperficie" class="mb-2" style="display:none">
+                    <label>Estado superficie:</label>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-state surf-NONE" data-state="NONE">Ninguno</button>
+                        <button type="button" class="btn btn-sm btn-state surf-CARIES" data-state="CARIES">Caries</button>
+                        <button type="button" class="btn btn-sm btn-state surf-OBTURACION" data-state="OBTURACION">Obturación</button>
+                        <button type="button" class="btn btn-sm btn-state surf-SELLANTE" data-state="SELLANTE">Sellante</button>
+                        <button type="button" class="btn btn-sm btn-state surf-FRACTURA" data-state="FRACTURA">Fractura</button>
+                    </div>
+                </div>
+                <div id="panelAtDiente" class="mb-2">
+                    <label>Estado diente:</label>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-state tooth-NONE" data-state="NONE">Normal</button>
+                        <button type="button" class="btn btn-sm btn-state tooth-AUSENTE" data-state="AUSENTE">Ausente</button>
+                        <button type="button" class="btn btn-sm btn-state tooth-EXTRAIDO" data-state="EXTRAIDO">Extraído</button>
+                        <button type="button" class="btn btn-sm btn-state tooth-CORONA" data-state="CORONA">Corona</button>
+                        <button type="button" class="btn btn-sm btn-state tooth-ENDODONCIA" data-state="ENDODONCIA">Endodoncia</button>
+                        <button type="button" class="btn btn-sm btn-state tooth-IMPLANTE" data-state="IMPLANTE">Implante</button>
+                        <button type="button" class="btn btn-sm btn-state tooth-PROTESIS" data-state="PROTESIS">Prótesis</button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary" id="btnGuardarAt">Guardar odontograma</button>
+                <span id="guardarMsgAt" class="ms-2 text-muted small"></span>
+            </div>
+            <div class="odontograma-svg-wrap">
+                <svg id="odontogramaSvgAt" class="odontograma-svg" width="800" height="420" xmlns="http://www.w3.org/2000/svg"></svg>
+            </div>
+        </div>
+        <input type="hidden" id="pacienteIdAt" value="@pacienteId" />
+        <input type="hidden" id="estadoInicialAt" value="@Html.Raw(odontogramaJson)" />
+    </div>
+
+    <div id="tabHistograma" class="tab-pane fade">
+        <h2>Histograma (línea de tiempo clínica)</h2>
+        <p class="text-muted">Eventos registrados en el expediente del paciente.</p>
+        <table class="table table-sm">
+            <thead><tr><th>Fecha</th><th>Tipo</th><th>Descripción</th></tr></thead>
+            <tbody>
+                @foreach (var h in historial)
+                {
+                    <tr>
+                        <td>@h.FechaEvento.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@h.TipoEvento</td>
+                        <td>@(h.Descripcion ?? "—")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (!historial.Any())
+        {
+            <p class="text-muted">No hay eventos registrados.</p>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/odontograma-atencion.js" asp-append-version="true"></script>
 }

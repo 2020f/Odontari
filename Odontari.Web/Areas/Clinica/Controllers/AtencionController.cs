@@ -5,6 +5,7 @@ using Odontari.Web.Data;
 using Odontari.Web.Models;
 using Odontari.Web.Models.Enums;
 using Odontari.Web.Services;
+using Odontari.Web.ViewModels;
 using System.Security.Claims;
 
 namespace Odontari.Web.Areas.Clinica.Controllers;
@@ -45,7 +46,7 @@ public class AtencionController : Controller
         return View(citas);
     }
 
-    /// <summary>Expediente de la cita: procedimientos realizados y agregar más.</summary>
+    /// <summary>Expediente de la cita: procedimientos, odontograma e historial clínico.</summary>
     public async Task<IActionResult> Expediente(int id)
     {
         var cid = ClinicaId;
@@ -56,6 +57,24 @@ public class AtencionController : Controller
             .FirstOrDefaultAsync(c => c.ClinicaId == cid && c.Id == id);
         if (cita == null) return NotFound();
         ViewBag.Tratamientos = await _db.Tratamientos.Where(t => t.ClinicaId == cid && t.Activo).OrderBy(t => t.Nombre).ToListAsync();
+
+        // Odontograma y Histograma del paciente
+        var pacienteId = cita.PacienteId;
+        var odontograma = await _db.Odontogramas
+            .Where(o => o.PacienteId == pacienteId && o.ClinicaId == cid)
+            .OrderByDescending(o => o.UltimaModificacion)
+            .FirstOrDefaultAsync();
+        ViewBag.OdontogramaEstadoJson = odontograma?.EstadoJson ?? "{}";
+        ViewBag.PacienteId = pacienteId;
+
+        var historial = await _db.HistorialClinico
+            .Where(h => h.PacienteId == pacienteId && h.ClinicaId == cid)
+            .OrderByDescending(h => h.FechaEvento)
+            .Take(30)
+            .Select(h => new HistorialEventoViewModel { FechaEvento = h.FechaEvento, TipoEvento = h.TipoEvento, Descripcion = h.Descripcion })
+            .ToListAsync();
+        ViewBag.Historial = historial;
+
         return View(cita);
     }
 
@@ -75,6 +94,7 @@ public class AtencionController : Controller
             PrecioAplicado = tratamiento.PrecioBase,
             MarcadoRealizado = false
         });
+        _db.HistorialClinico.Add(new HistorialClinico { PacienteId = cita.PacienteId, ClinicaId = cid.Value, CitaId = citaId, FechaEvento = DateTime.UtcNow, TipoEvento = "Tratamiento agregado", Descripcion = tratamiento.Nombre, UsuarioId = UserId });
         await _db.SaveChangesAsync();
         return RedirectToAction(nameof(Expediente), new { id = citaId });
     }
@@ -87,10 +107,12 @@ public class AtencionController : Controller
         if (cid == null) return Unauthorized();
         var pr = await _db.ProcedimientosRealizados
             .Include(pr => pr.Cita)
+            .Include(pr => pr.Tratamiento)
             .FirstOrDefaultAsync(pr => pr.Cita!.ClinicaId == cid && pr.Id == procedimientoId);
         if (pr == null) return NotFound();
         pr.MarcadoRealizado = true;
         pr.RealizadoAt = DateTime.Now;
+        _db.HistorialClinico.Add(new HistorialClinico { PacienteId = pr.Cita!.PacienteId, ClinicaId = pr.Cita.ClinicaId, CitaId = pr.CitaId, FechaEvento = DateTime.UtcNow, TipoEvento = "Procedimiento realizado", Descripcion = pr.Tratamiento?.Nombre ?? "Tratamiento", UsuarioId = UserId });
         await _db.SaveChangesAsync();
         return RedirectToAction(nameof(Expediente), new { id = pr.CitaId });
     }
@@ -123,6 +145,7 @@ public class AtencionController : Controller
                 CreadoAt = DateTime.Now
             });
         }
+        _db.HistorialClinico.Add(new HistorialClinico { PacienteId = cita.PacienteId, ClinicaId = cid.Value, CitaId = cita.Id, FechaEvento = DateTime.UtcNow, TipoEvento = "Atención finalizada", Descripcion = "Orden de cobro generada", UsuarioId = UserId });
         await _db.SaveChangesAsync();
         return RedirectToAction(nameof(Index), new { fecha = cita.FechaHora.Date });
     }

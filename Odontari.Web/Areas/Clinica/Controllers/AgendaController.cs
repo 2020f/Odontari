@@ -107,7 +107,17 @@ public class AgendaController : Controller
         cita.Estado = estado;
         if (estado == EstadoCita.EnAtencion) cita.InicioAtencionAt = DateTime.Now;
         if (estado == EstadoCita.Finalizada) cita.FinAtencionAt = DateTime.Now;
+
+        // Registrar en Histograma
+        var uid = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (estado == EstadoCita.EnSala)
+            _db.HistorialClinico.Add(new HistorialClinico { PacienteId = cita.PacienteId, ClinicaId = cid.Value, CitaId = id, FechaEvento = DateTime.UtcNow, TipoEvento = "Check-in", Descripcion = "Paciente en sala", UsuarioId = uid });
+        else if (estado == EstadoCita.EnAtencion)
+            _db.HistorialClinico.Add(new HistorialClinico { PacienteId = cita.PacienteId, ClinicaId = cid.Value, CitaId = id, FechaEvento = DateTime.UtcNow, TipoEvento = "Atención iniciada", Descripcion = "Doctor inició la atención", UsuarioId = uid });
+
         await _db.SaveChangesAsync();
+        if (estado == EstadoCita.EnAtencion)
+            return RedirectToAction("Expediente", "Atencion", new { area = "Clinica", id = id });
         return RedirectToAction(nameof(Index), new { fecha = cita.FechaHora.Date });
     }
 
