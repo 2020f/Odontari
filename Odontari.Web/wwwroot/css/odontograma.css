@@ -79,12 +79,21 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
+/* Wrapper para permitir scroll horizontal si no cabe */
+.odontograma-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
 /* === Odontograma 3 zonas (odontogramapro) === */
 .odontograma-pro {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr) minmax(280px, 320px);
+  grid-template-columns: 200px minmax(0, 1fr) 240px;
   gap: 0;
   min-height: 520px;
+  min-width: 680px;
+  max-width: 100%;
   background: var(--odon-card);
   border-radius: 12px;
   overflow: hidden;
@@ -214,6 +223,7 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(180deg, #fafbfc 0%, #f1f5f9 100%);
+  min-width: 0;
 }
 
 .odontograma-card {
@@ -223,6 +233,9 @@
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   border: 1px solid var(--odon-border);
   position: relative;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 .odontograma-card .orientacion {
@@ -250,10 +263,13 @@
 .odontograma-svg-wrap {
   overflow-x: auto;
   padding: 0.5rem 0;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .odontograma-svg {
   display: block;
+  max-width: none;
 }
 
 .odontograma-fdi {
@@ -387,7 +403,7 @@
 
 /* Responsive */
 @media (max-width: 1200px) {
-  .odontograma-pro { grid-template-columns: 200px minmax(0, 1fr) minmax(260px, 300px); }
+  .odontograma-pro { grid-template-columns: 180px minmax(0, 1fr) 220px; }
 }
 @media (max-width: 992px) {
   .odontograma-pro { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
