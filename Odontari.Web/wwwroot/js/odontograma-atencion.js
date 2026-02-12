@@ -55,7 +55,7 @@
     r.setAttribute('x', x); r.setAttribute('y', y); r.setAttribute('width', w); r.setAttribute('height', h);
     r.setAttribute('class', 'odontograma-surface surf-' + val);
     r.setAttribute('data-tooth', toothNum); r.setAttribute('data-surface', surfName);
-    r.setAttribute('stroke', '#94a3b8'); r.setAttribute('stroke-width', '0.5');
+    r.setAttribute('stroke', '#94a3b8'); r.setAttribute('stroke-width', '0.8');
     r.addEventListener('click', (e) => {
       e.stopPropagation();
       if (toothData.status === 'AUSENTE' || toothData.status === 'EXTRAIDO') return;
@@ -71,7 +71,7 @@
     parent.appendChild(r);
   }
 
-  function renderTooth(g, toothNum, toothData, cx, cy) {
+  function renderTooth(g, toothNum, toothData, cx, cy, isSuperior) {
     const blocked = toothData.status === 'AUSENTE' || toothData.status === 'EXTRAIDO';
     const tg = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     tg.setAttribute('class', 'odontograma-tooth' + (blocked ? ' surface-edit-disabled' : ''));
@@ -115,22 +115,22 @@
     }
 
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    text.setAttribute('x', cx); text.setAttribute('y', cy + 4);
-    text.setAttribute('text-anchor', 'middle'); text.setAttribute('class', 'odontograma-fdi');
-    text.setAttribute('font-size', '10');
+    text.setAttribute('x', cx); text.setAttribute('text-anchor', 'middle'); text.setAttribute('class', 'odontograma-fdi');
+    text.setAttribute('font-size', '10'); text.setAttribute('fill', '#1e40af');
     text.textContent = toothNum;
+    text.setAttribute('y', isSuperior ? y0 - 2 : y0 + TH + 12);
     tg.appendChild(text);
 
     g.appendChild(tg);
   }
 
-  function renderRow(g, row, cy) {
+  function renderRow(g, row, cy, isSuperior) {
     const totalW = row.length * (TW + GAP) - GAP;
     let sx = 400 - totalW / 2;
     row.forEach(num => {
       const toothData = state.teeth[String(num)] || toothDefault();
       state.teeth[String(num)] = toothData;
-      renderTooth(g, num, toothData, sx + TW / 2, cy);
+      renderTooth(g, num, toothData, sx + TW / 2, cy, isSuperior);
       sx += TW + GAP;
     });
   }
@@ -142,10 +142,10 @@
     midline.setAttribute('x1', 400); midline.setAttribute('y1', 55); midline.setAttribute('x2', 400); midline.setAttribute('y2', 365);
     midline.setAttribute('stroke', '#94a3b8'); midline.setAttribute('stroke-width', '0.5'); midline.setAttribute('stroke-dasharray', '4 3');
     g.appendChild(midline);
-    renderRow(g, FDI_SUPERIOR[0], 82);
-    renderRow(g, FDI_SUPERIOR[1], 134);
-    renderRow(g, FDI_INFERIOR[0], 294);
-    renderRow(g, FDI_INFERIOR[1], 346);
+    renderRow(g, FDI_SUPERIOR[0], 82, true);
+    renderRow(g, FDI_SUPERIOR[1], 134, true);
+    renderRow(g, FDI_INFERIOR[0], 294, false);
+    renderRow(g, FDI_INFERIOR[1], 346, false);
     const ls = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     ls.setAttribute('x', 50); ls.setAttribute('y', 108); ls.setAttribute('font-size', '12'); ls.setAttribute('fill', '#64748b');
     ls.textContent = 'Arcada superior';

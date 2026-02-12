@@ -275,7 +275,7 @@
 .odontograma-fdi {
   font-size: 10px;
   font-weight: bold;
-  fill: #334155;
+  fill: #1e40af;
   pointer-events: none;
 }
 
@@ -385,8 +385,8 @@
 }
 .btn-guardar-odon:hover { background: var(--odon-primary-dark); }
 
-/* Colores estados superficie (odontogramapro.mdc) */
-.surf-NONE { fill: #FFFFFF !important; stroke: #cbd5e1 !important; }
+/* Colores estados superficie (odontogramapro.mdc) - trazos visibles como imagen ref */
+.surf-NONE { fill: #FFFFFF !important; stroke: #94a3b8 !important; }
 .surf-CARIES { fill: #E53935 !important; stroke: #B71C1C !important; }
 .surf-OBTURACION { fill: #1E88E5 !important; stroke: #0D47A1 !important; }
 .surf-SELLANTE { fill: #26C6DA !important; stroke: #00838F !important; }
