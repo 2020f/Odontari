@@ -51,138 +51,91 @@
   let estadoDiente = 'NONE';
 
   const svg = document.getElementById('odontogramaSvg');
-  const TW = 48;
-  const TH = 40;
-  const GAP = 4;
-  const OFFSET = 8;
-
-  function getToothColor(num, toothData) {
-    const s = toothData.status;
-    if (s && s !== 'NONE') return s;
-    const surfs = toothData.surfaces || {};
-    const vals = Object.values(surfs);
-    const first = vals.find(v => v && v !== 'NONE');
-    return first || 'NONE';
-  }
+  if (!svg) return;
+  const TW = 52, TH = 44, GAP = 5;
 
   function addSurfaceRect(parent, x, y, w, h, surfName, toothNum, toothData) {
     const val = (toothData.surfaces && toothData.surfaces[surfName]) || 'NONE';
     const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    r.setAttribute('x', x);
-    r.setAttribute('y', y);
-    r.setAttribute('width', w);
-    r.setAttribute('height', h);
+    r.setAttribute('x', x); r.setAttribute('y', y); r.setAttribute('width', w); r.setAttribute('height', h);
     r.setAttribute('class', 'odontograma-surface surf-' + val);
-    r.setAttribute('data-tooth', toothNum);
-    r.setAttribute('data-surface', surfName);
-    r.setAttribute('stroke', '#666');
-    r.setAttribute('stroke-width', '0.5');
+    r.setAttribute('data-tooth', toothNum); r.setAttribute('data-surface', surfName);
+    r.setAttribute('stroke', '#94a3b8'); r.setAttribute('stroke-width', '0.5');
     r.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (!modoSuperficie || toothData.status === 'AUSENTE' || toothData.status === 'EXTRAIDO') return;
-      if (!toothData.surfaces) toothData.surfaces = toothDefault().surfaces;
-      toothData.surfaces[surfName] = estadoSuperficie;
+      if (toothData.status === 'AUSENTE' || toothData.status === 'EXTRAIDO') return;
+      if (modoSuperficie) {
+        if (!toothData.surfaces) toothData.surfaces = toothDefault().surfaces;
+        toothData.surfaces[surfName] = estadoSuperficie;
+      } else {
+        toothData.status = estadoDiente;
+        if (estadoDiente === 'AUSENTE' || estadoDiente === 'EXTRAIDO') toothData.surfaces = toothDefault().surfaces;
+      }
       render();
     });
     parent.appendChild(r);
   }
 
-  function renderTooth(g, toothNum, toothData, cx, cy, isSuperior) {
+  function renderTooth(g, toothNum, toothData, cx, cy) {
     const blocked = toothData.status === 'AUSENTE' || toothData.status === 'EXTRAIDO';
     const tg = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    tg.setAttribute('class', 'odontograma-tooth' + (blocked && modoSuperficie ? ' surface-edit-disabled' : ''));
+    tg.setAttribute('class', 'odontograma-tooth' + (blocked ? ' surface-edit-disabled' : ''));
     tg.setAttribute('data-tooth', toothNum);
 
-    const x0 = cx - TW / 2;
-    const y0 = cy - TH / 2;
-    const pad = 2;
-    const cw = (TW - 2 * pad) / 3;
-    const ch = (TH - 2 * pad) / 3;
-    if (modoSuperficie && !blocked) {
-      const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      bg.setAttribute('x', x0);
-      bg.setAttribute('y', y0);
-      bg.setAttribute('width', TW);
-      bg.setAttribute('height', TH);
-      bg.setAttribute('fill', '#f5f5f5');
-      bg.setAttribute('stroke', '#999');
-      bg.setAttribute('stroke-width', '1');
-      tg.appendChild(bg);
-      addSurfaceRect(tg, x0 + pad, y0 + pad, cw * 2 + pad, ch, 'vestibular', toothNum, toothData);
+    const x0 = cx - TW / 2, y0 = cy - TH / 2, pad = 1;
+    const rw = TW - 2 * pad, rh = TH - 2 * pad;
+    const ch = rh / 3, cw = rw / 3;
+
+    if (!blocked) {
+      const border = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      border.setAttribute('x', x0); border.setAttribute('y', y0); border.setAttribute('width', TW); border.setAttribute('height', TH);
+      border.setAttribute('fill', 'none'); border.setAttribute('stroke', '#64748b'); border.setAttribute('stroke-width', '1');
+      tg.appendChild(border);
+      addSurfaceRect(tg, x0 + pad, y0 + pad, rw, ch, 'vestibular', toothNum, toothData);
       addSurfaceRect(tg, x0 + pad, y0 + pad + ch, cw, ch, 'mesial', toothNum, toothData);
       addSurfaceRect(tg, x0 + pad + cw, y0 + pad + ch, cw, ch, 'oclusal', toothNum, toothData);
       addSurfaceRect(tg, x0 + pad + cw * 2, y0 + pad + ch, cw, ch, 'distal', toothNum, toothData);
-      addSurfaceRect(tg, x0 + pad, y0 + pad + ch * 2, cw * 2 + pad, ch, 'palatino', toothNum, toothData);
-    }
-    if (!modoSuperficie || blocked) {
+      addSurfaceRect(tg, x0 + pad, y0 + pad + ch * 2, rw, ch, 'palatino', toothNum, toothData);
+    } else {
       const fullRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      fullRect.setAttribute('x', x0);
-      fullRect.setAttribute('y', y0);
-      fullRect.setAttribute('width', TW);
-      fullRect.setAttribute('height', TH);
+      fullRect.setAttribute('x', x0); fullRect.setAttribute('y', y0); fullRect.setAttribute('width', TW); fullRect.setAttribute('height', TH);
       fullRect.setAttribute('class', 'tooth-' + (toothData.status || 'NONE'));
-      fullRect.setAttribute('stroke', '#333');
-      fullRect.setAttribute('stroke-width', '1');
-      fullRect.addEventListener('click', (e) => {
-        if (modoSuperficie) return;
-        toothData.status = estadoDiente;
-        if (estadoDiente === 'AUSENTE' || estadoDiente === 'EXTRAIDO') {
-          toothData.surfaces = toothDefault().surfaces;
-        }
-        render();
-      });
+      fullRect.setAttribute('stroke', '#64748b'); fullRect.setAttribute('stroke-width', '1');
       tg.appendChild(fullRect);
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', cx - TW / 3); line.setAttribute('y1', cy); line.setAttribute('x2', cx + TW / 3); line.setAttribute('y2', cy);
+      line.setAttribute('stroke', '#334155'); line.setAttribute('stroke-width', '1');
+      tg.appendChild(line);
+      if (toothData.status === 'EXTRAIDO') {
+        const l2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        l2.setAttribute('x1', cx - TW / 4); l2.setAttribute('y1', cy - TH / 4); l2.setAttribute('x2', cx + TW / 4); l2.setAttribute('y2', cy + TH / 4);
+        l2.setAttribute('stroke', '#B71C1C'); l2.setAttribute('stroke-width', '1.5');
+        tg.appendChild(l2);
+        const l3 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        l3.setAttribute('x1', cx + TW / 4); l3.setAttribute('y1', cy - TH / 4); l3.setAttribute('x2', cx - TW / 4); l3.setAttribute('y2', cy + TH / 4);
+        l3.setAttribute('stroke', '#B71C1C'); l3.setAttribute('stroke-width', '1.5');
+        tg.appendChild(l3);
+      }
     }
 
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    text.setAttribute('x', cx);
-    text.setAttribute('y', cy + (modoSuperficie ? 2 : 4));
-    text.setAttribute('text-anchor', 'middle');
-    text.setAttribute('class', 'odontograma-fdi');
-    text.setAttribute('font-size', modoSuperficie ? '8' : '10');
+    text.setAttribute('x', cx); text.setAttribute('y', cy + 4);
+    text.setAttribute('text-anchor', 'middle'); text.setAttribute('class', 'odontograma-fdi');
+    text.setAttribute('font-size', '10');
     text.textContent = toothNum;
     tg.appendChild(text);
-
-    if (blocked) {
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('x1', cx - TW / 3);
-      line.setAttribute('y1', cy);
-      line.setAttribute('x2', cx + TW / 3);
-      line.setAttribute('y2', cy);
-      line.setAttribute('stroke', '#333');
-      line.setAttribute('stroke-width', '1');
-      tg.appendChild(line);
-      if (toothData.status === 'EXTRAIDO') {
-        const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line2.setAttribute('x1', cx - TW / 4);
-        line2.setAttribute('y1', cy - TH / 4);
-        line2.setAttribute('x2', cx + TW / 4);
-        line2.setAttribute('y2', cy + TH / 4);
-        line2.setAttribute('stroke', '#B71C1C');
-        line2.setAttribute('stroke-width', '1');
-        tg.appendChild(line2);
-        const line3 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line3.setAttribute('x1', cx + TW / 4);
-        line3.setAttribute('y1', cy - TH / 4);
-        line3.setAttribute('x2', cx - TW / 4);
-        line3.setAttribute('y2', cy + TH / 4);
-        line3.setAttribute('stroke', '#B71C1C');
-        line3.setAttribute('stroke-width', '1');
-        tg.appendChild(line3);
-      }
-    }
 
     g.appendChild(tg);
   }
 
-  function renderRow(g, row, cy, isSuperior) {
+  function renderRow(g, row, cy) {
     const nums = row;
     const totalW = nums.length * (TW + GAP) - GAP;
     let sx = 400 - totalW / 2;
     nums.forEach(num => {
       const toothData = state.teeth[String(num)] || toothDefault();
       state.teeth[String(num)] = toothData;
-      renderTooth(g, num, toothData, sx + TW / 2, cy, isSuperior);
+      renderTooth(g, num, toothData, sx + TW / 2, cy);
       sx += TW + GAP;
     });
   }
@@ -190,11 +143,14 @@
   function render() {
     while (svg.firstChild) svg.removeChild(svg.firstChild);
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-
-    renderRow(g, FDI_SUPERIOR[0], 80, true);
-    renderRow(g, FDI_SUPERIOR[1], 130, true);
-    renderRow(g, FDI_INFERIOR[0], 290, false);
-    renderRow(g, FDI_INFERIOR[1], 340, false);
+    const midline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    midline.setAttribute('x1', 400); midline.setAttribute('y1', 55); midline.setAttribute('x2', 400); midline.setAttribute('y2', 365);
+    midline.setAttribute('stroke', '#94a3b8'); midline.setAttribute('stroke-width', '0.5'); midline.setAttribute('stroke-dasharray', '4 3');
+    g.appendChild(midline);
+    renderRow(g, FDI_SUPERIOR[0], 82);
+    renderRow(g, FDI_SUPERIOR[1], 134);
+    renderRow(g, FDI_INFERIOR[0], 294);
+    renderRow(g, FDI_INFERIOR[1], 346);
 
     const labelSup = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     labelSup.setAttribute('x', 50);
@@ -320,9 +276,8 @@
     updateHallazgosYStats?.();
   };
 
-  modoSuperficie = false;
-  estadoSuperficie = 'NONE';
-  estadoDiente = 'NONE';
+  modoSuperficie = true;
+  estadoSuperficie = 'CARIES';
   updatePanelVisibility();
   updateHallazgosYStats?.();
   render();

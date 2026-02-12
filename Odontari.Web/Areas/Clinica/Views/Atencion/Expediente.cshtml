@@ -94,11 +94,11 @@
             <div class="odontograma-panel-left">
                 <h6>Modo de edición</h6>
                 <div class="modo-edicion">
-                    <button type="button" class="btn-modo" id="btnModoAtSuperficie" data-modo="superficie">
+                    <button type="button" class="btn-modo active" id="btnModoAtSuperficie" data-modo="superficie">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
                         Superficie
                     </button>
-                    <button type="button" class="btn-modo active" id="btnModoAtDiente" data-modo="diente">
+                    <button type="button" class="btn-modo" id="btnModoAtDiente" data-modo="diente">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8 2 6 4 6 8c0 4 2 8 6 14 4-6 6-10 6-14 0-4-2-6-6-6z"/></svg>
                         Diente
                     </button>
@@ -106,16 +106,16 @@
                 <input type="hidden" name="modoAt" id="modoAtSuperficie" value="diente" />
 
                 <h6 id="labelEstadosAt">Estados de diente</h6>
-                <div id="panelAtSuperficie" class="mb-2" style="display:none">
+                <div id="panelAtSuperficie" class="mb-2">
                     <div class="estados-superficie">
-                        <button type="button" class="btn-estado" data-state="CARIES"><span class="swatch" style="background:#E53935"></span>Caries</button>
+                        <button type="button" class="btn-estado active" data-state="CARIES"><span class="swatch" style="background:#E53935"></span>Caries</button>
                         <button type="button" class="btn-estado" data-state="OBTURACION"><span class="swatch" style="background:#1E88E5"></span>Obturación</button>
                         <button type="button" class="btn-estado" data-state="SELLANTE"><span class="swatch" style="background:#26C6DA"></span>Sellante</button>
                         <button type="button" class="btn-estado" data-state="FRACTURA"><span class="swatch" style="background:#FF8F00"></span>Fractura</button>
                         <button type="button" class="btn-estado" data-state="NONE"><span class="swatch" style="background:#b0bec5;border-style:dashed"></span>Borrar</button>
                     </div>
                 </div>
-                <div id="panelAtDiente" class="mb-2">
+                <div id="panelAtDiente" class="mb-2" style="display:none">
                     <div class="estados-diente">
                         <button type="button" class="btn-estado active" data-state="NONE"><span class="swatch" style="background:#fff;border:1px solid #999"></span>Normal</button>
                         <button type="button" class="btn-estado" data-state="AUSENTE"><span class="swatch" style="background:#78909C"></span>Ausente</button>
