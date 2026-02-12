@@ -1,0 +1,35 @@
+@model IEnumerable<UsuarioInternoListViewModel>
+@{
+    ViewData["Title"] = "Usuarios Internos SaaS";
+}
+<h1>Usuarios Internos</h1>
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+<p><a asp-area="Saas" asp-controller="UsuariosInternos" asp-action="Create" class="btn btn-primary">Crear usuario interno</a></p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Activo</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var u in Model)
+        {
+            <tr>
+                <td>@u.NombreCompleto</td>
+                <td>@u.Email</td>
+                <td>@(u.Rol ?? "-")</td>
+                <td>@(u.Activo ? "Sí" : "No")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+@if (!Model.Any())
+{
+    <p class="text-muted">No hay usuarios internos (SuperAdmin, Soporte, Auditor).</p>
+}

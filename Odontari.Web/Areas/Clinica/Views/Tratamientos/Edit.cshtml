@@ -1,0 +1,34 @@
+@model TratamientoEditViewModel
+@{
+    ViewData["Title"] = "Editar tratamiento";
+}
+
+<h1>Editar tratamiento</h1>
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label asp-for="Nombre"></label>
+        <input asp-for="Nombre" class="form-control" />
+        <span asp-validation-for="Nombre"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="PrecioBase"></label>
+        <input asp-for="PrecioBase" type="number" step="0.01" class="form-control" />
+        <span asp-validation-for="PrecioBase"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="DuracionMinutos"></label>
+        <input asp-for="DuracionMinutos" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Categoria"></label>
+        <input asp-for="Categoria" class="form-control" />
+    </div>
+    <div class="form-check">
+        <input asp-for="Activo" class="form-check-input" />
+        <label asp-for="Activo" class="form-check-label"></label>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

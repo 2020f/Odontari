@@ -1,0 +1,98 @@
+@model IEnumerable<CitaListViewModel>
+@{
+    var fecha = (DateTime)ViewBag.Fecha;
+    var doctores = ViewBag.Doctores as IEnumerable<dynamic>;
+    var doctorIdSel = ViewBag.DoctorIdSel as string;
+    ViewData["Title"] = "Agenda " + fecha.ToString("dd/MM/yyyy");
+}
+
+<h1>Agenda - @fecha.ToString("dd/MM/yyyy")</h1>
+<p>
+    <a asp-action="Create" asp-route-fechaHora="@fecha.Date.AddHours(9)">Nueva cita</a>
+    | <a asp-action="Index" asp-route-fecha="@fecha.AddDays(-1)">Día anterior</a>
+    | <a asp-action="Index" asp-route-fecha="@fecha.AddDays(1)">Día siguiente</a>
+</p>
+<form method="get" class="mb-3">
+    <input type="hidden" name="fecha" value="@fecha.ToString("yyyy-MM-dd")" />
+    <label>Doctor</label>
+    <select name="doctorId" class="form-control d-inline-block w-auto">
+        <option value="">Todos</option>
+        @if (doctores != null)
+        {
+            @foreach (var d in doctores)
+            {
+                <option value="@d.Id" selected="@(doctorIdSel == d.Id)">@(d.NombreCompleto ?? d.Email)</option>
+            }
+        }
+    </select>
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+</form>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Hora</th>
+            <th>Paciente</th>
+            <th>Doctor</th>
+            <th>Motivo</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>@c.FechaHora.ToString("HH:mm")</td>
+                <td>@c.PacienteNombre</td>
+                <td>@c.DoctorNombre</td>
+                <td>@c.Motivo</td>
+                <td>@c.Estado</td>
+                <td>
+                    <a asp-action="Editar" asp-route-id="@c.Id">Editar</a>
+                    @if (c.Estado == EstadoCita.Solicitada)
+                    {
+                        <form asp-action="CambiarEstado" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@c.Id" />
+                            <input type="hidden" name="estado" value="@((int)EstadoCita.Confirmada)" />
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-link p-0">Confirmar</button>
+                        </form>
+                    }
+                    @if (c.Estado == EstadoCita.Confirmada)
+                    {
+                        <form asp-action="CambiarEstado" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@c.Id" />
+                            <input type="hidden" name="estado" value="@((int)EstadoCita.EnSala)" />
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-link p-0">Check-in (En sala)</button>
+                        </form>
+                    }
+                    @if (c.Estado == EstadoCita.EnSala)
+                    {
+                        <a asp-controller="Atencion" asp-action="Expediente" asp-route-id="@c.Id">Atender</a>
+                        <form asp-action="CambiarEstado" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@c.Id" />
+                            <input type="hidden" name="estado" value="@((int)EstadoCita.EnAtencion)" />
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-link p-0">Iniciar atención</button>
+                        </form>
+                    }
+                    @if (c.Estado == EstadoCita.EnAtencion)
+                    {
+                        <a asp-controller="Atencion" asp-action="Expediente" asp-route-id="@c.Id">Expediente</a>
+                    }
+                    @if (c.Estado != EstadoCita.Cancelada && c.Estado != EstadoCita.Finalizada)
+                    {
+                        <form asp-action="CambiarEstado" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@c.Id" />
+                            <input type="hidden" name="estado" value="@((int)EstadoCita.Cancelada)" />
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-link p-0 text-danger">Cancelar</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@if (!Model.Any()) { <p class="text-muted">No hay citas este día.</p> }

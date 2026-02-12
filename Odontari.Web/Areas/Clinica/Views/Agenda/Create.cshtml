@@ -1,0 +1,30 @@
+@model CitaEditViewModel
+@{
+    var pacientes = ViewBag.Pacientes as IEnumerable<dynamic>;
+    var doctores = ViewBag.Doctores as IEnumerable<dynamic>;
+    ViewData["Title"] = "Nueva cita";
+}
+
+<h1>Nueva cita</h1>
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="PacienteId"></label>
+        <select asp-for="PacienteId" class="form-control" required asp-items="@(new SelectList(pacientes ?? new List<dynamic>(), "Id", "Nombre"))"></select>
+    </div>
+    <div class="form-group">
+        <label asp-for="DoctorId"></label>
+        <select asp-for="DoctorId" class="form-control" required asp-items="@(new SelectList(doctores ?? new List<dynamic>(), "Id", "Nombre"))"></select>
+    </div>
+    <div class="form-group">
+        <label asp-for="FechaHora"></label>
+        <input asp-for="FechaHora" type="datetime-local" class="form-control" />
+        <span asp-validation-for="FechaHora"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Motivo"></label>
+        <input asp-for="Motivo" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

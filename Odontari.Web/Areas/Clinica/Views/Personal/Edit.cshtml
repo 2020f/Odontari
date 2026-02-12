@@ -1,0 +1,47 @@
+@model PersonalEditViewModel
+@{
+    ViewData["Title"] = "Editar usuario";
+    var roles = new[] { Odontari.Web.Data.OdontariRoles.Recepcion, Odontari.Web.Data.OdontariRoles.Doctor, Odontari.Web.Data.OdontariRoles.Finanzas, Odontari.Web.Data.OdontariRoles.AdminClinica };
+}
+
+<h1>Editar usuario</h1>
+<div asp-validation-summary="All" class="text-danger"></div>
+<form asp-area="Clinica" asp-controller="Personal" asp-action="Edit" asp-route-id="@Model.Id" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group mb-2">
+        <label asp-for="NombreCompleto"></label>
+        <input asp-for="NombreCompleto" class="form-control" />
+        <span asp-validation-for="NombreCompleto" class="text-danger"></span>
+    </div>
+    <div class="form-group mb-2">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" readonly />
+    </div>
+    <div class="form-group mb-2">
+        <label asp-for="NuevaPassword"></label>
+        <input asp-for="NuevaPassword" class="form-control" type="password" />
+        <span class="form-text">Dejar en blanco para no cambiar la contraseña.</span>
+    </div>
+    <div class="form-group mb-2">
+        <label asp-for="Rol"></label>
+        <select asp-for="Rol" class="form-select">
+            @foreach (var r in roles)
+            {
+                <option value="@r">@r</option>
+            }
+        </select>
+        <span asp-validation-for="Rol" class="text-danger"></span>
+    </div>
+    <div class="form-group mb-2">
+        <div class="form-check">
+            <input asp-for="Activo" class="form-check-input" />
+            <label asp-for="Activo" class="form-check-label"></label>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-area="Clinica" asp-controller="Personal" asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,36 @@
+@model IEnumerable<Odontari.Web.Models.Cita>
+@{
+    var fecha = (DateTime)ViewBag.Fecha;
+    ViewData["Title"] = "Mis citas - " + fecha.ToString("dd/MM/yyyy");
+}
+
+<h1>Mis citas del día - @fecha.ToString("dd/MM/yyyy")</h1>
+<p>
+    <a asp-action="Index" asp-route-fecha="@fecha.AddDays(-1)">Día anterior</a>
+    | <a asp-action="Index" asp-route-fecha="@fecha.AddDays(1)">Día siguiente</a>
+</p>
+<ul class="list-group">
+    @foreach (var c in Model)
+    {
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>
+                @c.FechaHora.ToString("HH:mm") - @c.Paciente?.Nombre @c.Paciente?.Apellidos - @c.Motivo - <strong>@c.Estado</strong>
+            </span>
+            <span>
+                @if (c.Estado == Odontari.Web.Models.Enums.EstadoCita.EnSala || c.Estado == Odontari.Web.Models.Enums.EstadoCita.EnAtencion)
+                {
+                    <a asp-action="Expediente" asp-route-id="@c.Id" class="btn btn-primary btn-sm">Expediente / Procedimientos</a>
+                }
+                @if (c.Estado == Odontari.Web.Models.Enums.EstadoCita.EnAtencion)
+                {
+                    <form asp-action="FinalizarAtencion" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@c.Id" />
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-success btn-sm">Finalizar atención (generar cobro)</button>
+                    </form>
+                }
+            </span>
+        </li>
+    }
+</ul>
+@if (!Model.Any()) { <p class="text-muted">No tienes citas este día.</p> }

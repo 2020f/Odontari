@@ -1,0 +1,37 @@
+@{
+    ViewData["Title"] = "Dashboard Clínica";
+    var citasHoy = ViewBag.CitasHoy as IList<Odontari.Web.Models.Cita> ?? new List<Odontari.Web.Models.Cita>();
+    var pendientesCobro = ViewBag.PendientesCobro as IList<Odontari.Web.Models.OrdenCobro> ?? new List<Odontari.Web.Models.OrdenCobro>();
+}
+
+<h1>Dashboard</h1>
+<div class="row">
+    <div class="col-md-6">
+        <h2>Citas de hoy</h2>
+        <p><a asp-controller="Agenda" asp-action="Index">Ver agenda</a> | <a asp-controller="Agenda" asp-action="Create">Nueva cita</a></p>
+        <ul class="list-group">
+            @foreach (var c in citasHoy)
+            {
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>@c.FechaHora.ToString("HH:mm") - @c.Paciente?.Nombre @c.Paciente?.Apellidos - @c.Estado</span>
+                    <a asp-controller="Agenda" asp-action="Index" asp-route-fecha="@c.FechaHora.Date">Ver</a>
+                </li>
+            }
+        </ul>
+        @if (!citasHoy.Any()) { <p class="text-muted">No hay citas hoy.</p> }
+    </div>
+    <div class="col-md-6">
+        <h2>Pendientes de cobro</h2>
+        <p><a asp-controller="Caja" asp-action="Index">Ir a Caja</a></p>
+        <ul class="list-group">
+            @foreach (var o in pendientesCobro)
+            {
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>@o.Paciente?.Nombre - RD$ @((o.Total - o.MontoPagado).ToString("N2"))</span>
+                    <a asp-controller="Caja" asp-action="Cobrar" asp-route-id="@o.Id">Cobrar</a>
+                </li>
+            }
+        </ul>
+        @if (!pendientesCobro.Any()) { <p class="text-muted">No hay órdenes pendientes.</p> }
+    </div>
+</div>

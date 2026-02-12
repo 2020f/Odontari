@@ -1,0 +1,70 @@
+@model Odontari.Web.Models.Cita
+@{
+    var tratamientos = ViewBag.Tratamientos as IList<Odontari.Web.Models.Tratamiento> ?? new List<Odontari.Web.Models.Tratamiento>();
+    ViewData["Title"] = "Expediente - " + Model.Paciente?.Nombre;
+}
+
+<h1>Expediente - @Model.Paciente?.Nombre @Model.Paciente?.Apellidos</h1>
+<p>Cita: @Model.FechaHora.ToString("dd/MM/yyyy HH:mm") - Estado: <strong>@Model.Estado</strong></p>
+<p><a asp-controller="Agenda" asp-action="Index" asp-route-fecha="@Model.FechaHora.Date">Volver a agenda</a></p>
+
+@if (Model.Estado == Odontari.Web.Models.Enums.EstadoCita.EnSala)
+{
+    <form asp-action="CambiarEstado" asp-controller="Agenda" method="post" class="mb-3">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <input type="hidden" name="estado" value="@((int)Odontari.Web.Models.Enums.EstadoCita.EnAtencion)" />
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-primary">Iniciar atención</button>
+    </form>
+}
+
+<h2>Procedimientos</h2>
+<table class="table">
+    <thead>
+        <tr><th>Tratamiento</th><th>Precio</th><th>Realizado</th><th></th></tr>
+    </thead>
+    <tbody>
+        @foreach (var pr in Model.ProcedimientosRealizados)
+        {
+            <tr>
+                <td>@pr.Tratamiento?.Nombre</td>
+                <td>RD$ @pr.PrecioAplicado.ToString("N2")</td>
+                <td>@(pr.MarcadoRealizado ? "Sí" : "No")</td>
+                <td>
+                    @if (!pr.MarcadoRealizado)
+                    {
+                        <form asp-action="MarcarRealizado" method="post" class="d-inline">
+                            <input type="hidden" name="procedimientoId" value="@pr.Id" />
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Marcar realizado</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>Agregar procedimiento</h3>
+<form asp-action="AgregarProcedimiento" method="post">
+    <input type="hidden" name="citaId" value="@Model.Id" />
+    <select name="tratamientoId" class="form-control d-inline-block w-auto" required>
+        <option value="">-- Seleccionar tratamiento --</option>
+        @foreach (var t in tratamientos)
+        {
+            <option value="@t.Id">@t.Nombre - RD$ @t.PrecioBase.ToString("N2")</option>
+        }
+    </select>
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-primary">Agregar</button>
+</form>
+
+@if (Model.Estado == Odontari.Web.Models.Enums.EstadoCita.EnAtencion && Model.ProcedimientosRealizados.Any(pr => pr.MarcadoRealizado))
+{
+    <hr />
+    <form asp-action="FinalizarAtencion" method="post">
+        <input type="hidden" name="id" value="@Model.Id" />
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-success">Finalizar atención (generar orden de cobro)</button>
+    </form>
+}

@@ -1,0 +1,14 @@
+@{
+    ViewData["Title"] = "Acceso no disponible";
+    var motivo = ViewBag.Motivo as string ?? "Acceso no permitido.";
+}
+
+<div class="alert alert-danger mt-4">
+    <h2>No puede acceder al panel</h2>
+    <p class="mb-0">@motivo</p>
+    <hr />
+    <p class="mb-0">
+        <a asp-area="" asp-controller="Home" asp-action="Index">Volver al inicio</a>
+        | <a asp-area="Identity" asp-page="/Account/Logout">Cerrar sesión</a>
+    </p>
+</div>

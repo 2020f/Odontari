@@ -1,0 +1,38 @@
+@model ClinicaEditViewModel
+@{
+    var planes = ViewBag.Planes as IList<Odontari.Web.Models.Plan>;
+    ViewData["Title"] = "Editar clínica";
+}
+
+<h1>Editar clínica</h1>
+<form asp-area="Saas" asp-controller="Clinicas" asp-action="Edit" asp-route-id="@Model.Id" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label asp-for="Nombre"></label>
+        <input asp-for="Nombre" class="form-control" />
+        <span asp-validation-for="Nombre"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Telefono"></label>
+        <input asp-for="Telefono" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Direccion"></label>
+        <input asp-for="Direccion" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="PlanId"></label>
+        <select asp-for="PlanId" class="form-control" asp-items="@(new SelectList(planes ?? new List<Odontari.Web.Models.Plan>(), "Id", "Nombre"))"></select>
+    </div>
+    <div class="form-check">
+        <input asp-for="Activa" class="form-check-input" />
+        <label asp-for="Activa" class="form-check-label"></label>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-area="Saas" asp-controller="Clinicas" asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

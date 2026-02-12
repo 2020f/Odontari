@@ -1,0 +1,25 @@
+@model IEnumerable<TratamientoListViewModel>
+@{
+    ViewData["Title"] = "Catálogo de tratamientos";
+}
+
+<h1>Tratamientos</h1>
+<p><a asp-action="Create">Nuevo tratamiento</a></p>
+<table class="table">
+    <thead>
+        <tr><th>Nombre</th><th>Precio</th><th>Duración (min)</th><th>Categoría</th><th>Activo</th><th></th></tr>
+    </thead>
+    <tbody>
+        @foreach (var t in Model)
+        {
+            <tr>
+                <td>@t.Nombre</td>
+                <td>RD$ @t.PrecioBase.ToString("N2")</td>
+                <td>@t.DuracionMinutos</td>
+                <td>@t.Categoria</td>
+                <td>@(t.Activo ? "Sí" : "No")</td>
+                <td><a asp-action="Edit" asp-route-id="@t.Id">Editar</a></td>
+            </tr>
+        }
+    </tbody>
+</table>

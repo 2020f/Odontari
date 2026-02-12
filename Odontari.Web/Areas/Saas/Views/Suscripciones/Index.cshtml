@@ -1,0 +1,53 @@
+@model IEnumerable<SuscripcionListViewModel>
+@{
+    ViewData["Title"] = "Suscripciones";
+}
+<h1>Suscripciones</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Clínica</th>
+            <th>Inicio</th>
+            <th>Vencimiento</th>
+            <th>Activa</th>
+            <th>Suspendida</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Model)
+        {
+            <tr>
+                <td>@s.ClinicaNombre</td>
+                <td>@s.Inicio.ToString("dd/MM/yyyy")</td>
+                <td>@s.Vencimiento.ToString("dd/MM/yyyy")</td>
+                <td>@(s.Activa ? "Sí" : "No")</td>
+                <td>@(s.Suspendida ? "Sí" : "No")</td>
+                <td>
+                    @if (!s.Activa || s.Suspendida)
+                    {
+                        <form asp-action="Activar" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@s.Id" />
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-success">Activar</button>
+                        </form>
+                    }
+                    @if (s.Activa && !s.Suspendida)
+                    {
+                        <form asp-action="Suspender" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@s.Id" />
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-warning">Suspender</button>
+                        </form>
+                    }
+                    <form asp-action="Renovar" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@s.Id" />
+                        <input type="hidden" name="meses" value="1" />
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-outline-primary">+1 mes</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

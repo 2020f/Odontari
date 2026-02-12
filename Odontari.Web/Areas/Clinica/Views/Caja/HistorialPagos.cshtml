@@ -1,0 +1,38 @@
+@model IEnumerable<Odontari.Web.Models.OrdenCobro>
+@{
+    ViewData["Title"] = "Historial de pagos";
+}
+
+<h1>Historial de pagos</h1>
+<p><a asp-action="Index">Volver a Caja</a></p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Paciente</th>
+            <th>Total</th>
+            <th>Pagado</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var o in Model)
+        {
+            <tr>
+                <td>@o.CreadoAt.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@o.Paciente?.Nombre @o.Paciente?.Apellidos</td>
+                <td>RD$ @o.Total.ToString("N2")</td>
+                <td>RD$ @o.MontoPagado.ToString("N2")</td>
+                <td>@o.Estado</td>
+            </tr>
+            @foreach (var p in o.Pagos)
+            {
+                <tr class="table-light">
+                    <td></td>
+                    <td colspan="2">→ Pago RD$ @p.Monto.ToString("N2") @p.MetodoPago @p.FechaPago.ToString("dd/MM")</td>
+                    <td colspan="2">@p.Referencia</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

@@ -1,0 +1,21 @@
+@using Odontari.Web.Data
+@inject Microsoft.AspNetCore.Identity.UserManager<Odontari.Web.Models.ApplicationUser> UserManager
+@{
+    ViewData["Title"] = "ODONTARI";
+    var user = await UserManager.GetUserAsync(User);
+    var isSuperAdmin = user != null && await UserManager.IsInRoleAsync(user, OdontariRoles.SuperAdmin);
+}
+
+<div class="text-center">
+    <h1 class="display-4">ODONTARI</h1>
+    <p class="lead">Sistema de gestión odontológica</p>
+    @if (user?.ClinicaId != null)
+    {
+        <p><a asp-area="Clinica" asp-controller="Home" asp-action="Index" class="btn btn-primary">Panel Clínica – Dashboard</a></p>
+        <p><a asp-area="Clinica" asp-controller="Agenda" asp-action="Index">Agenda</a> | <a asp-area="Clinica" asp-controller="Pacientes" asp-action="Index">Pacientes</a> | <a asp-area="Clinica" asp-controller="Tratamientos" asp-action="Index">Tratamientos</a> | <a asp-area="Clinica" asp-controller="Atencion" asp-action="Index">Mis citas (doctor)</a> | <a asp-area="Clinica" asp-controller="Caja" asp-action="Index">Caja</a></p>
+    }
+    @if (isSuperAdmin)
+    {
+        <p><a asp-area="Saas" asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">Panel SaaS – Dashboard</a> <a asp-area="Saas" asp-controller="Planes" asp-action="Index" class="btn btn-primary">Planes</a> <a asp-area="Saas" asp-controller="Clinicas" asp-action="Index" class="btn btn-outline-primary">Clínicas</a></p>
+    }
+</div>

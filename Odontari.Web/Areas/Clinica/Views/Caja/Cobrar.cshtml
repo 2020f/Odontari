@@ -1,0 +1,37 @@
+@model PagoRegistroViewModel
+@{
+    var orden = ViewBag.Orden as Odontari.Web.Models.OrdenCobro;
+    ViewData["Title"] = "Registrar pago";
+}
+
+<h1>Registrar pago</h1>
+@if (orden != null)
+{
+    <p><strong>Paciente:</strong> @orden.Paciente?.Nombre @orden.Paciente?.Apellidos</p>
+    <p><strong>Total orden:</strong> RD$ @orden.Total.ToString("N2") | <strong>Ya pagado:</strong> RD$ @orden.MontoPagado.ToString("N2") | <strong>Saldo:</strong> RD$ @Model.SaldoPendiente.ToString("N2")</p>
+}
+<form asp-action="Cobrar" asp-route-id="@Model.OrdenCobroId" method="post">
+    <input type="hidden" asp-for="OrdenCobroId" />
+    <input type="hidden" asp-for="SaldoPendiente" />
+    <div class="form-group">
+        <label asp-for="Monto"></label>
+        <input asp-for="Monto" type="number" step="0.01" class="form-control" />
+        <span asp-validation-for="Monto"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="MetodoPago"></label>
+        <select asp-for="MetodoPago" class="form-control">
+            <option value="">-- Seleccionar --</option>
+            <option value="Efectivo">Efectivo</option>
+            <option value="Tarjeta">Tarjeta</option>
+            <option value="Transferencia">Transferencia</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="Referencia"></label>
+        <input asp-for="Referencia" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Registrar pago</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
