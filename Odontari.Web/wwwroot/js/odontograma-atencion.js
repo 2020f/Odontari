@@ -154,29 +154,63 @@
     li.textContent = 'Arcada inferior';
     g.appendChild(li);
     svgEl.appendChild(g);
+    if (typeof updateHallazgosYStats === 'function') updateHallazgosYStats();
   }
 
   function updatePanelVisibility() {
     const ps = document.getElementById('panelAtSuperficie');
     const pd = document.getElementById('panelAtDiente');
+    const lb = document.getElementById('labelEstadosAt');
+    const btnSup = document.getElementById('btnModoAtSuperficie');
+    const btnDen = document.getElementById('btnModoAtDiente');
     if (ps) ps.style.display = modoSuperficie ? 'block' : 'none';
     if (pd) pd.style.display = modoSuperficie ? 'none' : 'block';
+    if (lb) lb.textContent = modoSuperficie ? 'Estados de superficie' : 'Estados de diente';
+    if (btnSup) btnSup.classList.toggle('active', modoSuperficie);
+    if (btnDen) btnDen.classList.toggle('active', !modoSuperficie);
   }
 
-  document.querySelectorAll('input[name="modoAt"]').forEach(r => {
-    r.addEventListener('change', () => {
-      modoSuperficie = document.getElementById('modoAtSuperficie')?.checked || false;
-      updatePanelVisibility();
-      render();
+  function updateHallazgosYStats() {
+    const hallazgos = [];
+    const dientesAfectados = new Set();
+    Object.entries(state.teeth).forEach(([num, t]) => {
+      if (t.status && t.status !== 'NONE') {
+        hallazgos.push('Diente ' + num + ': ' + t.status);
+        dientesAfectados.add(num);
+      } else if (t.surfaces) {
+        Object.entries(t.surfaces).forEach(([s, v]) => {
+          if (v && v !== 'NONE') {
+            hallazgos.push('Diente ' + num + ' (' + s + '): ' + v);
+            dientesAfectados.add(num);
+          }
+        });
+      }
     });
+    const hallazgosEl = document.getElementById('hallazgosAt');
+    const statH = document.getElementById('statHallazgosAt');
+    const statD = document.getElementById('statDientesAt');
+    if (hallazgosEl) hallazgosEl.textContent = hallazgos.length ? hallazgos.join('\n') : 'Sin hallazgos registrados.';
+    if (statH) statH.textContent = hallazgos.length;
+    if (statD) statD.textContent = dientesAfectados.size;
+  }
+
+  document.getElementById('btnModoAtSuperficie')?.addEventListener('click', () => {
+    modoSuperficie = true;
+    updatePanelVisibility();
+    render();
+  });
+  document.getElementById('btnModoAtDiente')?.addEventListener('click', () => {
+    modoSuperficie = false;
+    updatePanelVisibility();
+    render();
   });
 
   const panelSup = document.getElementById('panelAtSuperficie');
   if (panelSup) {
-    panelSup.querySelectorAll('.btn-state').forEach(btn => {
+    panelSup.querySelectorAll('.btn-estado').forEach(btn => {
       btn.addEventListener('click', () => {
         estadoSuperficie = btn.getAttribute('data-state') || 'NONE';
-        panelSup.querySelectorAll('.btn-state').forEach(b => b.classList.remove('active'));
+        panelSup.querySelectorAll('.btn-estado').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
       });
     });
@@ -184,13 +218,19 @@
 
   const panelDen = document.getElementById('panelAtDiente');
   if (panelDen) {
-    panelDen.querySelectorAll('.btn-state').forEach(btn => {
+    panelDen.querySelectorAll('.btn-estado').forEach(btn => {
       btn.addEventListener('click', () => {
         estadoDiente = btn.getAttribute('data-state') || 'NONE';
-        panelDen.querySelectorAll('.btn-state').forEach(b => b.classList.remove('active'));
+        panelDen.querySelectorAll('.btn-estado').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
       });
     });
+  }
+
+  const obsEl = document.getElementById('observacionesAt');
+  if (obsEl) {
+    obsEl.value = state.observations || '';
+    obsEl.addEventListener('input', () => { state.observations = obsEl.value; });
   }
 
   const btnGuardar = document.getElementById('btnGuardarAt');
@@ -199,6 +239,7 @@
       const pidEl = document.getElementById('pacienteIdAt');
       const pacienteId = pidEl ? parseInt(pidEl.value, 10) : 0;
       if (!pacienteId) return;
+      if (obsEl) state.observations = obsEl.value;
       const payload = JSON.stringify({
         PacienteId: pacienteId,
         EstadoJson: JSON.stringify({ teeth: state.teeth, observations: state.observations })
@@ -222,5 +263,6 @@
   estadoSuperficie = 'NONE';
   estadoDiente = 'NONE';
   updatePanelVisibility();
+  updateHallazgosYStats();
   render();
 })();

@@ -1,58 +1,367 @@
-/* OdontogramaPro - estilos según odontogramapro.mdc */
-.odontograma-container {
+/* OdontogramaPro - Estilo principal según odontogramapro.mdc y referencia */
+:root {
+  --odon-primary: #1976d2;
+  --odon-primary-light: #42a5f5;
+  --odon-primary-dark: #0d47a1;
+  --odon-bg: #f8fafc;
+  --odon-card: #ffffff;
+  --odon-border: #e2e8f0;
+  --odon-text: #334155;
+  --odon-text-muted: #64748b;
+  --odon-arcada: #1e40af;
+}
+
+/* === Sección Atención completa === */
+.atencion-section {
+  background: var(--odon-bg);
+  min-height: calc(100vh - 200px);
+  padding: 1.5rem 0;
+}
+
+.atencion-header {
+  background: linear-gradient(135deg, var(--odon-primary) 0%, var(--odon-primary-dark) 100%);
+  color: white;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 14px rgba(25, 118, 210, 0.25);
+}
+
+.atencion-header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+}
+
+.atencion-header .meta {
+  font-size: 0.9rem;
+  opacity: 0.95;
+}
+
+.atencion-header .links a {
+  color: rgba(255,255,255,0.9);
+  text-decoration: none;
+  font-size: 0.875rem;
+  margin-right: 1rem;
+}
+.atencion-header .links a:hover { color: white; }
+
+/* Tabs personalizados */
+.atencion-tabs .nav-tabs {
+  border-bottom: 2px solid var(--odon-border);
+  background: var(--odon-card);
+  padding: 0.5rem 1rem 0 1rem;
+  border-radius: 10px 10px 0 0;
+}
+
+.atencion-tabs .nav-link {
+  color: var(--odon-text-muted);
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 0.75rem 1.25rem;
+  font-weight: 500;
+  border-radius: 6px 6px 0 0;
+  margin-bottom: -2px;
+}
+.atencion-tabs .nav-link:hover { color: var(--odon-primary); }
+.atencion-tabs .nav-link.active {
+  color: var(--odon-primary);
+  background: transparent;
+  border-bottom-color: var(--odon-primary);
+}
+
+.atencion-tabs .tab-content {
+  background: var(--odon-card);
+  padding: 1.5rem;
+  border-radius: 0 0 10px 10px;
+  border: 1px solid var(--odon-border);
+  border-top: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* === Odontograma 3 zonas (odontogramapro) === */
+.odontograma-pro {
+  display: grid;
+  grid-template-columns: 220px 1fr 260px;
+  gap: 0;
+  min-height: 520px;
+  background: var(--odon-card);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+/* Panel izquierdo - Herramientas */
+.odontograma-panel-left {
+  background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+  padding: 1.25rem;
+  border-right: 1px solid var(--odon-border);
+}
+
+.odontograma-panel-left h6 {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--odon-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+/* Modo de edición - botones estilo imagen ref */
+.modo-edicion {
   display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
 }
-.odontograma-tools {
-  flex: 0 0 180px;
-}
-.odontograma-svg-wrap {
+
+.modo-edicion .btn-modo {
   flex: 1;
-  min-width: 500px;
-  overflow-x: auto;
+  padding: 0.6rem 0.5rem;
+  border: 2px solid var(--odon-border);
+  background: white;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--odon-text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
 }
+
+.modo-edicion .btn-modo:hover {
+  border-color: var(--odon-primary-light);
+  color: var(--odon-primary);
+}
+
+.modo-edicion .btn-modo.active {
+  background: var(--odon-primary);
+  border-color: var(--odon-primary);
+  color: white;
+}
+
+.modo-edicion .btn-modo svg {
+  width: 20px;
+  height: 20px;
+  opacity: 0.8;
+}
+
+/* Estados de superficie - con cuadrados de color */
+.estados-superficie, .estados-diente {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.btn-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.6rem;
+  border: 2px solid transparent;
+  background: white;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-estado .swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  border: 1px solid rgba(0,0,0,0.2);
+}
+
+.btn-estado:hover { border-color: var(--odon-primary-light); }
+.btn-estado.active {
+  border-color: var(--odon-primary);
+  background: rgba(25, 118, 210, 0.08);
+}
+
+/* Leyenda */
+.odontograma-leyenda {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--odon-border);
+}
+
+.odontograma-leyenda .leyenda-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--odon-text);
+  margin-bottom: 0.4rem;
+}
+
+.odontograma-leyenda .leyenda-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  border: 1px solid rgba(0,0,0,0.15);
+  flex-shrink: 0;
+}
+
+/* Centro - Odontograma SVG en tarjeta */
+.odontograma-panel-center {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #fafbfc 0%, #f1f5f9 100%);
+}
+
+.odontograma-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid var(--odon-border);
+  position: relative;
+}
+
+.odontograma-card .orientacion {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--odon-arcada);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.odontograma-card .arcada-label-top,
+.odontograma-card .arcada-label-bottom {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--odon-arcada);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+  margin: 0.25rem 0;
+}
+
+.odontograma-svg-wrap {
+  overflow-x: auto;
+  padding: 0.5rem 0;
+}
+
 .odontograma-svg {
   display: block;
 }
+
+.odontograma-fdi {
+  font-size: 10px;
+  font-weight: bold;
+  fill: #334155;
+  pointer-events: none;
+}
+
 .odontograma-tooth {
   cursor: pointer;
   transition: filter 0.15s;
 }
-.odontograma-tooth:hover {
-  filter: brightness(1.1);
-}
-.odontograma-tooth.surface-edit-disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
-}
+.odontograma-tooth:hover { filter: brightness(1.08); }
+.odontograma-tooth.surface-edit-disabled { cursor: not-allowed; opacity: 0.75; }
+
 .odontograma-surface {
   cursor: pointer;
   transition: fill 0.15s;
 }
-.odontograma-surface:hover {
-  filter: brightness(1.15);
+.odontograma-surface:hover { filter: brightness(1.12); }
+
+/* Panel derecho - Hallazgos, Observaciones, Estadísticas */
+.odontograma-panel-right {
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 1.25rem;
+  border-left: 1px solid var(--odon-border);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
-.odontograma-fdi {
-  font-size: 10px;
-  font-weight: bold;
-  fill: #333;
-  pointer-events: none;
+
+.odontograma-panel-right h6 {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--odon-text-muted);
+  margin-bottom: 0.5rem;
 }
-/* Estados superficie */
-.surf-NONE { fill: #FFFFFF; stroke: #ccc; }
-.surf-CARIES { fill: #E53935; stroke: #B71C1C; }
-.surf-OBTURACION { fill: #1E88E5; stroke: #0D47A1; }
-.surf-SELLANTE { fill: #26C6DA; stroke: #00838F; }
-.surf-FRACTURA { fill: #FF8F00; stroke: #E65100; }
-/* Estados diente completo */
-.tooth-NONE { fill: #FFFFFF; stroke: #999; }
-.tooth-AUSENTE { fill: #78909C; stroke: #546E7A; }
-.tooth-EXTRAIDO { fill: #C62828; stroke: #B71C1C; }
-.tooth-CORONA { fill: #F9A825; stroke: #F57F17; }
-.tooth-ENDODONCIA { fill: #2E7D32; stroke: #1B5E20; }
-.tooth-IMPLANTE { fill: #6A1B9A; stroke: #4A148C; }
-.tooth-PROTESIS { fill: #00838F; stroke: #006064; }
-.btn-state { margin: 2px; }
-.leyenda-item { display: flex; align-items: center; gap: 6px; margin: 4px 0; font-size: 0.9rem; }
-.leyenda-color { width: 16px; height: 16px; border: 1px solid #666; border-radius: 2px; }
+
+.hallazgos-list {
+  min-height: 80px;
+  font-size: 0.85rem;
+  color: var(--odon-text-muted);
+}
+
+.odontograma-observaciones {
+  flex: 1;
+  min-height: 100px;
+  resize: vertical;
+  border: 1px solid var(--odon-border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.odontograma-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.odontograma-stat {
+  background: var(--odon-primary-light);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.odontograma-stat .number { font-size: 1.25rem; font-weight: 700; }
+.odontograma-stat .label { font-size: 0.7rem; opacity: 0.9; }
+
+.btn-guardar-odon {
+  background: var(--odon-primary);
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-guardar-odon:hover { background: var(--odon-primary-dark); }
+
+/* Colores estados superficie (odontogramapro.mdc) */
+.surf-NONE { fill: #FFFFFF !important; stroke: #cbd5e1 !important; }
+.surf-CARIES { fill: #E53935 !important; stroke: #B71C1C !important; }
+.surf-OBTURACION { fill: #1E88E5 !important; stroke: #0D47A1 !important; }
+.surf-SELLANTE { fill: #26C6DA !important; stroke: #00838F !important; }
+.surf-FRACTURA { fill: #FF8F00 !important; stroke: #E65100 !important; }
+.surf-BORRAR { fill: #b0bec5 !important; stroke: #78909C !important; }
+
+.tooth-NONE { fill: #FFFFFF !important; stroke: #94a3b8 !important; }
+.tooth-AUSENTE { fill: #78909C !important; stroke: #546E7A !important; }
+.tooth-EXTRAIDO { fill: #C62828 !important; stroke: #B71C1C !important; }
+.tooth-CORONA { fill: #F9A825 !important; stroke: #F57F17 !important; }
+.tooth-ENDODONCIA { fill: #2E7D32 !important; stroke: #1B5E20 !important; }
+.tooth-IMPLANTE { fill: #6A1B9A !important; stroke: #4A148C !important; }
+.tooth-PROTESIS { fill: #00838F !important; stroke: #006064 !important; }
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .odontograma-pro { grid-template-columns: 200px 1fr 220px; }
+}
+@media (max-width: 992px) {
+  .odontograma-pro { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
+  .odontograma-panel-left { border-right: none; border-bottom: 1px solid var(--odon-border); }
+  .odontograma-panel-right { border-left: none; border-top: 1px solid var(--odon-border); }
+}

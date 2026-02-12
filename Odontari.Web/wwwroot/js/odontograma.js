@@ -213,61 +213,117 @@
     g.appendChild(labelInf);
 
     svg.appendChild(g);
+    if (typeof updateHallazgosYStats === 'function') updateHallazgosYStats();
   }
 
   function updatePanelVisibility() {
-    document.getElementById('panelSuperficie').style.display = modoSuperficie ? 'block' : 'none';
-    document.getElementById('panelDiente').style.display = modoSuperficie ? 'none' : 'block';
+    const ps = document.getElementById('panelSuperficie');
+    const pd = document.getElementById('panelDiente');
+    const lb = document.getElementById('labelEstados');
+    const btnSup = document.getElementById('btnModoSuperficie');
+    const btnDen = document.getElementById('btnModoDiente');
+    if (ps) ps.style.display = modoSuperficie ? 'block' : 'none';
+    if (pd) pd.style.display = modoSuperficie ? 'none' : 'block';
+    if (lb) lb.textContent = modoSuperficie ? 'ESTADOS DE SUPERFICIE' : 'ESTADOS DE DIENTE';
+    if (btnSup) btnSup.classList.toggle('active', modoSuperficie);
+    if (btnDen) btnDen.classList.toggle('active', !modoSuperficie);
   }
 
-  document.querySelectorAll('input[name="modo"]').forEach(r => {
-    r.addEventListener('change', () => {
-      modoSuperficie = document.getElementById('modoSuperficie').checked;
-      updatePanelVisibility();
-      render();
+  function updateHallazgosYStats() {
+    const hallazgos = [];
+    const dientesAfectados = new Set();
+    Object.entries(state.teeth).forEach(([num, t]) => {
+      if (t.status && t.status !== 'NONE') {
+        hallazgos.push('Diente ' + num + ': ' + t.status);
+        dientesAfectados.add(num);
+      } else if (t.surfaces) {
+        Object.entries(t.surfaces).forEach(([s, v]) => {
+          if (v && v !== 'NONE') {
+            hallazgos.push('Diente ' + num + ' (' + s + '): ' + v);
+            dientesAfectados.add(num);
+          }
+        });
+      }
     });
+    const hallazgosEl = document.getElementById('hallazgos');
+    const statH = document.getElementById('statHallazgos');
+    const statD = document.getElementById('statDientes');
+    if (hallazgosEl) hallazgosEl.textContent = hallazgos.length ? hallazgos.join('\n') : 'Sin hallazgos registrados.';
+    if (statH) statH.textContent = hallazgos.length;
+    if (statD) statD.textContent = dientesAfectados.size;
+  }
+
+  document.getElementById('btnModoSuperficie')?.addEventListener('click', () => {
+    modoSuperficie = true;
+    updatePanelVisibility();
+    render();
+  });
+  document.getElementById('btnModoDiente')?.addEventListener('click', () => {
+    modoSuperficie = false;
+    updatePanelVisibility();
+    render();
   });
 
-  document.querySelectorAll('#panelSuperficie .btn-state').forEach(btn => {
-    btn.addEventListener('click', () => {
-      estadoSuperficie = btn.getAttribute('data-state');
-      document.querySelectorAll('#panelSuperficie .btn-state').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+  const panelSup = document.getElementById('panelSuperficie');
+  if (panelSup) {
+    (panelSup.querySelectorAll('.btn-estado') || panelSup.querySelectorAll('.btn-state')).forEach(btn => {
+      btn.addEventListener('click', () => {
+        estadoSuperficie = btn.getAttribute('data-state') || 'NONE';
+        panelSup.querySelectorAll('.btn-estado, .btn-state').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
     });
-  });
+  }
 
-  document.querySelectorAll('#panelDiente .btn-state').forEach(btn => {
-    btn.addEventListener('click', () => {
-      estadoDiente = btn.getAttribute('data-state');
-      document.querySelectorAll('#panelDiente .btn-state').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+  const panelDen = document.getElementById('panelDiente');
+  if (panelDen) {
+    (panelDen.querySelectorAll('.btn-estado') || panelDen.querySelectorAll('.btn-state')).forEach(btn => {
+      btn.addEventListener('click', () => {
+        estadoDiente = btn.getAttribute('data-state') || 'NONE';
+        panelDen.querySelectorAll('.btn-estado, .btn-state').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
     });
-  });
+  }
 
-  document.getElementById('btnGuardar').addEventListener('click', () => {
-    const pacienteId = parseInt(document.getElementById('pacienteId').value, 10);
+  const obsEl = document.getElementById('observaciones');
+  if (obsEl) {
+    obsEl.value = state.observations || '';
+    obsEl.addEventListener('input', () => { state.observations = obsEl.value; });
+  }
+
+  document.getElementById('btnGuardar')?.addEventListener('click', () => {
+    const pacienteId = parseInt(document.getElementById('pacienteId')?.value || '0', 10);
+    if (!pacienteId) return;
+    if (obsEl) state.observations = obsEl.value;
     const payload = JSON.stringify({
       PacienteId: pacienteId,
       EstadoJson: JSON.stringify({ teeth: state.teeth, observations: state.observations })
     });
     const msg = document.getElementById('guardarMsg');
-    msg.textContent = 'Guardando...';
+    if (msg) msg.textContent = 'Guardando...';
     fetch('/Clinica/Expediente/GuardarOdontograma', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: payload
     })
       .then(r => {
-        if (r.ok) msg.textContent = 'Guardado.';
-        else msg.textContent = 'Error al guardar.';
+        if (msg) msg.textContent = r.ok ? 'Guardado.' : 'Error al guardar.';
       })
-      .catch(() => { msg.textContent = 'Error de conexión.'; })
-      .finally(() => { setTimeout(() => { msg.textContent = ''; }, 3000); });
+      .catch(() => { if (msg) msg.textContent = 'Error de conexión.'; })
+      .finally(() => { setTimeout(() => { if (msg) msg.textContent = ''; }, 3000); });
   });
+
+  const origRender = render;
+  render = function() {
+    origRender();
+    updateHallazgosYStats?.();
+  };
 
   modoSuperficie = false;
   estadoSuperficie = 'NONE';
   estadoDiente = 'NONE';
   updatePanelVisibility();
+  updateHallazgosYStats?.();
   render();
 })();

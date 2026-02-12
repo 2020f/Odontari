@@ -10,25 +10,26 @@
     <link rel="stylesheet" href="~/css/odontograma.css" asp-append-version="true" />
 }
 
-<h1>Expediente - @Model.Paciente?.Nombre @Model.Paciente?.Apellidos</h1>
-<p>Cita: @Model.FechaHora.ToString("dd/MM/yyyy HH:mm") - Estado: <strong>@Model.Estado</strong></p>
-<p>
-    <a asp-controller="Agenda" asp-action="Index" asp-route-fecha="@Model.FechaHora.Date">Volver a agenda</a>
-    |
-    <a asp-controller="Expediente" asp-action="Index" asp-route-id="@Model.PacienteId">Expediente completo del paciente</a>
-</p>
+<div class="atencion-section">
+<div class="atencion-header">
+    <h1>Evaluación del paciente — @Model.Paciente?.Nombre @Model.Paciente?.Apellidos</h1>
+    <div class="meta">Cita: @Model.FechaHora.ToString("dd/MM/yyyy HH:mm") · Estado: <strong>@Model.Estado</strong></div>
+    <div class="links mt-2">
+        <a asp-controller="Agenda" asp-action="Index" asp-route-fecha="@Model.FechaHora.Date">← Volver a agenda</a>
+        <a asp-controller="Expediente" asp-action="Index" asp-route-id="@Model.PacienteId">Expediente completo</a>
+    </div>
+    @if (Model.Estado == Odontari.Web.Models.Enums.EstadoCita.EnSala)
+    {
+        <form asp-action="CambiarEstado" asp-controller="Agenda" method="post" class="mt-3">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <input type="hidden" name="estado" value="@((int)Odontari.Web.Models.Enums.EstadoCita.EnAtencion)" />
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-light btn-sm">Iniciar atención</button>
+        </form>
+    }
+</div>
 
-@if (Model.Estado == Odontari.Web.Models.Enums.EstadoCita.EnSala)
-{
-    <form asp-action="CambiarEstado" asp-controller="Agenda" method="post" class="mb-3">
-        <input type="hidden" name="id" value="@Model.Id" />
-        <input type="hidden" name="estado" value="@((int)Odontari.Web.Models.Enums.EstadoCita.EnAtencion)" />
-        @Html.AntiForgeryToken()
-        <button type="submit" class="btn btn-primary">Iniciar atención</button>
-    </form>
-}
-
-<ul class="nav nav-tabs mb-3" role="tablist">
+<ul class="nav nav-tabs atencion-tabs" role="tablist">
     <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabProcedimientos">Procedimientos</a></li>
     <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabOdontograma">Odontograma</a></li>
     <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabHistograma">Histograma</a></li>
@@ -89,43 +90,90 @@
     </div>
 
     <div id="tabOdontograma" class="tab-pane fade">
-        <h2>Odontograma</h2>
-        <p class="text-muted">Actualiza el estado dental del paciente. Los cambios se guardan en el expediente.</p>
-        <div class="odontograma-container">
-            <div class="odontograma-tools">
-                <h5>Herramientas</h5>
-                <div class="mb-2">
-                    <label>Modo:</label>
-                    <div><input type="radio" name="modoAt" id="modoAtSuperficie" value="superficie" /><label for="modoAtSuperficie" class="ms-1">Superficie</label></div>
-                    <div><input type="radio" name="modoAt" id="modoAtDiente" value="diente" checked /><label for="modoAtDiente" class="ms-1">Diente</label></div>
+        <div class="odontograma-pro">
+            <div class="odontograma-panel-left">
+                <h6>Modo de edición</h6>
+                <div class="modo-edicion">
+                    <button type="button" class="btn-modo" id="btnModoAtSuperficie" data-modo="superficie">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                        Superficie
+                    </button>
+                    <button type="button" class="btn-modo active" id="btnModoAtDiente" data-modo="diente">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8 2 6 4 6 8c0 4 2 8 6 14 4-6 6-10 6-14 0-4-2-6-6-6z"/></svg>
+                        Diente
+                    </button>
                 </div>
+                <input type="hidden" name="modoAt" id="modoAtSuperficie" value="diente" />
+
+                <h6 id="labelEstadosAt">Estados de diente</h6>
                 <div id="panelAtSuperficie" class="mb-2" style="display:none">
-                    <label>Estado superficie:</label>
-                    <div>
-                        <button type="button" class="btn btn-sm btn-state surf-NONE" data-state="NONE">Ninguno</button>
-                        <button type="button" class="btn btn-sm btn-state surf-CARIES" data-state="CARIES">Caries</button>
-                        <button type="button" class="btn btn-sm btn-state surf-OBTURACION" data-state="OBTURACION">Obturación</button>
-                        <button type="button" class="btn btn-sm btn-state surf-SELLANTE" data-state="SELLANTE">Sellante</button>
-                        <button type="button" class="btn btn-sm btn-state surf-FRACTURA" data-state="FRACTURA">Fractura</button>
+                    <div class="estados-superficie">
+                        <button type="button" class="btn-estado" data-state="CARIES"><span class="swatch" style="background:#E53935"></span>Caries</button>
+                        <button type="button" class="btn-estado" data-state="OBTURACION"><span class="swatch" style="background:#1E88E5"></span>Obturación</button>
+                        <button type="button" class="btn-estado" data-state="SELLANTE"><span class="swatch" style="background:#26C6DA"></span>Sellante</button>
+                        <button type="button" class="btn-estado" data-state="FRACTURA"><span class="swatch" style="background:#FF8F00"></span>Fractura</button>
+                        <button type="button" class="btn-estado" data-state="NONE"><span class="swatch" style="background:#b0bec5;border-style:dashed"></span>Borrar</button>
                     </div>
                 </div>
                 <div id="panelAtDiente" class="mb-2">
-                    <label>Estado diente:</label>
-                    <div>
-                        <button type="button" class="btn btn-sm btn-state tooth-NONE" data-state="NONE">Normal</button>
-                        <button type="button" class="btn btn-sm btn-state tooth-AUSENTE" data-state="AUSENTE">Ausente</button>
-                        <button type="button" class="btn btn-sm btn-state tooth-EXTRAIDO" data-state="EXTRAIDO">Extraído</button>
-                        <button type="button" class="btn btn-sm btn-state tooth-CORONA" data-state="CORONA">Corona</button>
-                        <button type="button" class="btn btn-sm btn-state tooth-ENDODONCIA" data-state="ENDODONCIA">Endodoncia</button>
-                        <button type="button" class="btn btn-sm btn-state tooth-IMPLANTE" data-state="IMPLANTE">Implante</button>
-                        <button type="button" class="btn btn-sm btn-state tooth-PROTESIS" data-state="PROTESIS">Prótesis</button>
+                    <div class="estados-diente">
+                        <button type="button" class="btn-estado active" data-state="NONE"><span class="swatch" style="background:#fff;border:1px solid #999"></span>Normal</button>
+                        <button type="button" class="btn-estado" data-state="AUSENTE"><span class="swatch" style="background:#78909C"></span>Ausente</button>
+                        <button type="button" class="btn-estado" data-state="EXTRAIDO"><span class="swatch" style="background:#C62828"></span>Extraído</button>
+                        <button type="button" class="btn-estado" data-state="CORONA"><span class="swatch" style="background:#F9A825"></span>Corona</button>
+                        <button type="button" class="btn-estado" data-state="ENDODONCIA"><span class="swatch" style="background:#2E7D32"></span>Endodoncia</button>
+                        <button type="button" class="btn-estado" data-state="IMPLANTE"><span class="swatch" style="background:#6A1B9A"></span>Implante</button>
+                        <button type="button" class="btn-estado" data-state="PROTESIS"><span class="swatch" style="background:#00838F"></span>Prótesis</button>
                     </div>
                 </div>
-                <button type="button" class="btn btn-primary" id="btnGuardarAt">Guardar odontograma</button>
+
+                <div class="odontograma-leyenda">
+                    <h6>Leyenda</h6>
+                    <div class="leyenda-item"><span class="leyenda-swatch" style="background:#E53935"></span>Caries</div>
+                    <div class="leyenda-item"><span class="leyenda-swatch" style="background:#1E88E5"></span>Obturación</div>
+                    <div class="leyenda-item"><span class="leyenda-swatch" style="background:#26C6DA"></span>Sellante</div>
+                    <div class="leyenda-item"><span class="leyenda-swatch" style="background:#FF8F00"></span>Fractura</div>
+                    <div class="leyenda-item"><span class="leyenda-swatch" style="background:#78909C"></span>Ausente</div>
+                    <div class="leyenda-item"><span class="leyenda-swatch" style="background:#C62828"></span>Extraído</div>
+                    <div class="leyenda-item"><span class="leyenda-swatch" style="background:#F9A825"></span>Corona</div>
+                    <div class="leyenda-item"><span class="leyenda-swatch" style="background:#2E7D32"></span>Endodoncia</div>
+                    <div class="leyenda-item"><span class="leyenda-swatch" style="background:#6A1B9A"></span>Implante</div>
+                    <div class="leyenda-item"><span class="leyenda-swatch" style="background:#00838F"></span>Prótesis</div>
+                </div>
+            </div>
+
+            <div class="odontograma-panel-center">
+                <div class="odontograma-card">
+                    <div class="orientacion">
+                        <span>Derecho del paciente</span>
+                        <span>Izquierdo del paciente</span>
+                    </div>
+                    <div class="arcada-label-top">ARCADA SUPERIOR</div>
+                    <div class="odontograma-svg-wrap">
+                        <svg id="odontogramaSvgAt" class="odontograma-svg" width="800" height="420" xmlns="http://www.w3.org/2000/svg"></svg>
+                    </div>
+                    <div class="arcada-label-bottom">ARCADA INFERIOR</div>
+                </div>
+                <button type="button" class="btn-guardar-odon mt-3" id="btnGuardarAt">Guardar odontograma</button>
                 <span id="guardarMsgAt" class="ms-2 text-muted small"></span>
             </div>
-            <div class="odontograma-svg-wrap">
-                <svg id="odontogramaSvgAt" class="odontograma-svg" width="800" height="420" xmlns="http://www.w3.org/2000/svg"></svg>
+
+            <div class="odontograma-panel-right">
+                <div>
+                    <h6>Hallazgos</h6>
+                    <div id="hallazgosAt" class="hallazgos-list">Sin hallazgos registrados.</div>
+                </div>
+                <div>
+                    <h6>Observaciones</h6>
+                    <textarea id="observacionesAt" class="odontograma-observaciones form-control" placeholder="Notas clínicas adicionales..."></textarea>
+                </div>
+                <div>
+                    <h6>Estadísticas</h6>
+                    <div class="odontograma-stats">
+                        <div class="odontograma-stat"><span class="number" id="statHallazgosAt">0</span><br><span class="label">Hallazgos</span></div>
+                        <div class="odontograma-stat"><span class="number" id="statDientesAt">0</span><br><span class="label">Dientes afectados</span></div>
+                    </div>
+                </div>
             </div>
         </div>
         <input type="hidden" id="pacienteIdAt" value="@pacienteId" />
@@ -153,6 +201,7 @@
             <p class="text-muted">No hay eventos registrados.</p>
         }
     </div>
+</div>
 </div>
 
 @section Scripts {
