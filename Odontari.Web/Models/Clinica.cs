@@ -18,4 +18,9 @@ public class Clinica
     public ICollection<Cita> Citas { get; set; } = new List<Cita>();
     public ICollection<OrdenCobro> OrdenesCobro { get; set; } = new List<OrdenCobro>();
     public ICollection<Tratamiento> Tratamientos { get; set; } = new List<Tratamiento>();
+
+    // Expediente clínico (Fase 5)
+    public ICollection<Odontograma> Odontogramas { get; set; } = new List<Odontograma>();
+    public ICollection<HistorialClinico> HistorialClinico { get; set; } = new List<HistorialClinico>();
+    public ICollection<HistoriaClinicaSistematica> HistoriasClinicasSistematicas { get; set; } = new List<HistoriaClinicaSistematica>();
 }

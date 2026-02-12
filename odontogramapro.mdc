@@ -1,0 +1,123 @@
+---
+description: "OdontogramaPro - Especificación completa del odontograma digital interactivo. Referenciar cuando el usuario mencione 'OdontogramaPro' para construir o integrar este componente."
+alwaysApply: true
+---
+
+# OdontogramaPro — Odontograma Digital Interactivo
+
+Cuando el usuario diga "OdontogramaPro" se refiere a este componente/módulo exacto.
+
+## Qué es
+
+Un odontograma SVG interactivo con 32 dientes (notación FDI), 5 superficies clickeables por diente, sistema de estados para superficies y dientes completos, con historial de cambios (undo), persistencia, y resumen automático de hallazgos.
+
+## Notación FDI — Disposición de dientes
+
+```
+Arcada Superior (vista frontal, izq a der del observador):
+  Q1 (der. paciente): 18,17,16,15,14,13,12,11
+  Q2 (izq. paciente): 21,22,23,24,25,26,27,28
+
+Arcada Inferior:
+  Q4 (der. paciente): 48,47,46,45,44,43,42,41
+  Q3 (izq. paciente): 31,32,33,34,35,36,37,38
+
+Dientes anteriores (incisivos+caninos): 11-13, 21-23, 31-33, 41-43
+```
+
+## Modelo de datos
+
+```json
+{
+  "patientName": "",
+  "patientId": "",
+  "date": "",
+  "observations": "",
+  "teeth": {
+    "11": {
+      "surfaces": {
+        "oclusal": "NONE",
+        "vestibular": "NONE",
+        "palatino": "NONE",
+        "mesial": "NONE",
+        "distal": "NONE"
+      },
+      "status": "NONE",
+      "notes": ""
+    }
+  }
+}
+```
+
+Cada diente (32 total) tiene este mismo esquema.
+
+## Estados
+
+### Estados de superficie (se aplican a caras individuales)
+
+| Clave       | Label       | Color   |
+|-------------|-------------|---------|
+| NONE        | Ninguno     | #FFFFFF |
+| CARIES      | Caries      | #E53935 |
+| OBTURACION  | Obturación  | #1E88E5 |
+| SELLANTE    | Sellante    | #26C6DA |
+| FRACTURA    | Fractura    | #FF8F00 |
+
+### Estados de diente completo (se aplican al diente entero)
+
+| Clave      | Label      | Color   | Símbolo SVG          |
+|------------|------------|---------|----------------------|
+| NONE       | Normal     | —       | —                    |
+| AUSENTE    | Ausente    | #78909C | Línea horizontal     |
+| EXTRAIDO   | Extraído   | #C62828 | X roja               |
+| CORONA     | Corona     | #F9A825 | Círculo dorado       |
+| ENDODONCIA | Endodoncia | #2E7D32 | Triángulo verde      |
+| IMPLANTE   | Implante   | #6A1B9A | Triángulo invertido  |
+| PROTESIS   | Prótesis   | #00838F | Corchetes            |
+
+## Renderizado SVG
+
+Cada diente es un `<g>` con 5 polígonos (trapezoides + rectángulo central):
+- **Top**: vestibular (superior) o lingual (inferior)
+- **Bottom**: palatino (superior) o vestibular (inferior)
+- **Left/Right**: mesial o distal según cuadrante
+- **Center**: oclusal (posterior) o incisal (anterior)
+
+Dimensiones base: diente 64x64px, inner offset 16px, gap 7px, midline 32px.
+
+## Mapeo de superficies por cuadrante
+
+```
+Q1 y Q4 (derecho paciente): LEFT=Distal, RIGHT=Mesial
+Q2 y Q3 (izquierdo paciente): LEFT=Mesial, RIGHT=Distal
+Superior (Q1,Q2): TOP=Vestibular, BOTTOM=Palatino
+Inferior (Q3,Q4): TOP=Lingual, BOTTOM=Vestibular
+```
+
+## Interacción
+
+1. **Modo Superficie**: click en superficie aplica estado activo (CARIES, etc.)
+2. **Modo Diente**: click en diente aplica estado global (AUSENTE, CORONA, etc.)
+3. **Regla**: diente AUSENTE/EXTRAIDO bloquea edición de superficies
+4. **Undo**: stack de historial, Ctrl+Z revierte último cambio
+5. **Tooltip**: muestra número FDI + nombre + superficie + estado al hover
+
+## UI — 4 zonas
+
+1. **Header**: paciente (nombre, código, fecha), botones (undo, reset, guardar, cargar)
+2. **Panel herramientas (izquierda)**: selector modo, botones de estado, leyenda
+3. **Odontograma SVG (centro)**: las dos arcadas con 32 dientes
+4. **Panel resumen (derecha)**: hallazgos auto-generados, observaciones, estadísticas
+
+## Integración con Backend/BD
+
+Cuando se integre a un proyecto con base de datos:
+- Guardar: POST/PUT el JSON del modelo de datos al endpoint indicado por el usuario
+- Cargar: GET el JSON y poblar el odontograma con los datos recibidos
+- El campo `teeth` es el core — puede guardarse como JSON en un campo de BD o normalizado en tablas separadas
+- Vincular el odontograma a un paciente_id y visita_id del sistema del usuario
+- Cada guardado puede ser un registro histórico (visitas múltiples por paciente)
+
+## Referencia del proyecto original
+
+Proyecto de referencia: `d:\odontogramapro\` con archivos `index.html`, `styles.css`, `app.js`.

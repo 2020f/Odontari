@@ -1,0 +1,110 @@
+@model Odontari.Web.ViewModels.HistoriaClinicaSistematicaViewModel
+@{
+    var paciente = ViewBag.Paciente as Odontari.Web.Models.Paciente;
+    ViewData["Title"] = "Historia Clínica Sistemática - " + (paciente?.Nombre ?? "");
+}
+
+<h1>Historia Clínica Sistemática</h1>
+<p><strong>Paciente:</strong> @paciente?.Nombre @paciente?.Apellidos</p>
+<p><a asp-action="Index" asp-route-id="@Model.PacienteId">← Volver al Expediente</a></p>
+
+<form asp-action="HistoriaClinicaSistematica" asp-route-id="@Model.PacienteId" method="post">
+    <input type="hidden" asp-for="PacienteId" />
+    @Html.AntiForgeryToken()
+
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Antecedentes médicos</h4>
+            <table class="table table-sm">
+                <tr>
+                    <td>1. Alergias a medicamentos y/o anestésicos</td>
+                    <td>
+                        <label><input type="radio" asp-for="AlergiasMedicamentos" value="true" /> SÍ</label>
+                        <label class="ms-2"><input type="radio" asp-for="AlergiasMedicamentos" value="false" /> NO</label>
+                    </td>
+                </tr>
+                <tr><td>2. Cuáles</td><td><input asp-for="AlergiasCuales" class="form-control form-control-sm" placeholder="Especificar" /></td></tr>
+                <tr>
+                    <td>3. Asma bronquial</td>
+                    <td><label><input type="radio" asp-for="AsmaBronquial" value="true" /> SÍ</label> <label class="ms-2"><input type="radio" asp-for="AsmaBronquial" value="false" /> NO</label></td>
+                </tr>
+                <tr>
+                    <td>4. Convulsiones o epilepsia</td>
+                    <td><label><input type="radio" asp-for="ConvulsionesEpilepsia" value="true" /> SÍ</label> <label class="ms-2"><input type="radio" asp-for="ConvulsionesEpilepsia" value="false" /> NO</label></td>
+                </tr>
+                <tr>
+                    <td>5. Diabetes</td>
+                    <td><label><input type="radio" asp-for="Diabetes" value="true" /> SÍ</label> <label class="ms-2"><input type="radio" asp-for="Diabetes" value="false" /> NO</label></td>
+                </tr>
+                <tr>
+                    <td>6. Enfermedades cardíacas</td>
+                    <td><label><input type="radio" asp-for="EnfermedadesCardiacas" value="true" /> SÍ</label> <label class="ms-2"><input type="radio" asp-for="EnfermedadesCardiacas" value="false" /> NO</label></td>
+                </tr>
+                <tr>
+                    <td>7. Embarazo (cuántas semanas)</td>
+                    <td>
+                        <label><input type="radio" asp-for="Embarazo" value="true" /> SÍ</label> <label class="ms-2"><input type="radio" asp-for="Embarazo" value="false" /> NO</label>
+                        <input asp-for="EmbarazoSemanas" type="number" class="form-control form-control-sm d-inline-block w-auto ms-2" placeholder="semanas" style="max-width:80px" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>8. Enfermedades venéreas, sífilis, SIDA</td>
+                    <td><label><input type="radio" asp-for="EnfermedadesVenereas" value="true" /> SÍ</label> <label class="ms-2"><input type="radio" asp-for="EnfermedadesVenereas" value="false" /> NO</label></td>
+                </tr>
+                <tr>
+                    <td>9. Fiebre reumática</td>
+                    <td><label><input type="radio" asp-for="FiebreReumatica" value="true" /> SÍ</label> <label class="ms-2"><input type="radio" asp-for="FiebreReumatica" value="false" /> NO</label></td>
+                </tr>
+                <tr>
+                    <td>10. Hepatitis (en caso afirmativo cuál)</td>
+                    <td>
+                        <label><input type="radio" asp-for="Hepatitis" value="true" /> SÍ</label> <label class="ms-2"><input type="radio" asp-for="Hepatitis" value="false" /> NO</label>
+                        <input asp-for="HepatitisCual" class="form-control form-control-sm d-inline-block ms-2" placeholder="Especificar" style="max-width:150px" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <h4>&nbsp;</h4>
+            <table class="table table-sm">
+                <tr>
+                    <td>11. Problemas neurológicos</td>
+                    <td><label><input type="radio" asp-for="ProblemasNeurologicos" value="true" /> SÍ</label> <label class="ms-2"><input type="radio" asp-for="ProblemasNeurologicos" value="false" /> NO</label></td>
+                </tr>
+                <tr>
+                    <td>12. Problemas renales</td>
+                    <td><label><input type="radio" asp-for="ProblemasRenales" value="true" /> SÍ</label> <label class="ms-2"><input type="radio" asp-for="ProblemasRenales" value="false" /> NO</label></td>
+                </tr>
+                <tr>
+                    <td>13. Problemas sinusales</td>
+                    <td><label><input type="radio" asp-for="ProblemasSinusales" value="true" /> SÍ</label> <label class="ms-2"><input type="radio" asp-for="ProblemasSinusales" value="false" /> NO</label></td>
+                </tr>
+                <tr>
+                    <td>14. Sangrado excesivo</td>
+                    <td><label><input type="radio" asp-for="SangradoExcesivo" value="true" /> SÍ</label> <label class="ms-2"><input type="radio" asp-for="SangradoExcesivo" value="false" /> NO</label></td>
+                </tr>
+                <tr>
+                    <td>15. Trastornos psiquiátricos</td>
+                    <td><label><input type="radio" asp-for="TrastornosPsiquiatricos" value="true" /> SÍ</label> <label class="ms-2"><input type="radio" asp-for="TrastornosPsiquiatricos" value="false" /> NO</label></td>
+                </tr>
+                <tr>
+                    <td>16. Trastornos digestivos</td>
+                    <td><label><input type="radio" asp-for="TrastornosDigestivos" value="true" /> SÍ</label> <label class="ms-2"><input type="radio" asp-for="TrastornosDigestivos" value="false" /> NO</label></td>
+                </tr>
+                <tr>
+                    <td>17. Tumores benignos y/o malignos</td>
+                    <td><label><input type="radio" asp-for="TumoresBenignosMalignos" value="true" /> SÍ</label> <label class="ms-2"><input type="radio" asp-for="TumoresBenignosMalignos" value="false" /> NO</label></td>
+                </tr>
+                <tr><td>18. Cuáles</td><td><input asp-for="TumoresCuales" class="form-control form-control-sm" placeholder="Especificar" /></td></tr>
+                <tr>
+                    <td>19. Trastornos respiratorios</td>
+                    <td><label><input type="radio" asp-for="TrastornosRespiratorios" value="true" /> SÍ</label> <label class="ms-2"><input type="radio" asp-for="TrastornosRespiratorios" value="false" /> NO</label></td>
+                </tr>
+                <tr><td>20. Cuáles</td><td><input asp-for="TrastornosRespiratoriosCuales" class="form-control form-control-sm" placeholder="Especificar" /></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" asp-route-id="@Model.PacienteId" class="btn btn-outline-secondary">Cancelar</a>
+</form>

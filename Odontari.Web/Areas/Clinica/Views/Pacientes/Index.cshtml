@@ -21,7 +21,11 @@
                 <td>@p.Cedula</td>
                 <td>@p.Telefono</td>
                 <td>@(p.Activo ? "Sí" : "No")</td>
-                <td><a asp-action="Edit" asp-route-id="@p.Id">Editar</a></td>
+                <td>
+                <a asp-controller="Expediente" asp-action="Index" asp-route-id="@p.Id">Expediente</a>
+                |
+                <a asp-action="Edit" asp-route-id="@p.Id">Editar</a>
+            </td>
             </tr>
         }
     </tbody>

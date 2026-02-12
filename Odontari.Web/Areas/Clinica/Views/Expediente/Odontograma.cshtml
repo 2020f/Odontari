@@ -1,0 +1,63 @@
+@{
+    var paciente = ViewBag.Paciente as Odontari.Web.Models.Paciente;
+    var estadoJson = ViewBag.EstadoJson as string ?? "{}";
+    var pacienteId = paciente?.Id ?? 0;
+    ViewData["Title"] = "Odontograma - " + (paciente?.Nombre ?? "");
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/odontograma.css" asp-append-version="true" />
+}
+
+<h1>Odontograma: @paciente?.Nombre @paciente?.Apellidos</h1>
+<p><a asp-action="Index" asp-route-id="@pacienteId">← Volver al Expediente</a></p>
+
+<div class="odontograma-container">
+  <div class="odontograma-tools">
+    <h5>Herramientas</h5>
+    <div class="mb-2">
+      <label>Modo:</label>
+      <div>
+        <input type="radio" name="modo" id="modoSuperficie" value="superficie" />
+        <label for="modoSuperficie">Superficie</label>
+      </div>
+      <div>
+        <input type="radio" name="modo" id="modoDiente" value="diente" checked />
+        <label for="modoDiente">Diente</label>
+      </div>
+    </div>
+    <div id="panelSuperficie" class="mb-2" style="display:none">
+      <label>Estado superficie:</label>
+      <div>
+        <button type="button" class="btn btn-sm btn-state surf-NONE" data-state="NONE">Ninguno</button>
+        <button type="button" class="btn btn-sm btn-state surf-CARIES" data-state="CARIES">Caries</button>
+        <button type="button" class="btn btn-sm btn-state surf-OBTURACION" data-state="OBTURACION">Obturación</button>
+        <button type="button" class="btn btn-sm btn-state surf-SELLANTE" data-state="SELLANTE">Sellante</button>
+        <button type="button" class="btn btn-sm btn-state surf-FRACTURA" data-state="FRACTURA">Fractura</button>
+      </div>
+    </div>
+    <div id="panelDiente" class="mb-2">
+      <label>Estado diente:</label>
+      <div>
+        <button type="button" class="btn btn-sm btn-state tooth-NONE" data-state="NONE">Normal</button>
+        <button type="button" class="btn btn-sm btn-state tooth-AUSENTE" data-state="AUSENTE">Ausente</button>
+        <button type="button" class="btn btn-sm btn-state tooth-EXTRAIDO" data-state="EXTRAIDO">Extraído</button>
+        <button type="button" class="btn btn-sm btn-state tooth-CORONA" data-state="CORONA">Corona</button>
+        <button type="button" class="btn btn-sm btn-state tooth-ENDODONCIA" data-state="ENDODONCIA">Endodoncia</button>
+        <button type="button" class="btn btn-sm btn-state tooth-IMPLANTE" data-state="IMPLANTE">Implante</button>
+        <button type="button" class="btn btn-sm btn-state tooth-PROTESIS" data-state="PROTESIS">Prótesis</button>
+      </div>
+    </div>
+    <button type="button" class="btn btn-primary" id="btnGuardar">Guardar</button>
+    <span id="guardarMsg" class="ms-2 text-muted small"></span>
+  </div>
+  <div class="odontograma-svg-wrap">
+    <svg id="odontogramaSvg" class="odontograma-svg" width="800" height="420" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+</div>
+
+<input type="hidden" id="pacienteId" value="@pacienteId" />
+<input type="hidden" id="estadoInicial" value="@Html.Raw(estadoJson)" />
+
+@section Scripts {
+    <script src="~/js/odontograma.js" asp-append-version="true"></script>
+}

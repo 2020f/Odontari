@@ -56,7 +56,7 @@ public class PacientesController : Controller
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
         if (ModelState.IsValid)
         {
-            _db.Pacientes.Add(new Paciente
+            var paciente = new Paciente
             {
                 ClinicaId = cid.Value,
                 Nombre = vm.Nombre,
@@ -69,8 +69,21 @@ public class PacientesController : Controller
                 Alergias = vm.Alergias,
                 NotasClinicas = vm.NotasClinicas,
                 Activo = vm.Activo
+            };
+            _db.Pacientes.Add(paciente);
+            await _db.SaveChangesAsync();
+
+            // Historial inicial: evento "Creación de expediente"
+            _db.HistorialClinico.Add(new HistorialClinico
+            {
+                PacienteId = paciente.Id,
+                ClinicaId = cid.Value,
+                FechaEvento = DateTime.UtcNow,
+                TipoEvento = "Creación de expediente",
+                Descripcion = "Paciente registrado en el sistema"
             });
             await _db.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
         return View(vm);

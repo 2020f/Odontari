@@ -21,6 +21,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<OrdenCobro> OrdenesCobro => Set<OrdenCobro>();
     public DbSet<Pago> Pagos => Set<Pago>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<Odontograma> Odontogramas => Set<Odontograma>();
+    public DbSet<HistorialClinico> HistorialClinico => Set<HistorialClinico>();
+    public DbSet<HistoriaClinicaSistematica> HistoriasClinicasSistematicas => Set<HistoriaClinicaSistematica>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -91,6 +94,23 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             b.Property(a => a.Accion).HasMaxLength(100);
             b.Property(a => a.Entidad).HasMaxLength(100);
             b.Property(a => a.EntidadId).HasMaxLength(50);
+        });
+
+        builder.Entity<Odontograma>(b =>
+        {
+            b.HasOne(o => o.Paciente).WithMany(p => p.Odontogramas).HasForeignKey(o => o.PacienteId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(o => o.Clinica).WithMany(c => c.Odontogramas).HasForeignKey(o => o.ClinicaId).OnDelete(DeleteBehavior.Restrict);
+        });
+        builder.Entity<HistorialClinico>(b =>
+        {
+            b.Property(h => h.TipoEvento).HasMaxLength(100);
+            b.HasOne(h => h.Paciente).WithMany(p => p.HistorialClinico).HasForeignKey(h => h.PacienteId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(h => h.Clinica).WithMany(c => c.HistorialClinico).HasForeignKey(h => h.ClinicaId).OnDelete(DeleteBehavior.Restrict);
+        });
+        builder.Entity<HistoriaClinicaSistematica>(b =>
+        {
+            b.HasOne(h => h.Paciente).WithOne(p => p.HistoriaClinicaSistematica).HasForeignKey<HistoriaClinicaSistematica>(h => h.PacienteId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(h => h.Clinica).WithMany(c => c.HistoriasClinicasSistematicas).HasForeignKey(h => h.ClinicaId).OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
