@@ -190,7 +190,19 @@
     const hallazgosEl = document.getElementById('hallazgosAt');
     const statH = document.getElementById('statHallazgosAt');
     const statD = document.getElementById('statDientesAt');
-    if (hallazgosEl) hallazgosEl.textContent = hallazgos.length ? hallazgos.join('\n') : 'Sin hallazgos registrados.';
+    if (hallazgosEl) {
+      hallazgosEl.textContent = '';
+      if (hallazgos.length) {
+        hallazgos.forEach(h => {
+          const d = document.createElement('div');
+          d.className = 'hallazgo-item';
+          d.textContent = h;
+          hallazgosEl.appendChild(d);
+        });
+      } else {
+        hallazgosEl.textContent = 'Sin hallazgos registrados.';
+      }
+    }
     if (statH) statH.textContent = hallazgos.length;
     if (statD) statD.textContent = dientesAfectados.size;
   }

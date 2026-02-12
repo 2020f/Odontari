@@ -82,7 +82,7 @@
 /* === Odontograma 3 zonas (odontogramapro) === */
 .odontograma-pro {
   display: grid;
-  grid-template-columns: 220px 1fr 260px;
+  grid-template-columns: 220px minmax(0, 1fr) minmax(280px, 320px);
   gap: 0;
   min-height: 520px;
   background: var(--odon-card);
@@ -284,6 +284,12 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  min-width: 0;
+  overflow: visible;
+}
+
+.odontograma-panel-right > div {
+  min-width: 0;
 }
 
 .odontograma-panel-right h6 {
@@ -298,12 +304,34 @@
 .hallazgos-list {
   min-height: 80px;
   font-size: 0.85rem;
-  color: var(--odon-text-muted);
+  color: var(--odon-text);
+  line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  background: white;
+  border: 1px solid var(--odon-border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.hallazgos-list .hallazgo-item {
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--odon-border);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.hallazgos-list .hallazgo-item:last-child {
+  border-bottom: none;
 }
 
 .odontograma-observaciones {
   flex: 1;
   min-height: 100px;
+  width: 100%;
+  box-sizing: border-box;
   resize: vertical;
   border: 1px solid var(--odon-border);
   border-radius: 8px;
@@ -313,7 +341,7 @@
 
 .odontograma-stats {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 0.5rem;
 }
 
@@ -323,6 +351,7 @@
   padding: 0.75rem;
   border-radius: 8px;
   text-align: center;
+  min-width: 0;
 }
 
 .odontograma-stat .number { font-size: 1.25rem; font-weight: 700; }
@@ -358,7 +387,7 @@
 
 /* Responsive */
 @media (max-width: 1200px) {
-  .odontograma-pro { grid-template-columns: 200px 1fr 220px; }
+  .odontograma-pro { grid-template-columns: 200px minmax(0, 1fr) minmax(260px, 300px); }
 }
 @media (max-width: 992px) {
   .odontograma-pro { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
