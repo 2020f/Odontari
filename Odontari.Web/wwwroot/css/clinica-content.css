@@ -70,3 +70,70 @@
   box-shadow: 0 0 0 3px rgba(78,142,162,0.15);
 }
 .clinica-content .content-empty { padding: 2rem; text-align: center; color: #8a9ba8; font-size: 0.95rem; }
+
+/* Expediente — vista profesional */
+.expediente-header {
+  margin-bottom: 1.5rem;
+}
+.expediente-header .expediente-title { margin: 0; font-size: 1.5rem; font-weight: 600; color: var(--odon); }
+.expediente-header .expediente-sub { font-size: 0.95rem; color: #5a6c7d; margin-top: 0.25rem; }
+.expediente-header .expediente-actions { margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.expediente-alert {
+  border-radius: 10px;
+  border: 1px solid rgba(230,162,60,0.4);
+  background: rgba(230,162,60,0.08);
+  color: #856404;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+}
+.expediente-tabs {
+  border-bottom: 2px solid rgba(0,29,57,0.08);
+  margin-bottom: 0;
+  gap: 0;
+}
+.expediente-tabs .nav-link {
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #5a6c7d;
+  font-weight: 500;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: -2px;
+  border-radius: 0;
+  transition: color 0.2s, border-color 0.2s;
+}
+.expediente-tabs .nav-link:hover { color: var(--odon-accent); }
+.expediente-tabs .nav-link.active {
+  color: var(--odon-accent);
+  border-bottom-color: var(--odon-accent);
+  background: transparent;
+}
+.expediente-tab-content {
+  padding: 1.5rem 0 0;
+}
+.expediente-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--odon);
+  margin-bottom: 1rem;
+}
+.expediente-datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem 2rem;
+}
+.expediente-datos .datos-item {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(0,29,57,0.06);
+}
+.expediente-datos .datos-item:last-child { border-bottom: none; }
+.expediente-datos .datos-label { font-size: 0.8rem; font-weight: 600; color: #5a6c7d; text-transform: uppercase; letter-spacing: 0.02em; }
+.expediente-datos .datos-value { font-size: 1rem; color: var(--odon); margin-top: 0.2rem; }
+.expediente-actions-block { margin-top: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.expediente-actions-block .btn { border-radius: 8px; font-weight: 500; }
+.expediente-actions-block .btn-primary { background: var(--odon-accent); border-color: var(--odon-accent); }
+.expediente-actions-block .btn-primary:hover { background: var(--odon-light); border-color: var(--odon-light); }
+.expediente-actions-block .btn-outline-secondary { border-color: rgba(0,29,57,0.2); color: var(--odon); }
+.expediente-actions-block .btn-outline-secondary:hover { background: var(--odon-pale); border-color: var(--odon-accent); color: var(--odon-hover); }
+.expediente-historial .table { font-size: 0.9rem; }
+.expediente-historial .table thead th { background: rgba(0,29,57,0.03); }
+.expediente-empty { color: #8a9ba8; font-size: 0.9rem; padding: 1rem 0; }

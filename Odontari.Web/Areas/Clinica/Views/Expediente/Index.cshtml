@@ -4,18 +4,20 @@
     ViewData["Title"] = "Expediente - " + Model.Nombre;
 }
 
-<h1>Expediente: @Model.Nombre @Model.Apellidos</h1>
-<p class="text-muted">@Model.Cedula | @Model.Telefono</p>
-<p><a asp-controller="Pacientes" asp-action="Index">← Volver a Pacientes</a></p>
+<div class="expediente-header">
+    <a asp-controller="Pacientes" asp-action="Index" class="btn-content-secondary mb-2" style="display: inline-flex; align-items: center; gap: 0.35rem;">← Volver a Pacientes</a>
+    <h1 class="expediente-title">@Model.Nombre @Model.Apellidos</h1>
+    <p class="expediente-sub mb-0">@(Model.Cedula ?? "—") @(Model.Telefono != null ? " · " + Model.Telefono : "")</p>
+</div>
 
 @if (!string.IsNullOrEmpty(Model.Alergias))
 {
-    <div class="alert alert-warning">
+    <div class="expediente-alert">
         <strong>Alergias:</strong> @Model.Alergias
     </div>
 }
 
-<ul class="nav nav-tabs mb-3" role="tablist">
+<ul class="nav expediente-tabs" role="tablist">
     <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#resumen">Resumen</a></li>
     <li class="nav-item"><a class="nav-link" asp-action="Histograma" asp-route-id="@Model.PacienteId">Histograma</a></li>
     <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#historial">Historial</a></li>
@@ -23,44 +25,63 @@
     <li class="nav-item"><a class="nav-link" asp-action="HistoriaClinicaSistematica" asp-route-id="@Model.PacienteId">Historia Clínica Sistemática</a></li>
 </ul>
 
-<div class="tab-content">
+<div class="tab-content expediente-tab-content">
     <div id="resumen" class="tab-pane fade show active">
-        <h3>Datos generales</h3>
-        <dl class="row">
-            <dt class="col-sm-2">Nombre</dt>
-            <dd class="col-sm-10">@Model.Nombre @Model.Apellidos</dd>
-            <dt class="col-sm-2">Cédula</dt>
-            <dd class="col-sm-10">@(Model.Cedula ?? "—")</dd>
-            <dt class="col-sm-2">Teléfono</dt>
-            <dd class="col-sm-10">@(Model.Telefono ?? "—")</dd>
-            <dt class="col-sm-2">Alergias</dt>
-            <dd class="col-sm-10">@(Model.Alergias ?? "Ninguna registrada")</dd>
-            <dt class="col-sm-2">Notas clínicas</dt>
-            <dd class="col-sm-10">@(Model.NotasClinicas ?? "—")</dd>
-        </dl>
-        <p>
-            <a asp-action="Odontograma" asp-route-id="@Model.PacienteId" class="btn btn-primary">Abrir Odontograma</a>
-            <a asp-action="HistoriaClinicaSistematica" asp-route-id="@Model.PacienteId" class="btn btn-outline-secondary">Historia Clínica Sistemática</a>
-        </p>
+        <div class="content-card" style="padding: 1.5rem;">
+            <h2 class="expediente-section-title">Datos generales</h2>
+            <div class="expediente-datos">
+                <div class="datos-item">
+                    <div class="datos-label">Nombre</div>
+                    <div class="datos-value">@Model.Nombre @Model.Apellidos</div>
+                </div>
+                <div class="datos-item">
+                    <div class="datos-label">Cédula</div>
+                    <div class="datos-value">@(Model.Cedula ?? "—")</div>
+                </div>
+                <div class="datos-item">
+                    <div class="datos-label">Teléfono</div>
+                    <div class="datos-value">@(Model.Telefono ?? "—")</div>
+                </div>
+                <div class="datos-item">
+                    <div class="datos-label">Alergias</div>
+                    <div class="datos-value">@(Model.Alergias ?? "Ninguna registrada")</div>
+                </div>
+                <div class="datos-item">
+                    <div class="datos-label">Notas clínicas</div>
+                    <div class="datos-value">@(Model.NotasClinicas ?? "—")</div>
+                </div>
+            </div>
+            <div class="expediente-actions-block">
+                <a asp-action="Odontograma" asp-route-id="@Model.PacienteId" class="btn btn-primary">Abrir Odontograma</a>
+                <a asp-action="HistoriaClinicaSistematica" asp-route-id="@Model.PacienteId" class="btn btn-outline-secondary">Historia Clínica Sistemática</a>
+            </div>
+        </div>
     </div>
     <div id="historial" class="tab-pane fade">
-        <h3>Historial clínico (últimos 20 eventos)</h3>
-        <table class="table table-sm">
-            <thead><tr><th>Fecha</th><th>Tipo</th><th>Descripción</th></tr></thead>
-            <tbody>
-                @foreach (var h in Model.Historial)
-                {
-                    <tr>
-                        <td>@h.FechaEvento.ToString("dd/MM/yyyy HH:mm")</td>
-                        <td>@h.TipoEvento</td>
-                        <td>@(h.Descripcion ?? "—")</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-        @if (!Model.Historial.Any())
-        {
-            <p class="text-muted">No hay eventos registrados.</p>
-        }
+        <div class="content-card">
+            <div style="padding: 1rem 1.25rem 0;">
+                <h2 class="expediente-section-title">Historial clínico (últimos 20 eventos)</h2>
+            </div>
+            @if (Model.Historial.Any())
+            {
+                <table class="table expediente-historial">
+                    <thead><tr><th>Fecha</th><th>Tipo</th><th>Descripción</th></tr></thead>
+                    <tbody>
+                        @foreach (var h in Model.Historial)
+                        {
+                            <tr>
+                                <td>@h.FechaEvento.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@h.TipoEvento</td>
+                                <td>@(h.Descripcion ?? "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="expediente-empty" style="padding: 1.5rem 1.25rem;">No hay eventos registrados.</div>
+            }
+        </div>
     </div>
 </div>
