@@ -4,27 +4,46 @@
     var doctores = ViewBag.Doctores as IEnumerable<dynamic>;
     ViewData["Title"] = "Nueva cita";
 }
+@section Styles {
+    <link rel="stylesheet" href="~/css/agenda.css" asp-append-version="true" />
+}
 
-<h1>Nueva cita</h1>
-<form asp-action="Create" method="post">
-    <div class="form-group">
-        <label asp-for="PacienteId"></label>
-        <select asp-for="PacienteId" class="form-control" required asp-items="@(new SelectList(pacientes ?? new List<dynamic>(), "Id", "Nombre"))"></select>
+<div class="agenda-page">
+    <div class="agenda-header mb-4">
+        <h1>Nueva cita</h1>
+        <a asp-action="Index" asp-route-fecha="@Model.FechaHora.Date" class="btn-nueva-cita" style="background: transparent; color: var(--odon-accent); border: 1px solid var(--odon-accent);">
+            ← Volver a Agenda
+        </a>
     </div>
-    <div class="form-group">
-        <label asp-for="DoctorId"></label>
-        <select asp-for="DoctorId" class="form-control" required asp-items="@(new SelectList(doctores ?? new List<dynamic>(), "Id", "Nombre"))"></select>
+    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+    <div class="form-agenda-card">
+        <form asp-action="Create" method="post">
+            <div class="mb-3">
+                <label asp-for="PacienteId" class="form-label">Paciente</label>
+                <select asp-for="PacienteId" class="form-select" required asp-items="@(new SelectList(pacientes ?? new List<dynamic>(), "Id", "Nombre"))">
+                    <option value="">-- Seleccione paciente --</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label asp-for="DoctorId" class="form-label">Doctor</label>
+                <select asp-for="DoctorId" class="form-select" required asp-items="@(new SelectList(doctores ?? new List<dynamic>(), "Id", "Nombre"))">
+                    <option value="">-- Seleccione doctor --</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label asp-for="FechaHora" class="form-label">Fecha y hora</label>
+                <input asp-for="FechaHora" type="datetime-local" class="form-control" />
+                <span asp-validation-for="FechaHora" class="text-danger"></span>
+            </div>
+            <div class="mb-4">
+                <label asp-for="Motivo" class="form-label">Motivo / Procedimiento</label>
+                <input asp-for="Motivo" class="form-control" placeholder="Ej. Limpieza general, Revisión" />
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Guardar cita</button>
+                <a asp-action="Index" asp-route-fecha="@Model.FechaHora.Date" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-        <label asp-for="FechaHora"></label>
-        <input asp-for="FechaHora" type="datetime-local" class="form-control" />
-        <span asp-validation-for="FechaHora"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Motivo"></label>
-        <input asp-for="Motivo" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-</form>
+</div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

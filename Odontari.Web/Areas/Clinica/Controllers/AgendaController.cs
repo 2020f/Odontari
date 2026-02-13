@@ -43,6 +43,17 @@ public class AgendaController : Controller
         var doctorIds = await _db.UserRoles.Where(ur => ur.RoleId == roleDoctorId).Select(ur => ur.UserId).ToListAsync();
         ViewBag.Doctores = await _db.Users.Where(u => u.ClinicaId == cid && doctorIds.Contains(u.Id)).Select(u => new { u.Id, NombreCompleto = u.NombreCompleto, Email = u.Email }).ToListAsync();
         ViewBag.DoctorIdSel = doctorId;
+        // Resumen del día (todas las citas del día, cualquier estado, mismo filtro doctor)
+        var queryResumen = _db.Citas.Where(c => c.ClinicaId == cid && c.FechaHora >= inicio && c.FechaHora < fin);
+        if (!string.IsNullOrEmpty(doctorId)) queryResumen = queryResumen.Where(c => c.DoctorId == doctorId);
+        var todasDelDia = await queryResumen.ToListAsync();
+        ViewBag.ResumenTotal = todasDelDia.Count;
+        ViewBag.ResumenSolicitada = todasDelDia.Count(c => c.Estado == EstadoCita.Solicitada);
+        ViewBag.ResumenConfirmada = todasDelDia.Count(c => c.Estado == EstadoCita.Confirmada);
+        ViewBag.ResumenEnSala = todasDelDia.Count(c => c.Estado == EstadoCita.EnSala);
+        ViewBag.ResumenEnAtencion = todasDelDia.Count(c => c.Estado == EstadoCita.EnAtencion);
+        ViewBag.ResumenFinalizada = todasDelDia.Count(c => c.Estado == EstadoCita.Finalizada);
+        ViewBag.ResumenCancelada = todasDelDia.Count(c => c.Estado == EstadoCita.Cancelada);
         var list = citas.Select(c => new CitaListViewModel
         {
             Id = c.Id,
