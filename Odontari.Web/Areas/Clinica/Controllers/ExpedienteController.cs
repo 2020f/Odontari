@@ -176,6 +176,33 @@ public class ExpedienteController : Controller
         return View(vm);
     }
 
+    /// <summary>Extrae la lista de hallazgos del JSON del odontograma (formato "Diente X (superficie): ESTADO" o "Diente X: ESTADO").</summary>
+    private static List<string> GetListaHallazgosFromEstadoJson(string? estadoJson)
+    {
+        var lista = new List<string>();
+        if (string.IsNullOrWhiteSpace(estadoJson)) return lista;
+        try
+        {
+            using var doc = JsonDocument.Parse(estadoJson);
+            if (!doc.RootElement.TryGetProperty("teeth", out var teethEl)) return lista;
+            foreach (var prop in teethEl.EnumerateObject())
+            {
+                if (!int.TryParse(prop.Name, out var num)) continue;
+                var tooth = prop.Value;
+                var status = tooth.TryGetProperty("status", out var s) ? s.GetString() ?? "NONE" : "NONE";
+                if (!string.IsNullOrEmpty(status) && status != "NONE")
+                    lista.Add($"Diente {num}: {status}");
+                else if (tooth.TryGetProperty("surfaces", out var surfEl))
+                    foreach (var sp in surfEl.EnumerateObject())
+                        if (sp.Value.GetString() is string v && !string.IsNullOrEmpty(v) && v != "NONE")
+                            lista.Add($"Diente {num} ({sp.Name}): {v}");
+            }
+            lista = lista.OrderBy(x => x).ToList();
+        }
+        catch { /* ignore */ }
+        return lista;
+    }
+
     private static ResumenOdontogramaViewModel ParseResumenOdontograma(string? estadoJson)
     {
         var resumen = new ResumenOdontogramaViewModel();
@@ -185,7 +212,6 @@ public class ExpedienteController : Controller
             using var doc = JsonDocument.Parse(estadoJson);
             if (!doc.RootElement.TryGetProperty("teeth", out var teethEl)) return resumen;
             var dientesConHallazgo = new List<int>();
-            var listaHallazgos = new List<string>();
             foreach (var prop in teethEl.EnumerateObject())
             {
                 if (!int.TryParse(prop.Name, out var num)) continue;
@@ -204,16 +230,9 @@ public class ExpedienteController : Controller
                 else if (estadoPrincipal == "AUSENTE" || estadoPrincipal == "EXTRAIDO") resumen.Ausentes++;
                 else if (estadoPrincipal == "ENDODONCIA") resumen.Endodoncia++;
                 else resumen.Otros++;
-                // Lista de hallazgos (mismo formato que en el odontograma: "Diente X (superficie): ESTADO" o "Diente X: ESTADO")
-                if (!string.IsNullOrEmpty(status) && status != "NONE")
-                    listaHallazgos.Add($"Diente {num}: {status}");
-                else if (tooth.TryGetProperty("surfaces", out var surfEl))
-                    foreach (var sp in surfEl.EnumerateObject())
-                        if (sp.Value.GetString() is string v && !string.IsNullOrEmpty(v) && v != "NONE")
-                            listaHallazgos.Add($"Diente {num} ({sp.Name}): {v}");
             }
             resumen.UltimosDientesConHallazgo = dientesConHallazgo.OrderBy(x => x).Take(20).ToList();
-            resumen.ListaHallazgos = listaHallazgos.OrderBy(x => x).ToList();
+            resumen.ListaHallazgos = GetListaHallazgosFromEstadoJson(estadoJson);
         }
         catch { /* ignore parse errors */ }
         return resumen;
@@ -295,14 +314,18 @@ public class ExpedienteController : Controller
 
         await _db.SaveChangesAsync();
 
-        // Registrar evento en historial
+        // Registrar evento en historial con la lista de hallazgos (cambios realizados) para poder ver "lo que se hizo"
+        var listaHallazgos = GetListaHallazgosFromEstadoJson(estadoJson);
+        var descripcion = listaHallazgos.Count > 0
+            ? "Odontograma actualizado" + "\n" + string.Join("\n", listaHallazgos)
+            : "Odontograma actualizado";
         _db.HistorialClinico.Add(new HistorialClinico
         {
             PacienteId = pacienteId,
             ClinicaId = cid.Value,
             FechaEvento = DateTime.UtcNow,
             TipoEvento = "Actualización odontograma",
-            Descripcion = "Odontograma actualizado",
+            Descripcion = descripcion,
             UsuarioId = UserId
         });
         await _db.SaveChangesAsync();
@@ -322,7 +345,11 @@ public class ExpedienteController : Controller
         ViewBag.PacienteId = pacienteId;
         ViewBag.FechaEvento = ev.FechaEvento;
         ViewBag.TipoEvento = ev.TipoEvento;
-        ViewBag.Descripcion = ev.Descripcion ?? "—";
+        var desc = ev.Descripcion ?? "—";
+        ViewBag.Descripcion = desc;
+        // Si la descripción tiene varias líneas (ej. "Odontograma actualizado" + lista de hallazgos), pasamos las líneas para mostrar el detalle como en Resumen odontograma
+        var lineas = desc.Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList();
+        ViewBag.DescripcionLineas = lineas;
         return View();
     }
 

@@ -4,6 +4,10 @@
     var fecha = ViewBag.FechaEvento as DateTime?;
     var tipo = ViewBag.TipoEvento as string;
     var desc = ViewBag.Descripcion as string;
+    var lineas = ViewBag.DescripcionLineas as List<string> ?? new List<string>();
+    var tieneListaHallazgos = lineas.Count > 1;
+    var descripcionResumen = tieneListaHallazgos ? lineas[0] : (desc ?? "—");
+    var listaCambios = tieneListaHallazgos ? lineas.Skip(1).ToList() : new List<string>();
 }
 
 <h1>Detalle del evento</h1>
@@ -16,8 +20,19 @@
             <dt class="col-sm-3">Tipo de evento</dt>
             <dd class="col-sm-9">@(tipo ?? "—")</dd>
             <dt class="col-sm-3">Descripción</dt>
-            <dd class="col-sm-9">@(desc ?? "—")</dd>
+            <dd class="col-sm-9">@descripcionResumen</dd>
         </dl>
+        @if (tieneListaHallazgos && listaCambios.Any())
+        {
+            <hr class="my-3" />
+            <h6 class="mb-2">Cambios realizados (hallazgos en esta actualización)</h6>
+            <div class="hallazgos-list-resumen border rounded p-2 bg-light" style="max-height: 280px; overflow-y: auto;">
+                @foreach (var h in listaCambios)
+                {
+                    <div class="hallazgo-item small py-1">@h</div>
+                }
+            </div>
+        }
     </div>
 </div>
 
