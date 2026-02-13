@@ -1,13 +1,26 @@
 @{
     var pacienteId = (int?)ViewBag.PacienteIdExpediente ?? 0;
     var activa = ViewBag.SeccionActivaExpediente as string ?? "resumen";
+    var citaId = ViewBag.CitaId as int?;
 }
 <nav class="expediente-nav-menu mb-0">
+    <div class="expediente-nav-actions">
+        <a asp-controller="Pacientes" asp-action="Index" class="expediente-nav-btn expediente-nav-btn-back">
+            <span aria-hidden="true">←</span> Volver a Pacientes
+        </a>
+        @if (citaId.HasValue)
+        {
+            <a asp-controller="Atencion" asp-action="Expediente" asp-route-id="@citaId.Value" class="expediente-nav-btn expediente-nav-btn-procedimientos">
+                <span class="expediente-nav-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
+                Ir a Procedimientos
+            </a>
+        }
+    </div>
     <ul class="nav expediente-tabs" role="tablist">
-        <li class="nav-item"><a class="nav-link @(activa == "resumen" ? "active" : "")" asp-action="Index" asp-route-id="@pacienteId">Resumen</a></li>
-        <li class="nav-item"><a class="nav-link @(activa == "histograma" ? "active" : "")" asp-action="Histograma" asp-route-id="@pacienteId">Histograma</a></li>
-        <li class="nav-item"><a class="nav-link @(activa == "historial" ? "active" : "")" asp-action="Index" asp-route-id="@pacienteId" asp-route-tab="historial">Historial</a></li>
-        <li class="nav-item"><a class="nav-link @(activa == "odontograma" ? "active" : "")" asp-action="Odontograma" asp-route-id="@pacienteId">Odontograma</a></li>
-        <li class="nav-item"><a class="nav-link @(activa == "hcs" ? "active" : "")" asp-action="HistoriaClinicaSistematica" asp-route-id="@pacienteId">Historia Clínica Sistemática</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "resumen" ? "active" : "")" asp-action="Index" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Resumen</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "histograma" ? "active" : "")" asp-action="Histograma" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Histograma</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "historial" ? "active" : "")" asp-action="Index" asp-route-id="@pacienteId" asp-route-tab="historial" asp-route-citaId="@citaId">Historial</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "odontograma" ? "active" : "")" asp-action="Odontograma" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Odontograma</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "hcs" ? "active" : "")" asp-action="HistoriaClinicaSistematica" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Historia Clínica Sistemática</a></li>
     </ul>
 </nav>

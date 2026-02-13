@@ -86,6 +86,51 @@
   padding: 0.75rem 1rem;
   margin-bottom: 1.25rem;
 }
+.expediente-nav-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.expediente-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.expediente-nav-btn-back {
+  background: #fff;
+  border: 1px solid rgba(0, 29, 57, 0.2);
+  color: #5a6c7d;
+}
+.expediente-nav-btn-back:hover {
+  background: rgba(0, 29, 57, 0.04);
+  border-color: rgba(0, 29, 57, 0.3);
+  color: var(--odon);
+}
+.expediente-nav-btn-procedimientos {
+  background: var(--odon-accent);
+  border: none;
+  color: #fff;
+}
+.expediente-nav-btn-procedimientos:hover {
+  background: var(--odon-light);
+  color: #fff;
+}
+.expediente-nav-btn-icon {
+  display: inline-flex;
+}
+.expediente-nav-btn-icon svg {
+  width: 17px;
+  height: 17px;
+}
+
 .expediente-tabs {
   border-bottom: 2px solid rgba(0,29,57,0.08);
   margin-bottom: 0;

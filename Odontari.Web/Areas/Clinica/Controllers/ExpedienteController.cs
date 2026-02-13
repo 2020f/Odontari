@@ -27,10 +27,11 @@ public class ExpedienteController : Controller
     private string? UserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
     /// <summary>Vista principal del expediente del paciente con tabs.</summary>
-    public async Task<IActionResult> Index(int id)
+    public async Task<IActionResult> Index(int id, int? citaId)
     {
         var cid = ClinicaId;
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
+        ViewBag.CitaId = citaId;
         var paciente = await _db.Pacientes
             .Include(p => p.Clinica)
             .FirstOrDefaultAsync(p => p.ClinicaId == cid && p.Id == id);
@@ -246,7 +247,7 @@ public class ExpedienteController : Controller
 
     /// <summary>Odontograma del paciente.</summary>
     [HttpGet]
-    public async Task<IActionResult> Odontograma(int id)
+    public async Task<IActionResult> Odontograma(int id, int? citaId)
     {
         var cid = ClinicaId;
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
@@ -263,6 +264,7 @@ public class ExpedienteController : Controller
         ViewBag.OdontogramaId = odontograma?.Id;
         ViewBag.PacienteIdExpediente = id;
         ViewBag.SeccionActivaExpediente = "odontograma";
+        ViewBag.CitaId = citaId;
         return View();
     }
 
@@ -363,7 +365,7 @@ public class ExpedienteController : Controller
 
     /// <summary>Historia Clínica Sistemática (20 preguntas).</summary>
     [HttpGet]
-    public async Task<IActionResult> HistoriaClinicaSistematica(int id)
+    public async Task<IActionResult> HistoriaClinicaSistematica(int id, int? citaId)
     {
         var cid = ClinicaId;
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
@@ -377,6 +379,7 @@ public class ExpedienteController : Controller
         ViewBag.Paciente = paciente;
         ViewBag.PacienteIdExpediente = id;
         ViewBag.SeccionActivaExpediente = "hcs";
+        ViewBag.CitaId = citaId;
         return View(vm);
     }
 
