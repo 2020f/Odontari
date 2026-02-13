@@ -1,0 +1,72 @@
+/* Contenido común área Clínica — Recepción, Doctor, Admin (paleta Odontari) */
+.clinica-content { --odon: #001D39; --odon-hover: #0A4174; --odon-accent: #4E8EA2; --odon-light: #6EA2B3; --odon-pale: #BDD8E9; }
+
+.clinica-content .content-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.clinica-content .content-header h1 { margin: 0; font-size: 1.5rem; font-weight: 600; color: var(--odon); }
+.clinica-content .btn-content-primary {
+  background: var(--odon-accent);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.2s, transform 0.1s;
+}
+.clinica-content .btn-content-primary:hover { background: var(--odon-light); color: #fff; transform: translateY(-1px); }
+.clinica-content .btn-content-secondary {
+  background: #fff;
+  color: var(--odon-accent);
+  border: 1px solid var(--odon-accent);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.clinica-content .btn-content-secondary:hover { background: var(--odon-pale); color: var(--odon-hover); }
+
+.clinica-content .content-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,29,57,0.06);
+  border: 1px solid rgba(0,29,57,0.06);
+  overflow: hidden;
+}
+.clinica-content .content-card .table {
+  margin-bottom: 0;
+  --bs-table-border-color: rgba(0,29,57,0.08);
+}
+.clinica-content .content-card .table thead th {
+  font-weight: 600;
+  color: var(--odon);
+  font-size: 0.85rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid rgba(0,29,57,0.08);
+  background: rgba(0,29,57,0.02);
+}
+.clinica-content .content-card .table tbody td {
+  padding: 0.85rem 1rem;
+  vertical-align: middle;
+}
+.clinica-content .content-card .table tbody tr:hover { background: rgba(78,142,162,0.04); }
+.clinica-content .content-card .table a:not(.btn) { color: var(--odon-accent); font-weight: 500; text-decoration: none; }
+.clinica-content .content-card .table a:not(.btn):hover { color: var(--odon-hover); text-decoration: underline; }
+.clinica-content .content-card .btn-primary { background: var(--odon-accent); border-color: var(--odon-accent); border-radius: 8px; }
+.clinica-content .content-card .btn-primary:hover { background: var(--odon-light); border-color: var(--odon-light); }
+.clinica-content .content-card .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+
+.clinica-content .form-control:focus, .clinica-content .form-select:focus {
+  border-color: var(--odon-accent);
+  box-shadow: 0 0 0 3px rgba(78,142,162,0.15);
+}
+.clinica-content .content-empty { padding: 2rem; text-align: center; color: #8a9ba8; font-size: 0.95rem; }

@@ -1,33 +1,39 @@
 @model IEnumerable<OrdenCobroListViewModel>
 @{
-    ViewData["Title"] = "Caja - Órdenes pendientes";
+    ViewData["Title"] = "Caja";
 }
 
-<h1>Caja - Pendientes de cobro</h1>
-<p><a asp-action="HistorialPagos">Historial de pagos</a></p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Paciente</th>
-            <th>Total</th>
-            <th>Pagado</th>
-            <th>Saldo</th>
-            <th>Fecha</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var o in Model)
-        {
+<div class="content-header">
+    <h1>Caja — Pendientes de cobro</h1>
+    <div class="d-flex gap-2">
+        <a asp-action="HistorialPagos" class="btn-content-secondary">Historial de pagos</a>
+    </div>
+</div>
+<div class="content-card">
+    <table class="table">
+        <thead>
             <tr>
-                <td>@o.PacienteNombre</td>
-                <td>RD$ @o.Total.ToString("N2")</td>
-                <td>RD$ @o.MontoPagado.ToString("N2")</td>
-                <td>RD$ @o.SaldoPendiente.ToString("N2")</td>
-                <td>@o.CreadoAt.ToString("dd/MM/yyyy HH:mm")</td>
-                <td><a asp-action="Cobrar" asp-route-id="@o.Id" class="btn btn-primary btn-sm">Cobrar</a></td>
+                <th>Paciente</th>
+                <th>Total</th>
+                <th>Pagado</th>
+                <th>Saldo</th>
+                <th>Fecha</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
-@if (!Model.Any()) { <p class="text-muted">No hay órdenes pendientes de cobro.</p> }
+        </thead>
+        <tbody>
+            @foreach (var o in Model)
+            {
+                <tr>
+                    <td>@o.PacienteNombre</td>
+                    <td>RD$ @o.Total.ToString("N2")</td>
+                    <td>RD$ @o.MontoPagado.ToString("N2")</td>
+                    <td>RD$ @o.SaldoPendiente.ToString("N2")</td>
+                    <td>@o.CreadoAt.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td><a asp-action="Cobrar" asp-route-id="@o.Id" class="btn btn-primary btn-sm">Cobrar</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if (!Model.Any()) { <div class="content-empty">No hay órdenes pendientes de cobro.</div> }
+</div>

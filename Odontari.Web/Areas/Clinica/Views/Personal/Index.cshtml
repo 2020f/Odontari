@@ -3,52 +3,45 @@
     ViewData["Title"] = "Doctores y Personal";
 }
 
-<h1>Doctores y Personal</h1>
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-success">@TempData["Message"]</div>
-}
-<p>
-    <a asp-area="Clinica" asp-controller="Personal" asp-action="Create" class="btn btn-primary">Crear usuario</a>
-</p>
-<p class="text-muted">Antes de crear, se validan los límites del plan (MaxUsuarios / MaxDoctores).</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Horario laboral</th>
-            <th>Activo</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var u in Model)
-        {
+<div class="content-header">
+    <h1>Doctores y Personal</h1>
+    <a asp-area="Clinica" asp-controller="Personal" asp-action="Create" class="btn-content-primary">+ Crear usuario</a>
+</div>
+@if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+@if (TempData["Message"] != null) { <div class="alert alert-success">@TempData["Message"]</div> }
+<p class="text-muted small mb-3">Se validan los límites del plan (MaxUsuarios / MaxDoctores).</p>
+<div class="content-card">
+    <table class="table">
+        <thead>
             <tr>
-                <td>@u.NombreCompleto</td>
-                <td>@u.Email</td>
-                <td>@(u.Rol ?? "-")</td>
-                <td>@(u.HorarioLaboral ?? "—")</td>
-                <td>@(u.Activo ? "Sí" : "No")</td>
-                <td>
-                    <a asp-area="Clinica" asp-controller="Personal" asp-action="Edit" asp-route-id="@u.Id">Editar</a>
-                    |
-                    <form asp-area="Clinica" asp-controller="Personal" asp-action="ToggleActivo" asp-route-id="@u.Id" method="post" class="d-inline">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-link p-0">@(u.Activo ? "Desactivar" : "Activar")</button>
-                    </form>
-                </td>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Horario laboral</th>
+                <th>Activo</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
-@if (!Model.Any())
-{
-    <p class="text-muted">No hay usuarios. Cree el primer usuario (Recepción, Doctor, Finanzas o Admin).</p>
-}
+        </thead>
+        <tbody>
+            @foreach (var u in Model)
+            {
+                <tr>
+                    <td>@u.NombreCompleto</td>
+                    <td>@u.Email</td>
+                    <td>@(u.Rol ?? "-")</td>
+                    <td>@(u.HorarioLaboral ?? "—")</td>
+                    <td>@(u.Activo ? "Sí" : "No")</td>
+                    <td>
+                        <a asp-area="Clinica" asp-controller="Personal" asp-action="Edit" asp-route-id="@u.Id">Editar</a>
+                        |
+                        <form asp-area="Clinica" asp-controller="Personal" asp-action="ToggleActivo" asp-route-id="@u.Id" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-link p-0" style="color: var(--odon-accent); font-size: 0.9rem;">@(u.Activo ? "Desactivar" : "Activar")</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if (!Model.Any()) { <div class="content-empty">No hay usuarios. <a asp-area="Clinica" asp-controller="Personal" asp-action="Create">Crear el primero</a></div> }
+</div>

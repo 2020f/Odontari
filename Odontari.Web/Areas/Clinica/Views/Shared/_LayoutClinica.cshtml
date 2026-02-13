@@ -21,6 +21,8 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/clinica-layout.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/clinica-content.css" asp-append-version="true" />
+    @if (controller == "Home" && action == "Index") { <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" /> }
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="clinica-layout">
@@ -92,7 +94,9 @@
             <h1>@(ViewData["Title"] ?? "Odontari")</h1>
         </header>
         <main class="clinica-main-content">
-            @RenderBody()
+            <div class="clinica-content">
+                @RenderBody()
+            </div>
         </main>
     </div>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
