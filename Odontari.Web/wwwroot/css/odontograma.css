@@ -21,30 +21,126 @@
 .atencion-header {
   background: linear-gradient(135deg, var(--odon-primary) 0%, var(--odon-primary-dark) 100%);
   color: white;
-  padding: 1.25rem 1.5rem;
+  padding: 1.35rem 1.5rem;
   border-radius: 12px;
   margin-bottom: 1.5rem;
   box-shadow: 0 4px 14px rgba(25, 118, 210, 0.25);
 }
 
-.atencion-header h1 {
-  font-size: 1.5rem;
+.atencion-header-top {
+  margin-bottom: 0.85rem;
+}
+.atencion-header-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.9;
+  margin-bottom: 0.2rem;
+}
+.atencion-header .atencion-patient-name {
+  font-size: 1.4rem;
   font-weight: 600;
-  margin: 0 0 0.25rem 0;
+  margin: 0;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
 }
 
-.atencion-header .meta {
-  font-size: 0.9rem;
+.atencion-header-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.atencion-cita-fecha {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.95rem;
   opacity: 0.95;
 }
+.atencion-meta-icon {
+  display: inline-flex;
+  opacity: 0.9;
+}
+.atencion-meta-icon svg {
+  width: 18px;
+  height: 18px;
+}
+.atencion-estado-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.atencion-estado-enatencion {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0d47a1;
+}
+.atencion-estado-ensala {
+  background: rgba(255, 193, 7, 0.95);
+  color: #5d4200;
+}
+.atencion-estado-finalizada {
+  background: rgba(76, 175, 80, 0.95);
+  color: #fff;
+}
+.atencion-estado-confirmada {
+  background: rgba(33, 150, 243, 0.95);
+  color: #fff;
+}
+.atencion-estado-solicitada {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+.atencion-estado-cancelada {
+  background: rgba(244, 67, 54, 0.9);
+  color: #fff;
+}
+.atencion-estado-noshow {
+  background: rgba(158, 158, 158, 0.9);
+  color: #fff;
+}
+.atencion-estado-default {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
 
-.atencion-header .links a {
-  color: rgba(255,255,255,0.9);
+.atencion-header-links {
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+.atencion-header-links a {
+  color: rgba(255, 255, 255, 0.92);
   text-decoration: none;
   font-size: 0.875rem;
   margin-right: 1rem;
+  transition: color 0.15s;
 }
-.atencion-header .links a:hover { color: white; }
+.atencion-header-links a:hover { color: white; }
+
+.atencion-header-action {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+.atencion-header-action .btn-light {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--odon-primary-dark);
+  border: none;
+  font-weight: 500;
+}
+.atencion-header-action .btn-light:hover {
+  background: #fff;
+  color: var(--odon-primary-dark);
+}
 
 /* Tabs personalizados */
 .atencion-tabs .nav-tabs {
