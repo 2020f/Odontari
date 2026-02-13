@@ -5,13 +5,13 @@
     var edad = Model.FechaNacimiento.HasValue ? (DateTime.Today.Year - Model.FechaNacimiento.Value.Year) : (int?)null;
 }
 
-<h1>Histograma (Historial / Resumen clínico)</h1>
-<p class="text-muted">@Model.Nombre @Model.Apellidos @(Model.Cedula != null ? " · " + Model.Cedula : "") @(edad.HasValue ? " · " + edad + " años" : "")</p>
-<p>
-    <a asp-action="Index" asp-route-id="@Model.PacienteId">← Volver al Expediente</a>
-    <span class="ms-2">|</span>
-    <a asp-action="Odontograma" asp-route-id="@Model.PacienteId" class="ms-2">Odontograma</a>
-</p>
+<div class="expediente-header mb-3">
+    <a asp-controller="Pacientes" asp-action="Index" class="btn-content-secondary mb-2" style="display: inline-flex; align-items: center; gap: 0.35rem;">← Volver a Pacientes</a>
+    <h1 class="expediente-title">Histograma (Historial / Resumen clínico)</h1>
+    <p class="expediente-sub mb-0">@Model.Nombre @Model.Apellidos @(Model.Cedula != null ? " · " + Model.Cedula : "") @(edad.HasValue ? " · " + edad + " años" : "")</p>
+</div>
+
+@await Html.PartialAsync("_ExpedienteMenu")
 
 @if (!string.IsNullOrEmpty(Model.Alergias))
 {
@@ -190,4 +190,3 @@
     </div>
 </section>
 
-<p><a asp-action="Index" asp-route-id="@Model.PacienteId" class="btn btn-outline-secondary">← Volver al Expediente</a></p>

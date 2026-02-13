@@ -1,0 +1,13 @@
+@{
+    var pacienteId = (int?)ViewBag.PacienteIdExpediente ?? 0;
+    var activa = ViewBag.SeccionActivaExpediente as string ?? "resumen";
+}
+<nav class="expediente-nav-menu mb-0">
+    <ul class="nav expediente-tabs" role="tablist">
+        <li class="nav-item"><a class="nav-link @(activa == "resumen" ? "active" : "")" asp-action="Index" asp-route-id="@pacienteId">Resumen</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "histograma" ? "active" : "")" asp-action="Histograma" asp-route-id="@pacienteId">Histograma</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "historial" ? "active" : "")" asp-action="Index" asp-route-id="@pacienteId" asp-route-tab="historial">Historial</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "odontograma" ? "active" : "")" asp-action="Odontograma" asp-route-id="@pacienteId">Odontograma</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "hcs" ? "active" : "")" asp-action="HistoriaClinicaSistematica" asp-route-id="@pacienteId">Historia Clínica Sistemática</a></li>
+    </ul>
+</nav>

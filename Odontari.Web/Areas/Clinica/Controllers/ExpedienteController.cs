@@ -61,6 +61,8 @@ public class ExpedienteController : Controller
             .ToListAsync();
 
         ViewBag.Paciente = paciente;
+        ViewBag.PacienteIdExpediente = id;
+        ViewBag.SeccionActivaExpediente = string.Equals(Request.Query["tab"], "historial", StringComparison.OrdinalIgnoreCase) ? "historial" : "resumen";
         return View(vm);
     }
 
@@ -173,6 +175,8 @@ public class ExpedienteController : Controller
         }
 
         ViewBag.Paciente = paciente;
+        ViewBag.PacienteIdExpediente = id;
+        ViewBag.SeccionActivaExpediente = "histograma";
         return View(vm);
     }
 
@@ -255,6 +259,8 @@ public class ExpedienteController : Controller
         ViewBag.Paciente = paciente;
         ViewBag.EstadoJson = odontograma?.EstadoJson ?? "{}";
         ViewBag.OdontogramaId = odontograma?.Id;
+        ViewBag.PacienteIdExpediente = id;
+        ViewBag.SeccionActivaExpediente = "odontograma";
         return View();
     }
 
@@ -367,6 +373,8 @@ public class ExpedienteController : Controller
 
         var vm = hcs != null ? HistoriaClinicaSistematicaViewModel.FromEntity(hcs) : new HistoriaClinicaSistematicaViewModel { PacienteId = id };
         ViewBag.Paciente = paciente;
+        ViewBag.PacienteIdExpediente = id;
+        ViewBag.SeccionActivaExpediente = "hcs";
         return View(vm);
     }
 

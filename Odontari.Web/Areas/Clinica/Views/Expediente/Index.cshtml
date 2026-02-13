@@ -17,16 +17,15 @@
     </div>
 }
 
-<ul class="nav expediente-tabs" role="tablist">
-    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#resumen">Resumen</a></li>
-    <li class="nav-item"><a class="nav-link" asp-action="Histograma" asp-route-id="@Model.PacienteId">Histograma</a></li>
-    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#historial">Historial</a></li>
-    <li class="nav-item"><a class="nav-link" asp-action="Odontograma" asp-route-id="@Model.PacienteId">Odontograma</a></li>
-    <li class="nav-item"><a class="nav-link" asp-action="HistoriaClinicaSistematica" asp-route-id="@Model.PacienteId">Historia Clínica Sistemática</a></li>
-</ul>
+@await Html.PartialAsync("_ExpedienteMenu")
 
+@{
+    var seccionActiva = ViewBag.SeccionActivaExpediente as string ?? "resumen";
+    var mostrarResumen = seccionActiva == "resumen";
+    var mostrarHistorial = seccionActiva == "historial";
+}
 <div class="tab-content expediente-tab-content">
-    <div id="resumen" class="tab-pane fade show active">
+    <div id="resumen" class="tab-pane fade @(mostrarResumen ? "show active" : "")">
         <div class="content-card" style="padding: 1.5rem;">
             <h2 class="expediente-section-title">Datos generales</h2>
             <div class="expediente-datos">
@@ -57,7 +56,7 @@
             </div>
         </div>
     </div>
-    <div id="historial" class="tab-pane fade">
+    <div id="historial" class="tab-pane fade @(mostrarHistorial ? "show active" : "")">
         <div class="content-card">
             <div style="padding: 1rem 1.25rem 0;">
                 <h2 class="expediente-section-title">Historial clínico (últimos 20 eventos)</h2>

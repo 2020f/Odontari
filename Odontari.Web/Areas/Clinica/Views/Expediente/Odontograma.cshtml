@@ -9,13 +9,13 @@
 }
 
 <div class="atencion-section">
-    <div class="atencion-header">
-        <h1>Odontograma — @paciente?.Nombre @paciente?.Apellidos</h1>
-        <div class="meta">Evaluación dental del paciente</div>
-        <div class="links mt-2">
-            <a asp-action="Index" asp-route-id="@pacienteId">← Volver al Expediente</a>
-        </div>
+    <div class="expediente-header mb-3">
+        <a asp-controller="Pacientes" asp-action="Index" class="btn-content-secondary mb-2" style="display: inline-flex; align-items: center; gap: 0.35rem;">← Volver a Pacientes</a>
+        <h1 class="expediente-title">Odontograma — @paciente?.Nombre @paciente?.Apellidos</h1>
+        <div class="expediente-sub">Evaluación dental del paciente</div>
     </div>
+
+    @await Html.PartialAsync("_ExpedienteMenu")
 
     <div class="odontograma-wrapper">
     <div class="odontograma-pro">
