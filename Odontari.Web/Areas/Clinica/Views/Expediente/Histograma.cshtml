@@ -51,10 +51,58 @@
             <dt class="col-sm-2">Contacto</dt>
             <dd class="col-sm-10">@(Model.Telefono ?? Model.Email ?? "—")</dd>
             <dt class="col-sm-2">Alergias</dt>
-            <dd class="col-sm-10">@(Model.Alergias ?? "Ninguna registrada")</dd>
+            <dd class="col-sm-10">
+                @if (Model.HistoriaClinicaSistematica?.AlergiasMedicamentos == true && !string.IsNullOrWhiteSpace(Model.HistoriaClinicaSistematica.AlergiasCuales))
+                {
+                    @Model.HistoriaClinicaSistematica.AlergiasCuales
+                }
+                else
+                {
+                    @(Model.Alergias ?? "Ninguna registrada")
+                }
+            </dd>
             <dt class="col-sm-2">Notas clínicas</dt>
             <dd class="col-sm-10">@(Model.NotasClinicas ?? "—")</dd>
         </dl>
+
+        @if (Model.HistoriaClinicaSistematica?.TieneDatos == true)
+        {
+            var h = Model.HistoriaClinicaSistematica;
+            <hr class="my-4" />
+            <h6 class="text-muted mb-3">Historia clínica sistemática (antecedentes médicos)</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="list-unstyled small mb-0">
+                        <li>1. Alergias a medicamentos y/o anestésicos: @(h.AlergiasMedicamentos == true ? "Sí" : h.AlergiasMedicamentos == false ? "No" : "—") @(h.AlergiasMedicamentos == true && !string.IsNullOrWhiteSpace(h.AlergiasCuales) ? "— " + h.AlergiasCuales : "")</li>
+                        <li>3. Asma bronquial: @(h.AsmaBronquial == true ? "Sí" : h.AsmaBronquial == false ? "No" : "—")</li>
+                        <li>4. Convulsiones o epilepsia: @(h.ConvulsionesEpilepsia == true ? "Sí" : h.ConvulsionesEpilepsia == false ? "No" : "—")</li>
+                        <li>5. Diabetes: @(h.Diabetes == true ? "Sí" : h.Diabetes == false ? "No" : "—")</li>
+                        <li>6. Enfermedades cardíacas: @(h.EnfermedadesCardiacas == true ? "Sí" : h.EnfermedadesCardiacas == false ? "No" : "—")</li>
+                        <li>7. Embarazo: @(h.Embarazo == true ? "Sí" + (h.EmbarazoSemanas.HasValue ? " (" + h.EmbarazoSemanas + " semanas)" : "") : h.Embarazo == false ? "No" : "—")</li>
+                        <li>8. Enfermedades venéreas, sífilis, SIDA: @(h.EnfermedadesVenereas == true ? "Sí" : h.EnfermedadesVenereas == false ? "No" : "—")</li>
+                        <li>9. Fiebre reumática: @(h.FiebreReumatica == true ? "Sí" : h.FiebreReumatica == false ? "No" : "—")</li>
+                        <li>10. Hepatitis: @(h.Hepatitis == true ? "Sí" + (!string.IsNullOrWhiteSpace(h.HepatitisCual) ? " (" + h.HepatitisCual + ")" : "") : h.Hepatitis == false ? "No" : "—")</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-unstyled small mb-0">
+                        <li>11. Problemas neurológicos: @(h.ProblemasNeurologicos == true ? "Sí" : h.ProblemasNeurologicos == false ? "No" : "—")</li>
+                        <li>12. Problemas renales: @(h.ProblemasRenales == true ? "Sí" : h.ProblemasRenales == false ? "No" : "—")</li>
+                        <li>13. Problemas sinusales: @(h.ProblemasSinusales == true ? "Sí" : h.ProblemasSinusales == false ? "No" : "—")</li>
+                        <li>14. Sangrado excesivo: @(h.SangradoExcesivo == true ? "Sí" : h.SangradoExcesivo == false ? "No" : "—")</li>
+                        <li>15. Trastornos psiquiátricos: @(h.TrastornosPsiquiatricos == true ? "Sí" : h.TrastornosPsiquiatricos == false ? "No" : "—")</li>
+                        <li>16. Trastornos digestivos: @(h.TrastornosDigestivos == true ? "Sí" : h.TrastornosDigestivos == false ? "No" : "—")</li>
+                        <li>17. Tumores benignos y/o malignos: @(h.TumoresBenignosMalignos == true ? "Sí" + (!string.IsNullOrWhiteSpace(h.TumoresCuales) ? " (" + h.TumoresCuales + ")" : "") : h.TumoresBenignosMalignos == false ? "No" : "—")</li>
+                        <li>19. Trastornos respiratorios: @(h.TrastornosRespiratorios == true ? "Sí" + (!string.IsNullOrWhiteSpace(h.TrastornosRespiratoriosCuales) ? " (" + h.TrastornosRespiratoriosCuales + ")" : "") : h.TrastornosRespiratorios == false ? "No" : "—")</li>
+                    </ul>
+                </div>
+            </div>
+            <p class="mt-2 mb-0 small"><a asp-action="HistoriaClinicaSistematica" asp-route-id="@Model.PacienteId">Editar historia clínica sistemática</a></p>
+        }
+        else
+        {
+            <p class="mt-3 mb-0 small text-muted"><a asp-action="HistoriaClinicaSistematica" asp-route-id="@Model.PacienteId">Completar historia clínica sistemática</a></p>
+        }
     </div>
 </section>
 

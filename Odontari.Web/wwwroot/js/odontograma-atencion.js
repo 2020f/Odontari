@@ -83,6 +83,14 @@
     const cw = rw / 3;
 
     if (!blocked) {
+      const status = (toothData.status && toothData.status !== 'NONE') ? toothData.status : null;
+      if (status) {
+        const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bgRect.setAttribute('x', x0); bgRect.setAttribute('y', y0); bgRect.setAttribute('width', TW); bgRect.setAttribute('height', TH);
+        bgRect.setAttribute('class', 'tooth-' + status);
+        bgRect.setAttribute('stroke', '#64748b'); bgRect.setAttribute('stroke-width', '1');
+        tg.appendChild(bgRect);
+      }
       const border = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       border.setAttribute('x', x0); border.setAttribute('y', y0); border.setAttribute('width', TW); border.setAttribute('height', TH);
       border.setAttribute('fill', 'none'); border.setAttribute('stroke', '#64748b'); border.setAttribute('stroke-width', '1');

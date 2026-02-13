@@ -25,6 +25,37 @@ public class HistogramaViewModel
 
     // --- Resumen odontograma (conteos y últimos dientes) ---
     public ResumenOdontogramaViewModel? ResumenOdontograma { get; set; }
+
+    /// <summary>Historia clínica sistemática (antecedentes médicos) del paciente, para mostrar en Datos del paciente.</summary>
+    public HistoriaClinicaSistematicaResumenViewModel? HistoriaClinicaSistematica { get; set; }
+}
+
+/// <summary>Resumen de historia clínica sistemática para mostrar en Histograma / Datos del paciente.</summary>
+public class HistoriaClinicaSistematicaResumenViewModel
+{
+    public bool TieneDatos { get; set; }
+    public bool? AlergiasMedicamentos { get; set; }
+    public string? AlergiasCuales { get; set; }
+    public bool? AsmaBronquial { get; set; }
+    public bool? ConvulsionesEpilepsia { get; set; }
+    public bool? Diabetes { get; set; }
+    public bool? EnfermedadesCardiacas { get; set; }
+    public bool? Embarazo { get; set; }
+    public int? EmbarazoSemanas { get; set; }
+    public bool? EnfermedadesVenereas { get; set; }
+    public bool? FiebreReumatica { get; set; }
+    public bool? Hepatitis { get; set; }
+    public string? HepatitisCual { get; set; }
+    public bool? ProblemasNeurologicos { get; set; }
+    public bool? ProblemasRenales { get; set; }
+    public bool? ProblemasSinusales { get; set; }
+    public bool? SangradoExcesivo { get; set; }
+    public bool? TrastornosPsiquiatricos { get; set; }
+    public bool? TrastornosDigestivos { get; set; }
+    public bool? TumoresBenignosMalignos { get; set; }
+    public string? TumoresCuales { get; set; }
+    public bool? TrastornosRespiratorios { get; set; }
+    public string? TrastornosRespiratoriosCuales { get; set; }
 }
 
 public class ResumenOdontogramaViewModel

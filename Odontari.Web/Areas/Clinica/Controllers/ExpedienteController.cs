@@ -89,6 +89,39 @@ public class ExpedienteController : Controller
             NotasClinicas = paciente.NotasClinicas
         };
 
+        // Historia clínica sistemática (para sección Datos del paciente)
+        var hcs = await _db.HistoriasClinicasSistematicas
+            .FirstOrDefaultAsync(h => h.PacienteId == id && h.ClinicaId == cid);
+        if (hcs != null)
+        {
+            vm.HistoriaClinicaSistematica = new HistoriaClinicaSistematicaResumenViewModel
+            {
+                TieneDatos = true,
+                AlergiasMedicamentos = hcs.AlergiasMedicamentos,
+                AlergiasCuales = hcs.AlergiasCuales,
+                AsmaBronquial = hcs.AsmaBronquial,
+                ConvulsionesEpilepsia = hcs.ConvulsionesEpilepsia,
+                Diabetes = hcs.Diabetes,
+                EnfermedadesCardiacas = hcs.EnfermedadesCardiacas,
+                Embarazo = hcs.Embarazo,
+                EmbarazoSemanas = hcs.EmbarazoSemanas,
+                EnfermedadesVenereas = hcs.EnfermedadesVenereas,
+                FiebreReumatica = hcs.FiebreReumatica,
+                Hepatitis = hcs.Hepatitis,
+                HepatitisCual = hcs.HepatitisCual,
+                ProblemasNeurologicos = hcs.ProblemasNeurologicos,
+                ProblemasRenales = hcs.ProblemasRenales,
+                ProblemasSinusales = hcs.ProblemasSinusales,
+                SangradoExcesivo = hcs.SangradoExcesivo,
+                TrastornosPsiquiatricos = hcs.TrastornosPsiquiatricos,
+                TrastornosDigestivos = hcs.TrastornosDigestivos,
+                TumoresBenignosMalignos = hcs.TumoresBenignosMalignos,
+                TumoresCuales = hcs.TumoresCuales,
+                TrastornosRespiratorios = hcs.TrastornosRespiratorios,
+                TrastornosRespiratoriosCuales = hcs.TrastornosRespiratoriosCuales
+            };
+        }
+
         var hoy = DateTime.UtcNow.Date;
 
         // Última visita (última cita realizada/finalizada)
