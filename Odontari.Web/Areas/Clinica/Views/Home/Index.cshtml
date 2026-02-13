@@ -1,37 +1,113 @@
+@using Odontari.Web.Models.Enums
+@using System.Globalization
 @{
-    ViewData["Title"] = "Dashboard Clínica";
+    ViewData["Title"] = "Panel de Control";
     var citasHoy = ViewBag.CitasHoy as IList<Odontari.Web.Models.Cita> ?? new List<Odontari.Web.Models.Cita>();
     var pendientesCobro = ViewBag.PendientesCobro as IList<Odontari.Web.Models.OrdenCobro> ?? new List<Odontari.Web.Models.OrdenCobro>();
+    var ci = CultureInfo.GetCultureInfo("es-ES");
+    var hoy = DateTime.Today;
+    var nombreDia = ci.DateTimeFormat.GetDayName(hoy.DayOfWeek);
+    var nombreMes = ci.DateTimeFormat.GetMonthName(hoy.Month);
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
 }
 
-<h1>Dashboard</h1>
-<div class="row">
-    <div class="col-md-6">
-        <h2>Citas de hoy</h2>
-        <p><a asp-controller="Agenda" asp-action="Index">Ver agenda</a> | <a asp-controller="Agenda" asp-action="Create">Nueva cita</a></p>
-        <ul class="list-group">
-            @foreach (var c in citasHoy)
-            {
-                <li class="list-group-item d-flex justify-content-between">
-                    <span>@c.FechaHora.ToString("HH:mm") - @c.Paciente?.Nombre @c.Paciente?.Apellidos - @c.Estado</span>
-                    <a asp-controller="Agenda" asp-action="Index" asp-route-fecha="@c.FechaHora.Date">Ver</a>
-                </li>
-            }
-        </ul>
-        @if (!citasHoy.Any()) { <p class="text-muted">No hay citas hoy.</p> }
+<div class="dashboard-page">
+    <div class="dashboard-header">
+        <h1>Panel de Control</h1>
+        <p class="dashboard-date">@(char.ToUpper(nombreDia[0]) + nombreDia.Substring(1)), @hoy.Day de @nombreMes de @hoy.Year</p>
     </div>
-    <div class="col-md-6">
-        <h2>Pendientes de cobro</h2>
-        <p><a asp-controller="Caja" asp-action="Index">Ir a Caja</a></p>
-        <ul class="list-group">
-            @foreach (var o in pendientesCobro)
-            {
-                <li class="list-group-item d-flex justify-content-between">
-                    <span>@o.Paciente?.Nombre - RD$ @((o.Total - o.MontoPagado).ToString("N2"))</span>
-                    <a asp-controller="Caja" asp-action="Cobrar" asp-route-id="@o.Id">Cobrar</a>
-                </li>
-            }
-        </ul>
-        @if (!pendientesCobro.Any()) { <p class="text-muted">No hay órdenes pendientes.</p> }
+
+    <div class="dashboard-metrics">
+        <div class="dashboard-metric-card">
+            <div>
+                <div class="metric-label">Citas hoy</div>
+                <div class="metric-value">@citasHoy.Count</div>
+            </div>
+            <div class="metric-icon citas">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+        </div>
+        <div class="dashboard-metric-card">
+            <div>
+                <div class="metric-label">Pendientes de cobro</div>
+                <div class="metric-value">@pendientesCobro.Count</div>
+            </div>
+            <div class="metric-icon cobro">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-cards">
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h2>Próximas citas</h2>
+                <a asp-controller="Agenda" asp-action="Index" asp-route-fecha="@hoy">Ver agenda</a>
+                <a asp-controller="Agenda" asp-action="Create" asp-route-fechaHora="@hoy.AddHours(9)">Nueva cita</a>
+            </div>
+            <div class="card-body">
+                @if (citasHoy.Any())
+                {
+                    @foreach (var c in citasHoy)
+                    {
+                        var inicial = (c.Paciente?.Nombre ?? "?").Length > 0 ? char.ToUpperInvariant((c.Paciente?.Nombre ?? "?")[0]).ToString() : "?";
+                        var estadoNombre = c.Estado switch
+                        {
+                            EstadoCita.Solicitada => "Pendiente",
+                            EstadoCita.Confirmada => "Confirmada",
+                            EstadoCita.EnSala => "En sala",
+                            EstadoCita.EnAtencion => "En atención",
+                            EstadoCita.Finalizada => "Finalizada",
+                            _ => c.Estado.ToString()
+                        };
+                        <div class="dashboard-list-item">
+                            <div class="avatar">@inicial</div>
+                            <div class="body">
+                                <div class="title">@(c.Paciente?.Nombre) @(c.Paciente?.Apellidos)</div>
+                                <div class="sub">@(c.Motivo ?? "Consulta") · @estadoNombre</div>
+                            </div>
+                            <span class="hora">@c.FechaHora.ToString("HH:mm")</span>
+                            <a asp-controller="Agenda" asp-action="Index" asp-route-fecha="@c.FechaHora.Date" class="btn-link">Ver</a>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="dashboard-empty">No hay citas hoy. <a asp-controller="Agenda" asp-action="Create" asp-route-fechaHora="@hoy.AddHours(9)" style="color: var(--odon-accent);">Crear cita</a></div>
+                }
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h2>Pendientes de cobro</h2>
+                <a asp-controller="Caja" asp-action="Index">Ir a Caja</a>
+            </div>
+            <div class="card-body">
+                @if (pendientesCobro.Any())
+                {
+                    @foreach (var o in pendientesCobro)
+                    {
+                        var pendiente = o.Total - o.MontoPagado;
+                        var inicial = (o.Paciente?.Nombre ?? "?").Length > 0 ? char.ToUpperInvariant((o.Paciente?.Nombre ?? "?")[0]).ToString() : "?";
+                        <div class="dashboard-list-item">
+                            <div class="avatar">@inicial</div>
+                            <div class="body">
+                                <div class="title">@(o.Paciente?.Nombre) @(o.Paciente?.Apellidos)</div>
+                                <div class="sub">Orden #@o.Id</div>
+                            </div>
+                            <span class="monto">RD$ @pendiente.ToString("N2")</span>
+                            <a asp-controller="Caja" asp-action="Cobrar" asp-route-id="@o.Id" class="btn-link">Cobrar</a>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="dashboard-empty">No hay órdenes pendientes de cobro.</div>
+                }
+            </div>
+        </div>
     </div>
 </div>

@@ -99,19 +99,22 @@
         <div class="agenda-list-card">
             <div class="card-header">
                 <h2>Horarios del día</h2>
-                <form method="get" class="filter-doctor">
-                    <input type="hidden" name="fecha" value="@fecha.ToString("yyyy-MM-dd")" />
-                    <select name="doctorId" class="form-select form-select-sm" onchange="this.form.submit()">
-                        <option value="">Todos los doctores</option>
-                        @if (doctores != null)
-                        {
-                            @foreach (var d in doctores)
+                @if (!(ViewBag.EsDoctor == true))
+                {
+                    <form method="get" class="filter-doctor">
+                        <input type="hidden" name="fecha" value="@fecha.ToString("yyyy-MM-dd")" />
+                        <select name="doctorId" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">Todos los doctores</option>
+                            @if (doctores != null)
                             {
-                                <option value="@d.Id" selected="@(doctorIdSel == d.Id)">@(d.NombreCompleto ?? d.Email)</option>
+                                @foreach (var d in doctores)
+                                {
+                                    <option value="@d.Id" selected="@(doctorIdSel == d.Id)">@(d.NombreCompleto ?? d.Email)</option>
+                                }
                             }
-                        }
-                    </select>
-                </form>
+                        </select>
+                    </form>
+                }
             </div>
             <div class="card-body">
                 @if (Model.Any())

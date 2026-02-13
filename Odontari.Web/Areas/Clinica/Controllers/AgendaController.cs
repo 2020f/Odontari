@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,13 @@ public class AgendaController : Controller
     {
         var cid = ClinicaId;
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
+        var esDoctor = User.IsInRole(OdontariRoles.Doctor);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (esDoctor && !string.IsNullOrEmpty(userId))
+        {
+            doctorId = userId;
+        }
+        ViewBag.EsDoctor = esDoctor;
         var dia = fecha ?? DateTime.Today;
         var inicio = dia.Date;
         var fin = inicio.AddDays(1);

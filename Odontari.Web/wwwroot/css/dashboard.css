@@ -1,0 +1,107 @@
+/* Dashboard Clínica — Mismo estilo equilibrado (paleta Odontari) */
+.dashboard-page { --odon: #001D39; --odon-hover: #0A4174; --odon-accent: #4E8EA2; --odon-light: #6EA2B3; --odon-bg: #7BBDE8; --odon-pale: #BDD8E9; }
+
+.dashboard-header { margin-bottom: 1.5rem; }
+.dashboard-header h1 { margin: 0; font-size: 1.5rem; font-weight: 600; color: var(--odon); }
+.dashboard-header .dashboard-date { font-size: 0.9rem; color: #5a6c7d; margin-top: 0.25rem; }
+
+.dashboard-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.dashboard-metric-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,29,57,0.06);
+  border: 1px solid rgba(0,29,57,0.06);
+  padding: 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.dashboard-metric-card .metric-label { font-size: 0.85rem; color: #5a6c7d; font-weight: 500; }
+.dashboard-metric-card .metric-value { font-size: 1.75rem; font-weight: 700; color: var(--odon); line-height: 1.2; }
+.dashboard-metric-card .metric-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.dashboard-metric-card .metric-icon.citas { background: var(--odon-pale); color: var(--odon-accent); }
+.dashboard-metric-card .metric-icon.cobro { background: rgba(103,194,58,0.15); color: #529b2e; }
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+.dashboard-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,29,57,0.06);
+  border: 1px solid rgba(0,29,57,0.06);
+  overflow: hidden;
+}
+.dashboard-card .card-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(0,29,57,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.dashboard-card .card-header h2 { margin: 0; font-size: 1rem; font-weight: 600; color: var(--odon); }
+.dashboard-card .card-header a {
+  font-size: 0.85rem;
+  color: var(--odon-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+.dashboard-card .card-header a:hover { color: var(--odon-hover); text-decoration: underline; }
+.dashboard-card .card-body { padding: 0; }
+
+.dashboard-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid rgba(0,29,57,0.06);
+  transition: background 0.15s;
+}
+.dashboard-list-item:last-child { border-bottom: none; }
+.dashboard-list-item:hover { background: rgba(78,142,162,0.04); }
+.dashboard-list-item .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--odon-pale);
+  color: var(--odon);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+.dashboard-list-item .body { flex: 1; min-width: 0; }
+.dashboard-list-item .body .title { font-weight: 600; color: #2c3e50; }
+.dashboard-list-item .body .sub { font-size: 0.85rem; color: #5a6c7d; }
+.dashboard-list-item .hora { font-weight: 600; color: var(--odon); font-size: 0.9rem; }
+.dashboard-list-item .monto { font-weight: 600; color: var(--odon-accent); }
+.dashboard-list-item a.btn-link {
+  font-size: 0.8rem;
+  color: var(--odon-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+.dashboard-list-item a.btn-link:hover { text-decoration: underline; }
+
+.dashboard-empty { padding: 1.5rem; text-align: center; color: #8a9ba8; font-size: 0.9rem; }
