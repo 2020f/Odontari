@@ -22,6 +22,7 @@
             <th>Nombre</th>
             <th>Email</th>
             <th>Rol</th>
+            <th>Horario laboral</th>
             <th>Activo</th>
             <th></th>
         </tr>
@@ -33,6 +34,7 @@
                 <td>@u.NombreCompleto</td>
                 <td>@u.Email</td>
                 <td>@(u.Rol ?? "-")</td>
+                <td>@(u.HorarioLaboral ?? "—")</td>
                 <td>@(u.Activo ? "Sí" : "No")</td>
                 <td>
                     <a asp-area="Clinica" asp-controller="Personal" asp-action="Edit" asp-route-id="@u.Id">Editar</a>

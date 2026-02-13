@@ -50,13 +50,17 @@ public class PersonalController : Controller
         {
             var ur = userRoles.FirstOrDefault(ur => ur.UserId == u.Id);
             var rol = ur != null && roles.TryGetValue(ur.RoleId, out var name) ? name : null;
+            string? horario = null;
+            if (rol == OdontariRoles.Doctor && u.HoraEntrada.HasValue && u.HoraSalida.HasValue)
+                horario = $"{u.HoraEntrada.Value.ToString(@"hh\:mm")} - {u.HoraSalida.Value.ToString(@"hh\:mm")}";
             return new UsuarioClinicaListViewModel
             {
                 Id = u.Id,
                 NombreCompleto = u.NombreCompleto,
                 Email = u.Email ?? "",
                 Rol = rol,
-                Activo = u.Activo
+                Activo = u.Activo,
+                HorarioLaboral = horario ?? "—"
             };
         }).OrderBy(u => u.NombreCompleto).ToList();
 
@@ -113,6 +117,11 @@ public class PersonalController : Controller
                 ClinicaId = cid,
                 Activo = vm.Activo
             };
+            if (vm.Rol == OdontariRoles.Doctor)
+            {
+                user.HoraEntrada = vm.HoraEntrada;
+                user.HoraSalida = vm.HoraSalida;
+            }
             var result = await _userManager.CreateAsync(user, vm.Password);
             if (!result.Succeeded)
             {
@@ -147,7 +156,9 @@ public class PersonalController : Controller
             NombreCompleto = user.NombreCompleto ?? "",
             Email = user.Email ?? "",
             Rol = rol,
-            Activo = user.Activo
+            Activo = user.Activo,
+            HoraEntrada = user.HoraEntrada,
+            HoraSalida = user.HoraSalida
         });
     }
 
@@ -169,6 +180,16 @@ public class PersonalController : Controller
         {
             user.NombreCompleto = vm.NombreCompleto;
             user.Activo = vm.Activo;
+            if (vm.Rol == OdontariRoles.Doctor)
+            {
+                user.HoraEntrada = vm.HoraEntrada;
+                user.HoraSalida = vm.HoraSalida;
+            }
+            else
+            {
+                user.HoraEntrada = null;
+                user.HoraSalida = null;
+            }
             await _userManager.UpdateAsync(user);
 
             if (!string.IsNullOrWhiteSpace(vm.NuevaPassword))

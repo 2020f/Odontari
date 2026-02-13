@@ -24,6 +24,13 @@ public class PersonalCreateViewModel
 
     [Display(Name = "Activo")]
     public bool Activo { get; set; } = true;
+
+    /// <summary>Horario laboral (solo doctores): hora de entrada. Ej. 08:00.</summary>
+    [Display(Name = "Hora de entrada")]
+    public TimeSpan? HoraEntrada { get; set; } = new TimeSpan(8, 0, 0);
+    /// <summary>Horario laboral (solo doctores): hora de salida. Ej. 17:00.</summary>
+    [Display(Name = "Hora de salida")]
+    public TimeSpan? HoraSalida { get; set; } = new TimeSpan(17, 0, 0);
 }
 
 /// <summary>Para editar usuario desde Panel Clínica.</summary>
@@ -49,4 +56,11 @@ public class PersonalEditViewModel
 
     [Display(Name = "Activo")]
     public bool Activo { get; set; }
+
+    /// <summary>Horario laboral (solo doctores): hora de entrada.</summary>
+    [Display(Name = "Hora de entrada")]
+    public TimeSpan? HoraEntrada { get; set; }
+    /// <summary>Horario laboral (solo doctores): hora de salida.</summary>
+    [Display(Name = "Hora de salida")]
+    public TimeSpan? HoraSalida { get; set; }
 }

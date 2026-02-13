@@ -9,6 +9,8 @@ public class UsuarioClinicaListViewModel
     public string Email { get; set; } = null!;
     public string? Rol { get; set; }
     public bool Activo { get; set; }
+    /// <summary>Horario laboral (doctores): "08:00 - 17:00" o "—" si no definido.</summary>
+    public string? HorarioLaboral { get; set; }
 }
 
 public class UsuarioClinicaCreateViewModel
