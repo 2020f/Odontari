@@ -140,6 +140,16 @@
     });
   }
 
+  /** Dibuja media arcada: dientes de izquierda a derecha desde startX (borde izq. del primer diente). */
+  function renderHalfRow(g, row, startX, cy) {
+    row.forEach((num, i) => {
+      const cx = startX + TW / 2 + i * (TW + GAP);
+      const toothData = state.teeth[String(num)] || toothDefault();
+      state.teeth[String(num)] = toothData;
+      renderTooth(g, num, toothData, cx, cy);
+    });
+  }
+
   function render() {
     while (svg.firstChild) svg.removeChild(svg.firstChild);
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -147,14 +157,21 @@
     midline.setAttribute('x1', 400); midline.setAttribute('y1', 55); midline.setAttribute('x2', 400); midline.setAttribute('y2', 365);
     midline.setAttribute('stroke', '#94a3b8'); midline.setAttribute('stroke-width', '0.5'); midline.setAttribute('stroke-dasharray', '4 3');
     g.appendChild(midline);
-    renderRow(g, FDI_SUPERIOR[0], 82);
-    renderRow(g, FDI_SUPERIOR[1], 134);
-    renderRow(g, FDI_INFERIOR[0], 294);
-    renderRow(g, FDI_INFERIOR[1], 346);
+    const cySuperior = 108;
+    const cyInferior = 320;
+    const gapMidline = 8;
+    const halfWidth = 8 * (TW + GAP) - GAP;
+    const leftEnd = 400 - gapMidline / 2;
+    const rightStart = 400 + gapMidline / 2;
+    const startLeft = leftEnd - halfWidth;
+    renderHalfRow(g, FDI_SUPERIOR[0], startLeft, cySuperior);
+    renderHalfRow(g, FDI_SUPERIOR[1], rightStart, cySuperior);
+    renderHalfRow(g, FDI_INFERIOR[0], startLeft, cyInferior);
+    renderHalfRow(g, FDI_INFERIOR[1], rightStart, cyInferior);
 
     const labelSup = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     labelSup.setAttribute('x', 50);
-    labelSup.setAttribute('y', 105);
+    labelSup.setAttribute('y', cySuperior + 8);
     labelSup.setAttribute('font-size', '12');
     labelSup.setAttribute('fill', '#666');
     labelSup.textContent = 'Arcada superior';
@@ -162,7 +179,7 @@
 
     const labelInf = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     labelInf.setAttribute('x', 50);
-    labelInf.setAttribute('y', 315);
+    labelInf.setAttribute('y', cyInferior + 8);
     labelInf.setAttribute('font-size', '12');
     labelInf.setAttribute('fill', '#666');
     labelInf.textContent = 'Arcada inferior';
