@@ -5,6 +5,8 @@
   --odon-light: #6EA2B3;
   --odon-pale: #BDD8E9;
   max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .agenda-form-header {
