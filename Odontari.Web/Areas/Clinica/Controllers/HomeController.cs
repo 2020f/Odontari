@@ -26,18 +26,17 @@ public class HomeController : Controller
         if (cid == null) return RedirectToAction(nameof(SinClinica));
         var hoy = DateTime.Today;
         var manana = hoy.AddDays(1);
-        var queryCitas = _db.Citas
+        IQueryable<Models.Cita> queryCitas = _db.Citas
             .Where(c => c.ClinicaId == cid && c.FechaHora >= hoy && c.FechaHora < manana && c.Estado != Models.Enums.EstadoCita.Cancelada)
             .Include(c => c.Paciente)
-            .Include(c => c.Doctor)
-            .OrderBy(c => c.FechaHora);
+            .Include(c => c.Doctor);
         if (User.IsInRole(OdontariRoles.Doctor))
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!string.IsNullOrEmpty(userId))
                 queryCitas = queryCitas.Where(c => c.DoctorId == userId);
         }
-        ViewBag.CitasHoy = await queryCitas.ToListAsync();
+        ViewBag.CitasHoy = await queryCitas.OrderBy(c => c.FechaHora).ToListAsync();
         ViewBag.PendientesCobro = await _db.OrdenesCobro
             .Where(o => o.ClinicaId == cid && (o.Estado == Models.Enums.EstadoCobro.Pendiente || o.Estado == Models.Enums.EstadoCobro.Parcial))
             .Include(o => o.Paciente)
