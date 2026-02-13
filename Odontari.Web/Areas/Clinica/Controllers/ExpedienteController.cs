@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -5,7 +7,6 @@ using Odontari.Web.Data;
 using Odontari.Web.Models;
 using Odontari.Web.Services;
 using Odontari.Web.ViewModels;
-using System.Security.Claims;
 
 namespace Odontari.Web.Areas.Clinica.Controllers;
 
@@ -61,6 +62,117 @@ public class ExpedienteController : Controller
 
         ViewBag.Paciente = paciente;
         return View(vm);
+    }
+
+    /// <summary>Histograma: historial clínico + resumen + timeline + resumen odontograma. Filtrado por ClinicaId y PacienteId.</summary>
+    [HttpGet]
+    public async Task<IActionResult> Histograma(int id)
+    {
+        var cid = ClinicaId;
+        if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
+
+        var paciente = await _db.Pacientes
+            .Include(p => p.Clinica)
+            .FirstOrDefaultAsync(p => p.ClinicaId == cid && p.Id == id);
+        if (paciente == null) return NotFound();
+
+        var vm = new HistogramaViewModel
+        {
+            PacienteId = paciente.Id,
+            Nombre = paciente.Nombre,
+            Apellidos = paciente.Apellidos,
+            Cedula = paciente.Cedula,
+            Telefono = paciente.Telefono,
+            Email = paciente.Email,
+            FechaNacimiento = paciente.FechaNacimiento,
+            Alergias = paciente.Alergias,
+            NotasClinicas = paciente.NotasClinicas
+        };
+
+        var hoy = DateTime.UtcNow.Date;
+
+        // Última visita (última cita realizada/finalizada)
+        var ultimaCita = await _db.Citas
+            .Where(c => c.PacienteId == id && c.ClinicaId == cid && (c.Estado == Models.Enums.EstadoCita.Finalizada || c.Estado == Models.Enums.EstadoCita.EnAtencion))
+            .OrderByDescending(c => c.FechaHora)
+            .Include(c => c.Doctor)
+            .FirstOrDefaultAsync();
+        if (ultimaCita != null)
+            vm.UltimaVisita = $"{ultimaCita.FechaHora:dd/MM/yyyy} — {ultimaCita.Motivo ?? "Consulta"} (Dr. {ultimaCita.Doctor?.NombreCompleto ?? "—"})";
+
+        // Próxima cita (siguiente programada)
+        var proximaCita = await _db.Citas
+            .Where(c => c.PacienteId == id && c.ClinicaId == cid && c.FechaHora >= hoy && c.Estado != Models.Enums.EstadoCita.Cancelada)
+            .OrderBy(c => c.FechaHora)
+            .Include(c => c.Doctor)
+            .FirstOrDefaultAsync();
+        if (proximaCita != null)
+            vm.ProximoPaso = $"Próxima cita: {proximaCita.FechaHora:dd/MM/yyyy HH:mm} — {proximaCita.Motivo ?? "—"}";
+
+        // Timeline: HistorialClinico (citas, odontograma, procedimientos)
+        var historial = await _db.HistorialClinico
+            .Where(h => h.PacienteId == id && h.ClinicaId == cid)
+            .OrderByDescending(h => h.FechaEvento)
+            .Take(100)
+            .Select(h => new HistorialEventoViewModel
+            {
+                FechaEvento = h.FechaEvento,
+                TipoEvento = h.TipoEvento,
+                Descripcion = h.Descripcion
+            })
+            .ToListAsync();
+        vm.Timeline = historial;
+
+        if (historial.Any())
+            vm.UltimoDiagnostico = historial.FirstOrDefault(h => h.TipoEvento?.Contains("odontograma", StringComparison.OrdinalIgnoreCase) == true || h.TipoEvento?.Contains("Procedimiento") == true)?.Descripcion ?? historial[0].Descripcion;
+
+        // Resumen odontograma (último EstadoJson)
+        var odontograma = await _db.Odontogramas
+            .Where(o => o.PacienteId == id && o.ClinicaId == cid)
+            .OrderByDescending(o => o.UltimaModificacion)
+            .FirstOrDefaultAsync();
+        if (odontograma != null)
+        {
+            vm.ResumenOdontograma = ParseResumenOdontograma(odontograma.EstadoJson);
+            vm.ResumenOdontograma.UltimaActualizacion = odontograma.UltimaModificacion;
+        }
+
+        ViewBag.Paciente = paciente;
+        return View(vm);
+    }
+
+    private static ResumenOdontogramaViewModel ParseResumenOdontograma(string? estadoJson)
+    {
+        var resumen = new ResumenOdontogramaViewModel();
+        if (string.IsNullOrWhiteSpace(estadoJson)) return resumen;
+        try
+        {
+            using var doc = JsonDocument.Parse(estadoJson);
+            if (!doc.RootElement.TryGetProperty("teeth", out var teethEl)) return resumen;
+            var dientesConHallazgo = new List<int>();
+            foreach (var prop in teethEl.EnumerateObject())
+            {
+                if (!int.TryParse(prop.Name, out var num)) continue;
+                var tooth = prop.Value;
+                var status = tooth.TryGetProperty("status", out var s) ? s.GetString() ?? "NONE" : "NONE";
+                var estadoPrincipal = status;
+                if (string.IsNullOrEmpty(estadoPrincipal) || estadoPrincipal == "NONE")
+                    if (tooth.TryGetProperty("surfaces", out var surf))
+                        foreach (var sp in surf.EnumerateObject())
+                            if (sp.Value.GetString() is string v && v != "NONE") { estadoPrincipal = v; break; }
+                if (string.IsNullOrEmpty(estadoPrincipal) || estadoPrincipal == "NONE") continue;
+                resumen.TotalHallazgos++;
+                dientesConHallazgo.Add(num);
+                if (estadoPrincipal == "CARIES") resumen.Caries++;
+                else if (estadoPrincipal == "RESTAURACION" || estadoPrincipal == "OBTURACION") resumen.Restauraciones++;
+                else if (estadoPrincipal == "AUSENTE" || estadoPrincipal == "EXTRAIDO") resumen.Ausentes++;
+                else if (estadoPrincipal == "ENDODONCIA") resumen.Endodoncia++;
+                else resumen.Otros++;
+            }
+            resumen.UltimosDientesConHallazgo = dientesConHallazgo.OrderBy(x => x).Take(20).ToList();
+        }
+        catch { /* ignore parse errors */ }
+        return resumen;
     }
 
     /// <summary>Odontograma del paciente.</summary>

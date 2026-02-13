@@ -1,0 +1,124 @@
+@model Odontari.Web.ViewModels.HistogramaViewModel
+@{
+    var paciente = ViewBag.Paciente as Odontari.Web.Models.Paciente;
+    ViewData["Title"] = "Histograma - " + Model.Nombre;
+    var edad = Model.FechaNacimiento.HasValue ? (DateTime.Today.Year - Model.FechaNacimiento.Value.Year) : (int?)null;
+}
+
+<h1>Histograma (Historial / Resumen clínico)</h1>
+<p class="text-muted">@Model.Nombre @Model.Apellidos @(Model.Cedula != null ? " · " + Model.Cedula : "") @(edad.HasValue ? " · " + edad + " años" : "")</p>
+<p>
+    <a asp-action="Index" asp-route-id="@Model.PacienteId">← Volver al Expediente</a>
+    <span class="ms-2">|</span>
+    <a asp-action="Odontograma" asp-route-id="@Model.PacienteId" class="ms-2">Odontograma</a>
+</p>
+
+@if (!string.IsNullOrEmpty(Model.Alergias))
+{
+    <div class="alert alert-warning mb-3"><strong>Alergias:</strong> @Model.Alergias</div>
+}
+
+<!-- Resumen rápido -->
+<section class="card mb-4">
+    <div class="card-header"><h5 class="mb-0">Resumen rápido</h5></div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <h6 class="text-muted">Última visita</h6>
+                <p class="mb-0">@(Model.UltimaVisita ?? "Sin registros")</p>
+            </div>
+            <div class="col-md-4">
+                <h6 class="text-muted">Último diagnóstico / procedimiento</h6>
+                <p class="mb-0">@(Model.UltimoDiagnostico ?? "—")</p>
+            </div>
+            <div class="col-md-4">
+                <h6 class="text-muted">Próximo paso</h6>
+                <p class="mb-0">@(Model.ProximoPaso ?? "Ninguno programado")</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Datos del paciente -->
+<section class="card mb-4">
+    <div class="card-header"><h5 class="mb-0">Datos del paciente</h5></div>
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-2">Nombre</dt>
+            <dd class="col-sm-10">@Model.Nombre @Model.Apellidos</dd>
+            <dt class="col-sm-2">Documento / Cédula</dt>
+            <dd class="col-sm-10">@(Model.Cedula ?? "—")</dd>
+            <dt class="col-sm-2">Contacto</dt>
+            <dd class="col-sm-10">@(Model.Telefono ?? Model.Email ?? "—")</dd>
+            <dt class="col-sm-2">Alergias</dt>
+            <dd class="col-sm-10">@(Model.Alergias ?? "Ninguna registrada")</dd>
+            <dt class="col-sm-2">Notas clínicas</dt>
+            <dd class="col-sm-10">@(Model.NotasClinicas ?? "—")</dd>
+        </dl>
+    </div>
+</section>
+
+<!-- Timeline -->
+<section class="card mb-4">
+    <div class="card-header"><h5 class="mb-0">Timeline (histórico)</h5></div>
+    <div class="card-body p-0">
+        @if (Model.Timeline.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-sm table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tipo de evento</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var h in Model.Timeline)
+                        {
+                            <tr>
+                                <td>@h.FechaEvento.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@h.TipoEvento</td>
+                                <td>@(h.Descripcion ?? "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="p-3 mb-0 text-muted">No hay eventos en el historial.</p>
+        }
+    </div>
+</section>
+
+<!-- Resumen odontograma -->
+<section class="card mb-4">
+    <div class="card-header"><h5 class="mb-0">Resumen odontograma</h5></div>
+    <div class="card-body">
+        @if (Model.ResumenOdontograma != null)
+        {
+            var r = Model.ResumenOdontograma;
+            <p class="text-muted small mb-3">Última actualización: @(r.UltimaActualizacion?.ToString("dd/MM/yyyy HH:mm") ?? "—")</p>
+            <div class="row mb-3">
+                <div class="col-auto"><span class="badge bg-danger me-1">Caries</span> @r.Caries</div>
+                <div class="col-auto"><span class="badge bg-info me-1">Restauraciones</span> @r.Restauraciones</div>
+                <div class="col-auto"><span class="badge bg-secondary me-1">Ausentes</span> @r.Ausentes</div>
+                <div class="col-auto"><span class="badge bg-success me-1">Endodoncia</span> @r.Endodoncia</div>
+                <div class="col-auto"><span class="badge bg-dark me-1">Otros</span> @r.Otros</div>
+            </div>
+            <p class="mb-1"><strong>Total hallazgos:</strong> @r.TotalHallazgos dientes</p>
+            @if (r.UltimosDientesConHallazgo.Any())
+            {
+                <p class="mb-0"><strong>Dientes con hallazgo:</strong> @string.Join(", ", r.UltimosDientesConHallazgo)</p>
+            }
+        }
+        else
+        {
+            <p class="text-muted mb-0">No hay odontograma registrado. <a asp-action="Odontograma" asp-route-id="@Model.PacienteId">Abrir odontograma</a></p>
+        }
+    </div>
+</section>
+
+<p><a asp-action="Index" asp-route-id="@Model.PacienteId" class="btn btn-outline-secondary">← Volver al Expediente</a></p>
