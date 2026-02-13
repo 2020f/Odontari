@@ -149,6 +149,8 @@ public class ExpedienteController : Controller
             .Take(100)
             .Select(h => new HistorialEventoViewModel
             {
+                Id = h.Id,
+                CitaId = h.CitaId,
                 FechaEvento = h.FechaEvento,
                 TipoEvento = h.TipoEvento,
                 Descripcion = h.Descripcion
@@ -183,6 +185,7 @@ public class ExpedienteController : Controller
             using var doc = JsonDocument.Parse(estadoJson);
             if (!doc.RootElement.TryGetProperty("teeth", out var teethEl)) return resumen;
             var dientesConHallazgo = new List<int>();
+            var listaHallazgos = new List<string>();
             foreach (var prop in teethEl.EnumerateObject())
             {
                 if (!int.TryParse(prop.Name, out var num)) continue;
@@ -201,8 +204,16 @@ public class ExpedienteController : Controller
                 else if (estadoPrincipal == "AUSENTE" || estadoPrincipal == "EXTRAIDO") resumen.Ausentes++;
                 else if (estadoPrincipal == "ENDODONCIA") resumen.Endodoncia++;
                 else resumen.Otros++;
+                // Lista de hallazgos (mismo formato que en el odontograma: "Diente X (superficie): ESTADO" o "Diente X: ESTADO")
+                if (!string.IsNullOrEmpty(status) && status != "NONE")
+                    listaHallazgos.Add($"Diente {num}: {status}");
+                else if (tooth.TryGetProperty("surfaces", out var surfEl))
+                    foreach (var sp in surfEl.EnumerateObject())
+                        if (sp.Value.GetString() is string v && !string.IsNullOrEmpty(v) && v != "NONE")
+                            listaHallazgos.Add($"Diente {num} ({sp.Name}): {v}");
             }
             resumen.UltimosDientesConHallazgo = dientesConHallazgo.OrderBy(x => x).Take(20).ToList();
+            resumen.ListaHallazgos = listaHallazgos.OrderBy(x => x).ToList();
         }
         catch { /* ignore parse errors */ }
         return resumen;
@@ -297,6 +308,22 @@ public class ExpedienteController : Controller
         await _db.SaveChangesAsync();
 
         return Ok();
+    }
+
+    /// <summary>Ver detalle de un evento del timeline (cuando no está asociado a una cita).</summary>
+    [HttpGet]
+    public async Task<IActionResult> VerEvento(int id, int pacienteId)
+    {
+        var cid = ClinicaId;
+        if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
+        var ev = await _db.HistorialClinico
+            .FirstOrDefaultAsync(h => h.Id == id && h.ClinicaId == cid && h.PacienteId == pacienteId);
+        if (ev == null) return NotFound();
+        ViewBag.PacienteId = pacienteId;
+        ViewBag.FechaEvento = ev.FechaEvento;
+        ViewBag.TipoEvento = ev.TipoEvento;
+        ViewBag.Descripcion = ev.Descripcion ?? "—";
+        return View();
     }
 
     /// <summary>Historia Clínica Sistemática (20 preguntas).</summary>

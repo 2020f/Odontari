@@ -14,6 +14,8 @@ public class ExpedienteIndexViewModel
 
 public class HistorialEventoViewModel
 {
+    public int Id { get; set; }
+    public int? CitaId { get; set; }
     public DateTime FechaEvento { get; set; }
     public string TipoEvento { get; set; } = null!;
     public string? Descripcion { get; set; }

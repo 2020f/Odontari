@@ -67,5 +67,7 @@ public class ResumenOdontogramaViewModel
     public int Otros { get; set; }
     public int TotalHallazgos { get; set; }
     public List<int> UltimosDientesConHallazgo { get; set; } = new();
+    /// <summary>Lista de hallazgos en formato "Diente 14 (oclusal): OBTURACION", "Diente 27: AUSENTE", etc.</summary>
+    public List<string> ListaHallazgos { get; set; } = new();
     public DateTime? UltimaActualizacion { get; set; }
 }

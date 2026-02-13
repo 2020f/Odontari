@@ -1,0 +1,33 @@
+@{
+    ViewData["Title"] = "Detalle del evento";
+    var pacienteId = ViewBag.PacienteId as int?;
+    var fecha = ViewBag.FechaEvento as DateTime?;
+    var tipo = ViewBag.TipoEvento as string;
+    var desc = ViewBag.Descripcion as string;
+}
+
+<h1>Detalle del evento</h1>
+
+<div class="card">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Fecha</dt>
+            <dd class="col-sm-9">@(fecha?.ToString("dd/MM/yyyy HH:mm") ?? "—")</dd>
+            <dt class="col-sm-3">Tipo de evento</dt>
+            <dd class="col-sm-9">@(tipo ?? "—")</dd>
+            <dt class="col-sm-3">Descripción</dt>
+            <dd class="col-sm-9">@(desc ?? "—")</dd>
+        </dl>
+    </div>
+</div>
+
+<p class="mt-3">
+    @if (pacienteId.HasValue)
+    {
+        <a asp-action="Histograma" asp-route-id="@pacienteId.Value" class="btn btn-outline-secondary">← Volver al Histograma</a>
+    }
+    else
+    {
+        <a href="javascript:history.back()" class="btn btn-outline-secondary">← Volver</a>
+    }
+</p>

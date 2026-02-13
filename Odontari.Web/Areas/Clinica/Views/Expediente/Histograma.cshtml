@@ -119,6 +119,7 @@
                             <th>Fecha</th>
                             <th>Tipo de evento</th>
                             <th>Descripción</th>
+                            <th class="text-end">Acción</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -128,6 +129,16 @@
                                 <td>@h.FechaEvento.ToString("dd/MM/yyyy HH:mm")</td>
                                 <td>@h.TipoEvento</td>
                                 <td>@(h.Descripcion ?? "—")</td>
+                                <td class="text-end">
+                                    @if (h.CitaId.HasValue)
+                                    {
+                                        <a asp-controller="Atencion" asp-action="Expediente" asp-route-id="@h.CitaId.Value" class="btn btn-sm btn-outline-primary">Ver</a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-action="VerEvento" asp-route-id="@h.Id" asp-route-pacienteId="@Model.PacienteId" class="btn btn-sm btn-outline-secondary">Ver</a>
+                                    }
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -159,7 +170,17 @@
             <p class="mb-1"><strong>Total hallazgos:</strong> @r.TotalHallazgos dientes</p>
             @if (r.UltimosDientesConHallazgo.Any())
             {
-                <p class="mb-0"><strong>Dientes con hallazgo:</strong> @string.Join(", ", r.UltimosDientesConHallazgo)</p>
+                <p class="mb-2"><strong>Dientes con hallazgo:</strong> @string.Join(", ", r.UltimosDientesConHallazgo)</p>
+            }
+            @if (r.ListaHallazgos.Any())
+            {
+                <h6 class="mt-3 mb-2">Lista de hallazgos</h6>
+                <div class="hallazgos-list-resumen border rounded p-2 bg-light" style="max-height: 220px; overflow-y: auto;">
+                    @foreach (var h in r.ListaHallazgos)
+                    {
+                        <div class="hallazgo-item small py-1">@h</div>
+                    }
+                </div>
             }
         }
         else
