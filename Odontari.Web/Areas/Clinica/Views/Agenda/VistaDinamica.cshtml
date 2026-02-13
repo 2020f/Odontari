@@ -1,0 +1,185 @@
+@model IEnumerable<CitaListViewModel>
+@using Odontari.Web.Models.Enums
+@using System.Globalization
+@{
+    var inicio = (DateTime)ViewBag.FechaInicio;
+    var fin = (DateTime)ViewBag.FechaFin;
+    var vista = ViewBag.Vista as string ?? "semanal";
+    var esDoctor = ViewBag.EsDoctor == true;
+    var doctores = ViewBag.Doctores as IEnumerable<dynamic>;
+    var pacientes = ViewBag.Pacientes as IEnumerable<dynamic>;
+    var motivos = ViewBag.Motivos as IEnumerable<string>;
+    var doctorIdSel = ViewBag.DoctorIdSel as string;
+    var pacienteIdSel = ViewBag.PacienteIdSel as int?;
+    var motivoSel = ViewBag.MotivoSel as string;
+    var ci = CultureInfo.GetCultureInfo("es-ES");
+    var hoy = DateTime.Today;
+
+    int numDias = (int)(fin - inicio).TotalDays;
+    var dias = new List<DateTime>();
+    for (var d = inicio; d < fin; d = d.AddDays(1))
+        dias.Add(d);
+
+    var slots = new List<TimeSpan>();
+    for (int h = 8; h <= 19; h++)
+    {
+        slots.Add(new TimeSpan(h, 0, 0));
+        if (h < 19) slots.Add(new TimeSpan(h, 30, 0));
+    }
+
+    string FmtFechaCorta(DateTime dt) => dt.ToString("dd.MM.yyyy", ci);
+    string FmtDiaNombre(DateTime dt) => ci.DateTimeFormat.GetDayName(dt.DayOfWeek);
+    string FmtRango() => vista == "diario"
+        ? inicio.ToString("d MMM yyyy", ci)
+        : inicio.ToString("d MMM", ci) + " - " + fin.AddDays(-1).ToString("d MMM yyyy", ci);
+
+    ViewData["Title"] = "Agenda — Vista dinámica";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/agenda.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/agenda-dinamica.css" asp-append-version="true" />
+}
+
+<div class="agenda-dinamica-page">
+    <div class="agenda-dinamica-header">
+        <div class="agenda-dinamica-title-row">
+            <h1>Agenda de Citas</h1>
+            <div class="agenda-dinamica-header-actions">
+                <a asp-action="Index" class="btn-agenda-vista @(vista == "clasica" ? "active" : "")">Vista clásica</a>
+                <a asp-action="VistaDinamica" asp-route-vista="diario" asp-route-fecha="@inicio.ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" asp-route-pacienteId="@pacienteIdSel" asp-route-motivo="@motivoSel" class="btn-agenda-vista @(vista == "diario" ? "active" : "")">Diario</a>
+                <a asp-action="VistaDinamica" asp-route-vista="semanal" asp-route-fecha="@inicio.ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" asp-route-pacienteId="@pacienteIdSel" asp-route-motivo="@motivoSel" class="btn-agenda-vista @(vista == "semanal" ? "active" : "")">Semanal</a>
+                <a asp-action="Create" asp-route-fechaHora="@inicio.Date.AddHours(9)" class="btn-nueva-cita">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Nueva Cita
+                </a>
+            </div>
+        </div>
+
+        <div class="agenda-dinamica-nav">
+            <a asp-action="VistaDinamica" asp-route-vista="@vista" asp-route-fecha="@inicio.AddDays(vista == "diario" ? -1 : -7).ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" asp-route-pacienteId="@pacienteIdSel" asp-route-motivo="@motivoSel" class="btn-nav">‹</a>
+            <span class="agenda-dinamica-rango">@FmtRango()</span>
+            <a asp-action="VistaDinamica" asp-route-vista="@vista" asp-route-fecha="@inicio.AddDays(vista == "diario" ? 1 : 7).ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" asp-route-pacienteId="@pacienteIdSel" asp-route-motivo="@motivoSel" class="btn-nav">›</a>
+        </div>
+
+        <form method="get" class="agenda-dinamica-filters" asp-action="VistaDinamica">
+            <input type="hidden" name="vista" value="@vista" />
+            <input type="hidden" name="fecha" value="@inicio.ToString("yyyy-MM-dd")" />
+            <select name="doctorId" class="form-select form-select-sm filter-select">
+                <option value="">Personal (todos)</option>
+                @if (doctores != null)
+                {
+                    @foreach (var d in doctores)
+                    {
+                        <option value="@d.Id" selected="@(doctorIdSel == d.Id)">@(d.NombreCompleto ?? d.Id)</option>
+                    }
+                }
+            </select>
+            <select name="pacienteId" class="form-select form-select-sm filter-select">
+                <option value="">Clientes (todos)</option>
+                @if (pacientes != null)
+                {
+                    @foreach (var p in pacientes)
+                    {
+                        <option value="@p.Id" selected="@(pacienteIdSel == p.Id)">@p.Nombre</option>
+                    }
+                }
+            </select>
+            <select name="motivo" class="form-select form-select-sm filter-select">
+                <option value="">Servicios (todos)</option>
+                @if (motivos != null)
+                {
+                    @foreach (var m in motivos)
+                    {
+                        <option value="@m" selected="@(motivoSel == m)">@m</option>
+                    }
+                }
+            </select>
+            <select name="localizacion" class="form-select form-select-sm filter-select">
+                <option value="">Localización (todas)</option>
+            </select>
+            <button type="submit" class="btn btn-sm btn-outline-secondary">Filtrar</button>
+        </form>
+    </div>
+
+    <div class="agenda-dinamica-legend">
+        <span><span class="dot dot-solicitada"></span> Pendiente</span>
+        <span><span class="dot dot-confirmada"></span> Confirmada</span>
+        <span><span class="dot dot-ensala"></span> En sala</span>
+        <span><span class="dot dot-enatencion"></span> En atención</span>
+        <span><span class="dot dot-finalizada"></span> Finalizada</span>
+    </div>
+
+    <div class="agenda-dinamica-grid-wrap">
+        <div class="agenda-dinamica-grid" style="--cols: @(numDias + 1); --rows: @(slots.Count + 1);">
+            <div class="agenda-dinamica-corner"></div>
+            @foreach (var dia in dias)
+            {
+                var esHoy = dia.Date == hoy;
+                <div class="agenda-dinamica-day-header @(esHoy ? "today" : "")">
+                    @(char.ToUpper(FmtDiaNombre(dia)[0]) + FmtDiaNombre(dia).Substring(1)) @dia.ToString("dd.MM.yyyy", ci)
+                </div>
+            }
+            @foreach (var slot in slots)
+            {
+                <div class="agenda-dinamica-time-label">@slot.ToString(@"hh\:mm")</div>
+                @foreach (var dia in dias)
+                {
+                    var slotFin = slot.Add(TimeSpan.FromMinutes(30));
+                    var citasEnCelda = Model.Where(c =>
+                    {
+                        var fd = c.FechaHora.Date;
+                        var ft = c.FechaHora.TimeOfDay;
+                        return fd == dia.Date && ft >= slot && ft < slotFin;
+                    }).ToList();
+                    var esHoy = dia.Date == hoy;
+                    <div class="agenda-dinamica-cell @(esHoy ? "today" : "")" data-day="@dia.ToString("yyyy-MM-dd")" data-slot="@slot">
+                        @foreach (var c in citasEnCelda)
+                        {
+                            var estadoClase = "estado-" + c.Estado.ToString().ToLowerInvariant();
+                            var estadoNombre = c.Estado switch
+                            {
+                                EstadoCita.Solicitada => "Pendiente",
+                                EstadoCita.Confirmada => "Confirmada",
+                                EstadoCita.EnSala => "En sala",
+                                EstadoCita.EnAtencion => "En atención",
+                                EstadoCita.Finalizada => "Finalizada",
+                                EstadoCita.Cancelada => "Cancelada",
+                                _ => c.Estado.ToString()
+                            };
+                            <a asp-action="Editar" asp-route-id="@c.Id" class="agenda-dinamica-block @estadoClase" title="@(c.PacienteNombre) — @(c.Motivo ?? "Consulta")">
+                                <span class="block-time">@c.FechaHora.ToString("HH:mm") - @c.FechaHora.AddMinutes(30).ToString("HH:mm")</span>
+                                <span class="block-name">@c.PacienteNombre</span>
+                                <span class="block-motive">@(c.Motivo ?? "Consulta")</span>
+                                <span class="block-doctor">@(c.DoctorNombre ?? "—")</span>
+                                <span class="block-estado">@estadoNombre</span>
+                            </a>
+                        }
+                    </div>
+                }
+            }
+        </div>
+        <div class="agenda-dinamica-now-line" id="nowLine" aria-hidden="true"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var now = new Date();
+            var start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 8, 0, 0);
+            var end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 19, 30, 0);
+            if (now >= start && now <= end) {
+                var slotHeight = 32;
+                var totalMins = (now - start) / 60000;
+                var slotIndex = Math.floor(totalMins / 30);
+                var offset = (totalMins % 30) / 30 * slotHeight;
+                var top = 40 + slotIndex * slotHeight + offset;
+                var line = document.getElementById('nowLine');
+                if (line) {
+                    line.style.display = 'block';
+                    line.style.top = top + 'px';
+                }
+            }
+        })();
+    </script>
+}

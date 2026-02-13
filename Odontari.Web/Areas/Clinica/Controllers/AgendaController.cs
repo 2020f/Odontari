@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +25,76 @@ public class AgendaController : Controller
     }
 
     private int? ClinicaId => _clinicaActual.GetClinicaIdActual();
+
+    /// <summary>Vista dinámica: calendario semanal/diario con filtros (Servicios, Personal, Clientes). No modifica la lógica existente de Index.</summary>
+    [HttpGet]
+    public async Task<IActionResult> VistaDinamica(DateTime? fecha, string vista = "semanal", string? doctorId = null, int? pacienteId = null, string? motivo = null, string? localizacion = null)
+    {
+        var cid = ClinicaId;
+        if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
+
+        var esDoctor = User.IsInRole(OdontariRoles.Doctor);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (esDoctor && !string.IsNullOrEmpty(userId))
+            doctorId = userId;
+
+        var refDate = fecha ?? DateTime.Today;
+        DateTime inicio;
+        DateTime fin;
+        if (string.Equals(vista, "diario", StringComparison.OrdinalIgnoreCase))
+        {
+            inicio = refDate.Date;
+            fin = inicio.AddDays(1);
+        }
+        else
+        {
+            var diff = (7 + (refDate.DayOfWeek - DayOfWeek.Monday)) % 7;
+            inicio = refDate.Date.AddDays(-diff);
+            fin = inicio.AddDays(7);
+        }
+
+        IQueryable<Cita> query = _db.Citas
+            .Where(c => c.ClinicaId == cid && c.FechaHora >= inicio && c.FechaHora < fin && c.Estado != EstadoCita.Cancelada)
+            .Include(c => c.Paciente)
+            .Include(c => c.Doctor);
+        if (!string.IsNullOrEmpty(doctorId))
+            query = query.Where(c => c.DoctorId == doctorId);
+        if (pacienteId.HasValue)
+            query = query.Where(c => c.PacienteId == pacienteId.Value);
+        if (!string.IsNullOrWhiteSpace(motivo))
+            query = query.Where(c => c.Motivo != null && c.Motivo.Contains(motivo));
+
+        var citas = await query.OrderBy(c => c.FechaHora).ToListAsync();
+        var list = citas.Select(c => new CitaListViewModel
+        {
+            Id = c.Id,
+            PacienteId = c.PacienteId,
+            PacienteNombre = c.Paciente.Nombre + " " + (c.Paciente.Apellidos ?? ""),
+            DoctorNombre = c.Doctor?.NombreCompleto ?? c.Doctor?.Email,
+            FechaHora = c.FechaHora,
+            Motivo = c.Motivo,
+            Estado = c.Estado
+        }).ToList();
+
+        ViewBag.FechaInicio = inicio;
+        ViewBag.FechaFin = fin;
+        ViewBag.Vista = vista;
+        ViewBag.EsDoctor = esDoctor;
+
+        var roleDoctorId = await _db.Roles.Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
+        var doctorIds = await _db.UserRoles.Where(ur => ur.RoleId == roleDoctorId).Select(ur => ur.UserId).ToListAsync();
+        ViewBag.Doctores = await _db.Users.Where(u => u.ClinicaId == cid && doctorIds.Contains(u.Id)).Select(u => new { u.Id, NombreCompleto = u.NombreCompleto ?? u.Email }).ToListAsync();
+        ViewBag.Pacientes = await _db.Pacientes.Where(p => p.ClinicaId == cid && p.Activo).OrderBy(p => p.Nombre).Select(p => new { p.Id, Nombre = p.Nombre + " " + (p.Apellidos ?? "") }).ToListAsync();
+        var motivosDistinct = await _db.Citas.Where(c => c.ClinicaId == cid && c.Motivo != null && c.Motivo != "").Select(c => c.Motivo).Distinct().OrderBy(m => m).Take(50).ToListAsync();
+        ViewBag.Motivos = motivosDistinct;
+
+        ViewBag.DoctorIdSel = doctorId;
+        ViewBag.PacienteIdSel = pacienteId;
+        ViewBag.MotivoSel = motivo;
+        ViewBag.LocalizacionSel = localizacion;
+
+        return View(list);
+    }
 
     public async Task<IActionResult> Index(DateTime? fecha, string? doctorId)
     {

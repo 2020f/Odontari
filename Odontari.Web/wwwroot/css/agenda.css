@@ -25,6 +25,18 @@
   transition: background 0.2s, transform 0.1s;
 }
 .agenda-header .btn-nueva-cita:hover { background: var(--odon-light); color: #fff; transform: translateY(-1px); }
+.btn-agenda-vista-sec {
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--odon-accent);
+  background: #fff;
+  border: 1px solid var(--odon-accent);
+  transition: background 0.2s, color 0.2s;
+}
+.btn-agenda-vista-sec:hover { background: var(--odon-pale); color: var(--odon-hover); }
 
 .agenda-legend {
   display: flex;

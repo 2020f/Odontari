@@ -1,0 +1,326 @@
+/* Vista dinámica — calendario semanal/diario con filtros (referencia imagen) */
+.agenda-dinamica-page {
+  --odon: #001D39;
+  --odon-hover: #0A4174;
+  --odon-accent: #4E8EA2;
+  --odon-light: #6EA2B3;
+  --odon-pale: #BDD8E9;
+  --odon-bg: #f8fafc;
+  --border: rgba(0, 29, 57, 0.08);
+}
+
+.agenda-dinamica-header {
+  margin-bottom: 1rem;
+}
+
+.agenda-dinamica-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.agenda-dinamica-title-row h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--odon);
+}
+
+.agenda-dinamica-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-agenda-vista {
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: #5a6c7d;
+  background: #fff;
+  border: 1px solid var(--border);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.btn-agenda-vista:hover {
+  background: var(--odon-pale);
+  color: var(--odon-hover);
+  border-color: var(--odon-accent);
+}
+
+.btn-agenda-vista.active {
+  background: var(--odon-accent);
+  color: #fff;
+  border-color: var(--odon-accent);
+}
+
+.agenda-dinamica-header-actions .btn-nueva-cita {
+  background: var(--odon-accent);
+  color: #fff;
+  border: none;
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.agenda-dinamica-header-actions .btn-nueva-cita:hover {
+  background: var(--odon-light);
+  color: #fff;
+}
+
+.agenda-dinamica-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.agenda-dinamica-nav .btn-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--odon-accent);
+  text-decoration: none;
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: background 0.2s, color 0.2s;
+}
+
+.agenda-dinamica-nav .btn-nav:hover {
+  background: var(--odon-pale);
+  color: var(--odon-hover);
+}
+
+.agenda-dinamica-rango {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--odon);
+  min-width: 200px;
+  text-align: center;
+}
+
+.agenda-dinamica-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.agenda-dinamica-filters .filter-select {
+  min-width: 140px;
+  border-radius: 8px;
+  border-color: var(--border);
+  font-size: 0.875rem;
+}
+
+.agenda-dinamica-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: #5a6c7d;
+  margin-bottom: 1rem;
+}
+
+.agenda-dinamica-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.agenda-dinamica-legend .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.agenda-dinamica-legend .dot-solicitada { background: #e6a23c; }
+.agenda-dinamica-legend .dot-confirmada { background: #67c23a; }
+.agenda-dinamica-legend .dot-ensala { background: #7BBDE8; }
+.agenda-dinamica-legend .dot-enatencion { background: var(--odon-accent); }
+.agenda-dinamica-legend .dot-finalizada { background: #909399; }
+
+.agenda-dinamica-grid-wrap {
+  position: relative;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 29, 57, 0.06);
+  border: 1px solid var(--border);
+  overflow: auto;
+}
+
+.agenda-dinamica-grid {
+  display: grid;
+  grid-template-columns: 56px repeat(calc(var(--cols) - 1), minmax(100px, 1fr));
+  grid-template-rows: 40px repeat(calc(var(--rows) - 1), 32px);
+  min-width: 600px;
+}
+
+.agenda-dinamica-corner {
+  grid-column: 1;
+  grid-row: 1;
+  background: var(--odon-bg);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-radius: 8px 0 0 0;
+}
+
+.agenda-dinamica-day-header {
+  padding: 0.5rem 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #5a6c7d;
+  text-align: center;
+  background: var(--odon-bg);
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.agenda-dinamica-day-header:last-of-type {
+  border-right: none;
+}
+
+.agenda-dinamica-day-header.today {
+  background: rgba(78, 142, 162, 0.12);
+  color: var(--odon-accent);
+}
+
+.agenda-dinamica-time-label {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  color: #8a9ba8;
+  background: var(--odon-bg);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  padding-top: 4px;
+}
+
+.agenda-dinamica-cell {
+  min-height: 32px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.agenda-dinamica-cell.today {
+  background: rgba(78, 142, 162, 0.04);
+}
+
+.agenda-dinamica-cell:last-of-type {
+  border-right: none;
+}
+
+.agenda-dinamica-block {
+  display: block;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  text-decoration: none;
+  color: #1a252f;
+  border-left: 3px solid currentColor;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: opacity 0.15s, transform 0.05s;
+}
+
+.agenda-dinamica-block:hover {
+  opacity: 0.95;
+}
+
+.agenda-dinamica-block .block-time {
+  display: block;
+  font-size: 0.65rem;
+  color: inherit;
+  opacity: 0.9;
+  margin-bottom: 1px;
+}
+
+.agenda-dinamica-block .block-name {
+  font-weight: 600;
+  display: block;
+}
+
+.agenda-dinamica-block .block-motive,
+.agenda-dinamica-block .block-doctor {
+  display: block;
+  font-size: 0.65rem;
+  opacity: 0.85;
+}
+
+.agenda-dinamica-block .block-estado {
+  display: inline-block;
+  margin-top: 2px;
+  font-size: 0.6rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+/* Colores por estado (igual que agenda clásica) */
+.agenda-dinamica-block.estado-solicitada {
+  background: rgba(230, 162, 60, 0.18);
+  border-left-color: #e6a23c;
+}
+
+.agenda-dinamica-block.estado-confirmada {
+  background: rgba(103, 194, 58, 0.18);
+  border-left-color: #67c23a;
+}
+
+.agenda-dinamica-block.estado-ensala {
+  background: rgba(123, 189, 232, 0.25);
+  border-left-color: #7BBDE8;
+}
+
+.agenda-dinamica-block.estado-enatencion {
+  background: rgba(78, 142, 162, 0.2);
+  border-left-color: var(--odon-accent);
+}
+
+.agenda-dinamica-block.estado-finalizada {
+  background: rgba(144, 147, 153, 0.15);
+  border-left-color: #909399;
+}
+
+.agenda-dinamica-block.estado-cancelada {
+  background: rgba(245, 108, 108, 0.15);
+  border-left-color: #f56c6c;
+}
+
+/* Línea de hora actual */
+.agenda-dinamica-now-line {
+  display: none;
+  position: absolute;
+  left: 56px;
+  right: 0;
+  height: 2px;
+  background: var(--odon-accent);
+  z-index: 2;
+  pointer-events: none;
+}

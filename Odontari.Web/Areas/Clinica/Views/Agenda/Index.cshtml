@@ -34,10 +34,13 @@
             <h1>Agenda de Citas</h1>
             <p class="agenda-date mb-0">@(char.ToUpper(nombreDia[0]) + nombreDia.Substring(1)), @fecha.Day de @nombreMes de @fecha.Year</p>
         </div>
-        <a asp-action="Create" asp-route-fechaHora="@fecha.Date.AddHours(9)" class="btn-nueva-cita">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;">
+            <a asp-action="VistaDinamica" asp-route-fecha="@fecha.ToString("yyyy-MM-dd")" asp-route-vista="semanal" asp-route-doctorId="@doctorIdSel" class="btn-agenda-vista-sec">Vista dinámica</a>
+            <a asp-action="Create" asp-route-fechaHora="@fecha.Date.AddHours(9)" class="btn-nueva-cita">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Nueva Cita
         </a>
+        </div>
     </div>
 
     <div class="agenda-legend">
