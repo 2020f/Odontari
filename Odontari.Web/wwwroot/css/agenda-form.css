@@ -85,6 +85,101 @@
   outline: none;
 }
 
+/* Formulario moderno — card, iconos, fecha/hora separados */
+.form-agenda-card-modern {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 29, 57, 0.08);
+  border: 1px solid rgba(0, 29, 57, 0.06);
+  padding: 2rem;
+}
+
+.form-agenda-card-modern .agenda-form-group {
+  margin-bottom: 1.35rem;
+}
+
+.form-agenda-card-modern .agenda-form-group:last-of-type {
+  margin-bottom: 1.75rem;
+}
+
+.form-agenda-card-modern .form-label {
+  display: block;
+  font-weight: 600;
+  color: var(--odon);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.agenda-form-group-icon .input-wrap,
+.agenda-form-datetime-row .input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.agenda-form-group-icon .input-icon,
+.agenda-form-datetime-row .input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #8a9ba8;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.agenda-form-group-icon .input-icon svg,
+.agenda-form-datetime-row .input-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.form-agenda-card-modern .form-control-modern,
+.form-agenda-card-modern .form-select-modern {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 29, 57, 0.12);
+  padding: 0.6rem 0.85rem 0.6rem 44px;
+  font-size: 0.95rem;
+  background: #fafbfc;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.form-agenda-card-modern .form-control-modern:focus,
+.form-agenda-card-modern .form-select-modern:focus {
+  border-color: var(--odon-accent);
+  box-shadow: 0 0 0 3px rgba(78, 142, 162, 0.15);
+  outline: none;
+  background: #fff;
+}
+
+.form-agenda-card-modern .form-select-modern {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a9ba8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+
+.agenda-form-datetime-row .form-label {
+  margin-bottom: 0.5rem;
+}
+
+.datetime-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .datetime-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
 .agenda-form-actions {
   display: flex;
   flex-wrap: wrap;

@@ -41,28 +41,47 @@
         </a>
     </div>
 
-    <div class="form-agenda-card form-agenda-card-styled">
-        <form asp-action="Create" method="post">
-            <div class="agenda-form-group">
+    <div class="form-agenda-card form-agenda-card-modern">
+        <form asp-action="Create" method="post" id="formNuevaCita">
+            <input type="hidden" name="FechaHora" id="FechaHora" value="@Model.FechaHora.ToString("yyyy-MM-ddTHH:mm")" />
+            <div class="agenda-form-group agenda-form-group-icon">
                 <label asp-for="PacienteId" class="form-label">Paciente</label>
-                <select asp-for="PacienteId" class="form-select" required asp-items="@(new SelectList(pacientes ?? new List<dynamic>(), "Id", "Nombre"))">
-                    <option value="">-- Seleccione paciente --</option>
-                </select>
+                <div class="input-wrap">
+                    <span class="input-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                    <select asp-for="PacienteId" class="form-select form-select-modern" required asp-items="@(new SelectList(pacientes ?? new List<dynamic>(), "Id", "Nombre"))">
+                        <option value="">Seleccione paciente</option>
+                    </select>
+                </div>
             </div>
-            <div class="agenda-form-group">
+            <div class="agenda-form-group agenda-form-group-icon">
                 <label asp-for="DoctorId" class="form-label">Doctor</label>
-                <select asp-for="DoctorId" class="form-select" required asp-items="@(new SelectList(doctores ?? new List<dynamic>(), "Id", "Nombre"))">
-                    <option value="">-- Seleccione doctor --</option>
-                </select>
+                <div class="input-wrap">
+                    <span class="input-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                    <select asp-for="DoctorId" class="form-select form-select-modern" required asp-items="@(new SelectList(doctores ?? new List<dynamic>(), "Id", "Nombre"))">
+                        <option value="">Seleccione doctor</option>
+                    </select>
+                </div>
             </div>
-            <div class="agenda-form-group">
-                <label asp-for="FechaHora" class="form-label">Fecha y hora</label>
-                <input asp-for="FechaHora" type="datetime-local" class="form-control" />
+            <div class="agenda-form-group agenda-form-datetime-row">
+                <label class="form-label">Fecha y hora</label>
+                <div class="datetime-fields">
+                    <div class="input-wrap">
+                        <span class="input-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+                        <input type="date" id="FechaHoraDate" class="form-control form-control-modern" value="@Model.FechaHora.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <div class="input-wrap">
+                        <span class="input-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+                        <input type="time" id="FechaHoraTime" class="form-control form-control-modern" value="@Model.FechaHora.ToString("HH:mm")" required />
+                    </div>
+                </div>
                 <span asp-validation-for="FechaHora" class="text-danger small d-block mt-1"></span>
             </div>
-            <div class="agenda-form-group">
+            <div class="agenda-form-group agenda-form-group-icon">
                 <label asp-for="Motivo" class="form-label">Motivo / Procedimiento</label>
-                <input asp-for="Motivo" class="form-control" placeholder="Ej. Limpieza general, Revisión" />
+                <div class="input-wrap">
+                    <span class="input-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
+                    <input asp-for="Motivo" class="form-control form-control-modern" placeholder="Ej. Limpieza general, Revisión" />
+                </div>
             </div>
             <div class="agenda-form-actions">
                 <button type="submit" class="btn-agenda-form-primary">Guardar cita</button>
@@ -74,6 +93,20 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            var dateInput = document.getElementById('FechaHoraDate');
+            var timeInput = document.getElementById('FechaHoraTime');
+            var hiddenInput = document.getElementById('FechaHora');
+            function updateHidden() {
+                if (dateInput && timeInput && hiddenInput)
+                    hiddenInput.value = dateInput.value + 'T' + timeInput.value;
+            }
+            if (dateInput) dateInput.addEventListener('change', updateHidden);
+            if (timeInput) timeInput.addEventListener('change', updateHidden);
+            document.getElementById('formNuevaCita').addEventListener('submit', updateHidden);
+        })();
+    </script>
     @if (tieneErrores)
     {
         <script>
