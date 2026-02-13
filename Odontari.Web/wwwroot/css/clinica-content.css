@@ -137,3 +137,129 @@
 .expediente-historial .table { font-size: 0.9rem; }
 .expediente-historial .table thead th { background: rgba(0,29,57,0.03); }
 .expediente-empty { color: #8a9ba8; font-size: 0.9rem; padding: 1rem 0; }
+
+/* Histograma — tarjeta de paciente (estilo equilibrado y limpio) */
+.histograma-patient-card {
+  padding: 1.25rem 1.5rem;
+}
+.histograma-patient-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.histograma-patient-avatar {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 50%;
+  background: var(--odon-pale);
+  color: var(--odon-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.histograma-patient-avatar svg {
+  width: 26px;
+  height: 26px;
+}
+.histograma-patient-meta {
+  flex: 1;
+  min-width: 0;
+}
+.histograma-patient-name {
+  margin: 0 0 0.35rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--odon);
+  line-height: 1.3;
+}
+.histograma-patient-detail {
+  margin: 0.2rem 0;
+  font-size: 0.9rem;
+  color: #5a6c7d;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.histograma-detail-icon {
+  display: inline-flex;
+  color: var(--odon-accent);
+}
+.histograma-detail-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.histograma-allergy-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  background: rgba(220, 53, 69, 0.08);
+  border: 1px solid rgba(220, 53, 69, 0.35);
+  color: #b02a37;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+.histograma-allergy-icon {
+  display: inline-flex;
+  color: #dc3545;
+  flex-shrink: 0;
+}
+.histograma-allergy-icon svg {
+  width: 20px;
+  height: 20px;
+}
+.histograma-patient-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(0, 29, 57, 0.06);
+}
+.btn-histograma-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  text-decoration: none;
+  background: #fff;
+  border: 1px solid rgba(0, 29, 57, 0.2);
+  color: #5a6c7d;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.btn-histograma-secondary:hover {
+  background: rgba(0, 29, 57, 0.04);
+  border-color: rgba(0, 29, 57, 0.3);
+  color: var(--odon);
+}
+.btn-histograma-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  text-decoration: none;
+  background: var(--odon-accent);
+  border: none;
+  color: #fff;
+  transition: background 0.2s, transform 0.05s;
+}
+.btn-histograma-primary:hover {
+  background: var(--odon-light);
+  color: #fff;
+}
+.btn-histograma-icon {
+  display: inline-flex;
+}
+.btn-histograma-icon svg {
+  width: 18px;
+  height: 18px;
+}
