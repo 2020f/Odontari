@@ -165,16 +165,33 @@ public class AgendaController : Controller
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
         if (ModelState.IsValid)
         {
+            // 1. El doctor no debe estar con otro cliente a esa misma hora
             var conflicto = await _db.Citas.AnyAsync(c => c.ClinicaId == cid && c.DoctorId == vm.DoctorId && c.FechaHora == vm.FechaHora && c.Estado != EstadoCita.Cancelada);
             if (conflicto)
             {
                 ModelState.AddModelError("", "Ya existe una cita para ese doctor en ese horario con otro paciente. Elija otro doctor u otra hora.");
-                ViewBag.Pacientes = await _db.Pacientes.Where(p => p.ClinicaId == cid && p.Activo).OrderBy(p => p.Nombre).Select(p => new { p.Id, Nombre = p.Nombre + " " + (p.Apellidos ?? "") }).ToListAsync();
-                var roleDoctorIdConf = await _db.Roles.Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
-                var doctorIdsConf = await _db.UserRoles.Where(ur => ur.RoleId == roleDoctorIdConf).Select(ur => ur.UserId).ToListAsync();
-                ViewBag.Doctores = await _db.Users.Where(u => u.ClinicaId == cid && doctorIdsConf.Contains(u.Id)).Select(u => new { u.Id, Nombre = u.NombreCompleto ?? u.Email ?? u.Id }).ToListAsync();
+                await CargarViewBagCreateAsync(cid.Value, vm);
                 return View(vm);
             }
+
+            // 2. El doctor no debe estar fuera de su horario laboral
+            var doctor = await _db.Users
+                .Where(u => u.Id == vm.DoctorId && u.ClinicaId == cid)
+                .Select(u => new { u.HoraEntrada, u.HoraSalida })
+                .FirstOrDefaultAsync();
+            if (doctor != null && doctor.HoraEntrada.HasValue && doctor.HoraSalida.HasValue)
+            {
+                var horaCita = vm.FechaHora.TimeOfDay;
+                if (horaCita < doctor.HoraEntrada.Value || horaCita >= doctor.HoraSalida.Value)
+                {
+                    var ent = doctor.HoraEntrada.Value.ToString(@"hh\:mm");
+                    var sal = doctor.HoraSalida.Value.ToString(@"hh\:mm");
+                    ModelState.AddModelError("", $"La hora de la cita debe estar dentro del horario laboral del doctor ({ent} - {sal}). Elija otra hora.");
+                    await CargarViewBagCreateAsync(cid.Value, vm);
+                    return View(vm);
+                }
+            }
+
             _db.Citas.Add(new Cita
             {
                 ClinicaId = cid.Value,
@@ -187,11 +204,16 @@ public class AgendaController : Controller
             await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Index), new { fecha = vm.FechaHora.Date });
         }
-        ViewBag.Pacientes = await _db.Pacientes.Where(p => p.ClinicaId == cid && p.Activo).OrderBy(p => p.Nombre).Select(p => new { p.Id, Nombre = p.Nombre + " " + (p.Apellidos ?? "") }).ToListAsync();
-        var roleDoctorId3 = await _db.Roles.Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
-        var doctorIds3 = await _db.UserRoles.Where(ur => ur.RoleId == roleDoctorId3).Select(ur => ur.UserId).ToListAsync();
-        ViewBag.Doctores = await _db.Users.Where(u => u.ClinicaId == cid && doctorIds3.Contains(u.Id)).Select(u => new { u.Id, Nombre = u.NombreCompleto ?? u.Email ?? u.Id }).ToListAsync();
+        await CargarViewBagCreateAsync(cid.Value, vm);
         return View(vm);
+    }
+
+    private async Task CargarViewBagCreateAsync(int cid, CitaEditViewModel vm)
+    {
+        ViewBag.Pacientes = await _db.Pacientes.Where(p => p.ClinicaId == cid && p.Activo).OrderBy(p => p.Nombre).Select(p => new { p.Id, Nombre = p.Nombre + " " + (p.Apellidos ?? "") }).ToListAsync();
+        var roleDoctorId = await _db.Roles.Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
+        var doctorIds = await _db.UserRoles.Where(ur => ur.RoleId == roleDoctorId).Select(ur => ur.UserId).ToListAsync();
+        ViewBag.Doctores = await _db.Users.Where(u => u.ClinicaId == cid && doctorIds.Contains(u.Id)).Select(u => new { u.Id, Nombre = u.NombreCompleto ?? u.Email ?? u.Id }).ToListAsync();
     }
 
     [HttpPost]
@@ -242,6 +264,7 @@ public class AgendaController : Controller
         if (c == null) return NotFound();
         if (ModelState.IsValid)
         {
+            // 1. El doctor no debe estar con otro cliente a esa misma hora
             var conflicto = await _db.Citas.AnyAsync(cita => cita.ClinicaId == cid && cita.DoctorId == vm.DoctorId && cita.FechaHora == vm.FechaHora && cita.Estado != EstadoCita.Cancelada && cita.Id != id);
             if (conflicto)
             {
@@ -249,12 +272,39 @@ public class AgendaController : Controller
             }
             else
             {
-                c.PacienteId = vm.PacienteId;
-                c.DoctorId = vm.DoctorId;
-                c.FechaHora = vm.FechaHora;
-                c.Motivo = vm.Motivo;
-                await _db.SaveChangesAsync();
-                return RedirectToAction(nameof(Index), new { fecha = c.FechaHora.Date });
+                // 2. El doctor no debe estar fuera de su horario laboral
+                var doctor = await _db.Users
+                    .Where(u => u.Id == vm.DoctorId && u.ClinicaId == cid)
+                    .Select(u => new { u.HoraEntrada, u.HoraSalida })
+                    .FirstOrDefaultAsync();
+                if (doctor != null && doctor.HoraEntrada.HasValue && doctor.HoraSalida.HasValue)
+                {
+                    var horaCita = vm.FechaHora.TimeOfDay;
+                    if (horaCita < doctor.HoraEntrada.Value || horaCita >= doctor.HoraSalida.Value)
+                    {
+                        var ent = doctor.HoraEntrada.Value.ToString(@"hh\:mm");
+                        var sal = doctor.HoraSalida.Value.ToString(@"hh\:mm");
+                        ModelState.AddModelError("", $"La hora de la cita debe estar dentro del horario laboral del doctor ({ent} - {sal}). Elija otra hora.");
+                    }
+                    else
+                    {
+                        c.PacienteId = vm.PacienteId;
+                        c.DoctorId = vm.DoctorId;
+                        c.FechaHora = vm.FechaHora;
+                        c.Motivo = vm.Motivo;
+                        await _db.SaveChangesAsync();
+                        return RedirectToAction(nameof(Index), new { fecha = c.FechaHora.Date });
+                    }
+                }
+                else
+                {
+                    c.PacienteId = vm.PacienteId;
+                    c.DoctorId = vm.DoctorId;
+                    c.FechaHora = vm.FechaHora;
+                    c.Motivo = vm.Motivo;
+                    await _db.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index), new { fecha = c.FechaHora.Date });
+                }
             }
         }
         ViewBag.Pacientes = await _db.Pacientes.Where(p => p.ClinicaId == cid && p.Activo).OrderBy(p => p.Nombre).Select(p => new { p.Id, Nombre = p.Nombre + " " + (p.Apellidos ?? "") }).ToListAsync();
