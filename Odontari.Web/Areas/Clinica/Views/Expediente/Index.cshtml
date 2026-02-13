@@ -4,8 +4,9 @@
     ViewData["Title"] = "Expediente - " + Model.Nombre;
 }
 
+@await Html.PartialAsync("_ExpedienteMenu")
+
 <div class="expediente-header">
-    <a asp-controller="Pacientes" asp-action="Index" class="btn-content-secondary mb-2" style="display: inline-flex; align-items: center; gap: 0.35rem;">← Volver a Pacientes</a>
     <h1 class="expediente-title">@Model.Nombre @Model.Apellidos</h1>
     <p class="expediente-sub mb-0">@(Model.Cedula ?? "—") @(Model.Telefono != null ? " · " + Model.Telefono : "")</p>
 </div>
@@ -16,8 +17,6 @@
         <strong>Alergias:</strong> @Model.Alergias
     </div>
 }
-
-@await Html.PartialAsync("_ExpedienteMenu")
 
 @{
     var seccionActiva = ViewBag.SeccionActivaExpediente as string ?? "resumen";

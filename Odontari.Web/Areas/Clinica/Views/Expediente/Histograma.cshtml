@@ -5,6 +5,8 @@
     var edad = Model.FechaNacimiento.HasValue ? (DateTime.Today.Year - Model.FechaNacimiento.Value.Year) : (int?)null;
 }
 
+@await Html.PartialAsync("_ExpedienteMenu")
+
 <div class="histograma-patient-card content-card mb-3">
     <div class="histograma-patient-info">
         <div class="histograma-patient-avatar" aria-hidden="true">
@@ -35,8 +37,6 @@
 </div>
 
 <h2 class="expediente-section-title mt-2 mb-2">Histograma (Historial / Resumen clínico)</h2>
-
-@await Html.PartialAsync("_ExpedienteMenu")
 
 <!-- Resumen rápido -->
 <section class="card mb-4">

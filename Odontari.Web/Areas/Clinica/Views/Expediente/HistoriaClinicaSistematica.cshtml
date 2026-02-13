@@ -4,13 +4,12 @@
     ViewData["Title"] = "Historia Clínica Sistemática - " + (paciente?.Nombre ?? "");
 }
 
+@await Html.PartialAsync("_ExpedienteMenu")
+
 <div class="expediente-header mb-3">
-    <a asp-controller="Pacientes" asp-action="Index" class="btn-content-secondary mb-2" style="display: inline-flex; align-items: center; gap: 0.35rem;">← Volver a Pacientes</a>
     <h1 class="expediente-title">Historia Clínica Sistemática</h1>
     <p class="expediente-sub mb-0"><strong>Paciente:</strong> @paciente?.Nombre @paciente?.Apellidos</p>
 </div>
-
-@await Html.PartialAsync("_ExpedienteMenu")
 
 <form asp-action="HistoriaClinicaSistematica" asp-route-id="@Model.PacienteId" method="post">
     <input type="hidden" asp-for="PacienteId" />
