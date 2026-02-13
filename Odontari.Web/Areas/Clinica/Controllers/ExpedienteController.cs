@@ -68,10 +68,12 @@ public class ExpedienteController : Controller
 
     /// <summary>Histograma: historial clínico + resumen + timeline + resumen odontograma. Filtrado por ClinicaId y PacienteId.</summary>
     [HttpGet]
-    public async Task<IActionResult> Histograma(int id)
+    public async Task<IActionResult> Histograma(int id, int? citaId)
     {
         var cid = ClinicaId;
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
+
+        ViewBag.CitaId = citaId;
 
         var paciente = await _db.Pacientes
             .Include(p => p.Clinica)

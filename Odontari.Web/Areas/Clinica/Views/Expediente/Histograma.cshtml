@@ -7,6 +7,10 @@
 
 <div class="expediente-header mb-3">
     <a asp-controller="Pacientes" asp-action="Index" class="btn-content-secondary mb-2" style="display: inline-flex; align-items: center; gap: 0.35rem;">← Volver a Pacientes</a>
+    @if (ViewBag.CitaId != null)
+    {
+        <a asp-controller="Atencion" asp-action="Expediente" asp-route-id="@ViewBag.CitaId" class="btn btn-primary mb-2" style="display: inline-flex; align-items: center; gap: 0.35rem;">Ir a Procedimientos</a>
+    }
     <h1 class="expediente-title">Histograma (Historial / Resumen clínico)</h1>
     <p class="expediente-sub mb-0">@Model.Nombre @Model.Apellidos @(Model.Cedula != null ? " · " + Model.Cedula : "") @(edad.HasValue ? " · " + edad + " años" : "")</p>
 </div>
