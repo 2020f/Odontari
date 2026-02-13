@@ -1,0 +1,240 @@
+/* Nueva cita / Editar — formulario y mensaje flotante */
+.agenda-form-page {
+  --odon: #001D39;
+  --odon-accent: #4E8EA2;
+  --odon-light: #6EA2B3;
+  --odon-pale: #BDD8E9;
+  max-width: 560px;
+}
+
+.agenda-form-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.agenda-form-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--odon);
+}
+
+.btn-agenda-form-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-decoration: none;
+  color: var(--odon-accent);
+  background: #fff;
+  border: 1px solid var(--odon-accent);
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-agenda-form-back:hover {
+  background: var(--odon-pale);
+  color: #0A4174;
+}
+
+.form-agenda-card-styled {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0, 29, 57, 0.08);
+  border: 1px solid rgba(0, 29, 57, 0.08);
+  padding: 1.75rem;
+}
+
+.form-agenda-card-styled .agenda-form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-agenda-card-styled .agenda-form-group:last-of-type {
+  margin-bottom: 1.5rem;
+}
+
+.form-agenda-card-styled .form-label {
+  display: block;
+  font-weight: 600;
+  color: var(--odon);
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+
+.form-agenda-card-styled .form-control,
+.form-agenda-card-styled .form-select {
+  border-radius: 8px;
+  border: 1px solid rgba(0, 29, 57, 0.14);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
+  width: 100%;
+}
+
+.form-agenda-card-styled .form-control:focus,
+.form-agenda-card-styled .form-select:focus {
+  border-color: var(--odon-accent);
+  box-shadow: 0 0 0 3px rgba(78, 142, 162, 0.18);
+  outline: none;
+}
+
+.agenda-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+.btn-agenda-form-primary {
+  padding: 0.55rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  background: var(--odon-accent);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.05s;
+}
+
+.btn-agenda-form-primary:hover {
+  background: var(--odon-light);
+}
+
+.btn-agenda-form-secondary {
+  padding: 0.55rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  text-decoration: none;
+  color: #5a6c7d;
+  background: #fff;
+  border: 1px solid rgba(0, 29, 57, 0.2);
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.btn-agenda-form-secondary:hover {
+  background: rgba(0, 29, 57, 0.04);
+  border-color: rgba(0, 29, 57, 0.3);
+  color: var(--odon);
+}
+
+/* Mensaje flotante centrado */
+.agenda-message-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+  cursor: pointer;
+}
+
+.agenda-message-overlay.show {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.agenda-message-flotante {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  max-width: 420px;
+  width: 100%;
+  padding: 1.5rem 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+  animation: agendaMessageIn 0.3s ease;
+  cursor: default;
+}
+
+@keyframes agendaMessageIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.agenda-message-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(220, 53, 69, 0.12);
+  color: #dc3545;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.agenda-message-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.agenda-message-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.agenda-message-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1a252f;
+}
+
+.agenda-message-text {
+  font-size: 0.95rem;
+  color: #5a6c7d;
+  line-height: 1.45;
+}
+
+.agenda-message-list {
+  margin: 0;
+  padding-left: 1.15rem;
+}
+
+.agenda-message-list li {
+  margin-bottom: 0.25rem;
+}
+
+.agenda-message-list li:last-child {
+  margin-bottom: 0;
+}
+
+.agenda-message-close {
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  background: var(--odon-accent);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-self: flex-end;
+}
+
+.agenda-message-close:hover {
+  background: var(--odon-light);
+}
