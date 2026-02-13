@@ -163,11 +163,11 @@
     renderHalfRow(g, FDI_INFERIOR[0], startLeft, cyInferior);
     renderHalfRow(g, FDI_INFERIOR[1], rightStart, cyInferior);
     const ls = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    ls.setAttribute('x', 50); ls.setAttribute('y', cySuperior + 8); ls.setAttribute('font-size', '12'); ls.setAttribute('fill', '#64748b');
+    ls.setAttribute('x', 50); ls.setAttribute('y', cySuperior - TH / 2 - 14); ls.setAttribute('font-size', '12'); ls.setAttribute('fill', '#64748b');
     ls.textContent = 'Arcada superior';
     g.appendChild(ls);
     const li = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    li.setAttribute('x', 50); li.setAttribute('y', cyInferior + 8); li.setAttribute('font-size', '12'); li.setAttribute('fill', '#64748b');
+    li.setAttribute('x', 50); li.setAttribute('y', cyInferior - TH / 2 - 14); li.setAttribute('font-size', '12'); li.setAttribute('fill', '#64748b');
     li.textContent = 'Arcada inferior';
     g.appendChild(li);
     svgEl.appendChild(g);

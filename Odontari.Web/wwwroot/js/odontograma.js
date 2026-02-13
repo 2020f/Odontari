@@ -171,7 +171,7 @@
 
     const labelSup = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     labelSup.setAttribute('x', 50);
-    labelSup.setAttribute('y', cySuperior + 8);
+    labelSup.setAttribute('y', cySuperior - TH / 2 - 14);
     labelSup.setAttribute('font-size', '12');
     labelSup.setAttribute('fill', '#666');
     labelSup.textContent = 'Arcada superior';
@@ -179,7 +179,7 @@
 
     const labelInf = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     labelInf.setAttribute('x', 50);
-    labelInf.setAttribute('y', cyInferior + 8);
+    labelInf.setAttribute('y', cyInferior - TH / 2 - 14);
     labelInf.setAttribute('font-size', '12');
     labelInf.setAttribute('fill', '#666');
     labelInf.textContent = 'Arcada inferior';
