@@ -172,7 +172,7 @@
 .agenda-dinamica-grid {
   display: grid;
   grid-template-columns: 56px repeat(calc(var(--cols) - 1), minmax(100px, 1fr));
-  grid-template-rows: 40px repeat(calc(var(--rows) - 1), 32px);
+  grid-template-rows: 40px repeat(calc(var(--rows) - 1), 56px);
   min-width: 600px;
 }
 
@@ -218,12 +218,12 @@
 }
 
 .agenda-dinamica-cell {
-  min-height: 32px;
+  min-height: 56px;
   border-right: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  padding: 2px;
+  padding: 3px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .agenda-dinamica-cell.today {
@@ -243,9 +243,10 @@
   color: #1a252f;
   border-left: 3px solid currentColor;
   margin-bottom: 2px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow: visible;
+  white-space: normal;
+  word-wrap: break-word;
+  line-height: 1.3;
   transition: opacity 0.15s, transform 0.05s;
 }
 
@@ -271,6 +272,8 @@
   display: block;
   font-size: 0.65rem;
   opacity: 0.85;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .agenda-dinamica-block .block-estado {

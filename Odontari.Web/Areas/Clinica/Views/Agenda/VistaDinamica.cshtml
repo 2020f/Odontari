@@ -169,7 +169,7 @@
             var start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 8, 0, 0);
             var end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 19, 30, 0);
             if (now >= start && now <= end) {
-                var slotHeight = 32;
+                var slotHeight = 56;
                 var totalMins = (now - start) / 60000;
                 var slotIndex = Math.floor(totalMins / 30);
                 var offset = (totalMins % 30) / 30 * slotHeight;
