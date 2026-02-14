@@ -1,21 +1,55 @@
 @using Odontari.Web.Data
 @inject Microsoft.AspNetCore.Identity.UserManager<Odontari.Web.Models.ApplicationUser> UserManager
 @{
-    ViewData["Title"] = "ODONTARI";
+    ViewData["Title"] = "Bienvenida";
     var user = await UserManager.GetUserAsync(User);
     var isSuperAdmin = user != null && await UserManager.IsInRoleAsync(user, OdontariRoles.SuperAdmin);
+    var nombreUsuario = user?.NombreCompleto ?? user?.Email ?? User.Identity?.Name ?? "Usuario";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/welcome.css" asp-append-version="true" />
 }
 
-<div class="text-center">
-    <h1 class="display-4">ODONTARI</h1>
-    <p class="lead">Sistema de gestión odontológica</p>
+<div class="welcome-page">
+    <div class="welcome-hero">
+        <p class="welcome-greeting">Bienvenido, <strong>@nombreUsuario</strong></p>
+        <h1 class="welcome-brand">ODONTARI</h1>
+        <p class="welcome-tagline">Sistema de gestión odontológica</p>
+    </div>
+
     @if (user?.ClinicaId != null)
     {
-        <p><a asp-area="Clinica" asp-controller="Home" asp-action="Index" class="btn btn-primary">Panel Clínica – Dashboard</a></p>
-        <p><a asp-area="Clinica" asp-controller="Agenda" asp-action="Index">Agenda</a> | <a asp-area="Clinica" asp-controller="Pacientes" asp-action="Index">Pacientes</a> | <a asp-area="Clinica" asp-controller="Tratamientos" asp-action="Index">Tratamientos</a> | <a asp-area="Clinica" asp-controller="Atencion" asp-action="Index">Mis citas (doctor)</a> | <a asp-area="Clinica" asp-controller="Caja" asp-action="Index">Caja</a></p>
+        <div class="welcome-actions">
+            <a asp-area="Clinica" asp-controller="Home" asp-action="Index" class="welcome-btn-primary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                Panel Clínica – Dashboard
+            </a>
+        </div>
+        <div class="welcome-quick-links">
+            <p class="welcome-quick-links-title">Acceso rápido</p>
+            <div class="welcome-quick-links-grid">
+                <a asp-area="Clinica" asp-controller="Agenda" asp-action="Index" class="welcome-quick-link">Agenda</a>
+                <a asp-area="Clinica" asp-controller="Pacientes" asp-action="Index" class="welcome-quick-link">Pacientes</a>
+                <a asp-area="Clinica" asp-controller="Tratamientos" asp-action="Index" class="welcome-quick-link">Tratamientos</a>
+                <a asp-area="Clinica" asp-controller="Atencion" asp-action="Index" class="welcome-quick-link">Mis citas</a>
+                <a asp-area="Clinica" asp-controller="Caja" asp-action="Index" class="welcome-quick-link">Caja</a>
+            </div>
+        </div>
     }
+
     @if (isSuperAdmin)
     {
-        <p><a asp-area="Saas" asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">Panel SaaS – Dashboard</a> <a asp-area="Saas" asp-controller="Planes" asp-action="Index" class="btn btn-primary">Planes</a> <a asp-area="Saas" asp-controller="Clinicas" asp-action="Index" class="btn btn-outline-primary">Clínicas</a></p>
+        <div class="welcome-saas">
+            <p class="welcome-saas-title">Administración SaaS</p>
+            <div class="welcome-saas-actions">
+                <a asp-area="Saas" asp-controller="Dashboard" asp-action="Index" class="welcome-btn-secondary">Dashboard</a>
+                <a asp-area="Saas" asp-controller="Planes" asp-action="Index" class="welcome-btn-primary">Planes</a>
+                <a asp-area="Saas" asp-controller="Clinicas" asp-action="Index" class="welcome-btn-secondary">Clínicas</a>
+            </div>
+        </div>
     }
+
+    <footer class="footer-welcome">
+        &copy; 2026 Odontari · <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
+    </footer>
 </div>

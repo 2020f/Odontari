@@ -1,0 +1,180 @@
+/* Pantalla de bienvenida — ODONTARI */
+.welcome-page {
+  --welcome-primary: #001D39;
+  --welcome-accent: #4E8EA2;
+  --welcome-accent-light: #6EA2B3;
+  min-height: calc(100vh - 180px);
+  padding: 2rem 0 3rem;
+  background: linear-gradient(160deg, #f0f6fa 0%, #e8f2f7 50%, #fff 100%);
+  border-radius: 16px;
+}
+
+.welcome-hero {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.welcome-greeting {
+  font-size: 1rem;
+  color: #5a6c7d;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.welcome-greeting strong {
+  color: var(--welcome-primary);
+}
+
+.welcome-brand {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  color: var(--welcome-primary);
+  letter-spacing: 0.02em;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.welcome-tagline {
+  font-size: 1.1rem;
+  color: #5a6c7d;
+  font-weight: 400;
+  margin-bottom: 0;
+}
+
+.welcome-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.welcome-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  background: var(--welcome-accent);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 14px rgba(78, 142, 162, 0.35);
+  transition: background 0.2s, transform 0.05s, box-shadow 0.2s;
+}
+
+.welcome-btn-primary:hover {
+  background: var(--welcome-accent-light);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(78, 142, 162, 0.4);
+}
+
+.welcome-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  background: #fff;
+  color: var(--welcome-primary);
+  border: 2px solid rgba(0, 29, 57, 0.15);
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.welcome-btn-secondary:hover {
+  border-color: var(--welcome-accent);
+  background: rgba(78, 142, 162, 0.06);
+  color: var(--welcome-primary);
+}
+
+.welcome-quick-links {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 20px rgba(0, 29, 57, 0.06);
+  border: 1px solid rgba(0, 29, 57, 0.06);
+  padding: 1.5rem 1.75rem;
+  max-width: 640px;
+  margin: 0 auto 2rem;
+}
+
+.welcome-quick-links-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #8a9ba8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.welcome-quick-links-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+}
+
+.welcome-quick-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--welcome-accent);
+  background: rgba(78, 142, 162, 0.08);
+  border: 1px solid rgba(78, 142, 162, 0.2);
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.welcome-quick-link:hover {
+  background: rgba(78, 142, 162, 0.14);
+  border-color: var(--welcome-accent);
+  color: #0A4174;
+}
+
+.welcome-saas {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(0, 29, 57, 0.08);
+  text-align: center;
+}
+
+.welcome-saas-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #8a9ba8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.welcome-saas-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.welcome-page .footer-welcome {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #8a9ba8;
+}
+
+.welcome-page .footer-welcome a {
+  color: var(--welcome-accent);
+  text-decoration: none;
+}
+
+.welcome-page .footer-welcome a:hover {
+  text-decoration: underline;
+}
