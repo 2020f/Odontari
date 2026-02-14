@@ -1,6 +1,7 @@
 @using Odontari.Web.Data
 @inject Microsoft.AspNetCore.Identity.UserManager<Odontari.Web.Models.ApplicationUser> UserManager
 @{
+    Layout = "~/Views/Shared/_LayoutWelcome.cshtml";
     ViewData["Title"] = "Bienvenida";
     var user = await UserManager.GetUserAsync(User);
     var isSuperAdmin = user != null && await UserManager.IsInRoleAsync(user, OdontariRoles.SuperAdmin);
@@ -51,5 +52,13 @@
 
     <footer class="footer-welcome">
         &copy; 2026 Odontari · <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <span class="ms-2">·</span>
+            <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" class="d-inline ms-1">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-link-welcome">Cerrar sesión</button>
+            </form>
+        }
     </footer>
 </div>
