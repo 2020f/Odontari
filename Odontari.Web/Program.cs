@@ -69,17 +69,14 @@ else
 app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseAuthentication();
-app.UseAuthorization();
-
-// Si llegan a /Home/AccesoDenegado con ReturnUrl de Clinica/Saas, redirigir al dashboard con overlay
+// Interceptar GET /Home/AccesoDenegado con ReturnUrl de área y redirigir al dashboard con overlay (antes de auth)
 app.Use(async (context, next) =>
 {
-    var path = context.Request.Path.Value ?? "";
+    var path = (context.Request.Path.Value ?? "").TrimEnd('/');
     if (path.Equals("/Home/AccesoDenegado", StringComparison.OrdinalIgnoreCase))
     {
         var returnUrl = context.Request.Query["ReturnUrl"].FirstOrDefault() ?? "";
-        var decoded = Uri.UnescapeDataString(returnUrl);
+        var decoded = string.IsNullOrEmpty(returnUrl) ? "" : Uri.UnescapeDataString(returnUrl);
         if (decoded.StartsWith("/Clinica", StringComparison.OrdinalIgnoreCase))
         {
             context.Response.Redirect("/Clinica/Home/Index?accesoDenegado=1");
@@ -93,6 +90,9 @@ app.Use(async (context, next) =>
     }
     await next();
 });
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapStaticAssets();
 
