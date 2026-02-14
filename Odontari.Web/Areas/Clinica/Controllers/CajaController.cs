@@ -57,6 +57,19 @@ public class CajaController : Controller
         if (orden == null) return NotFound();
         var saldo = orden.Total - orden.MontoPagado;
         ViewBag.Orden = orden;
+        var procedimientos = new List<(string Nombre, string? Notas, decimal Precio)>();
+        if (orden.CitaId.HasValue)
+        {
+            var lista = await _db.ProcedimientosRealizados
+                .Where(pr => pr.CitaId == orden.CitaId.Value && pr.MarcadoRealizado)
+                .Include(pr => pr.Tratamiento)
+                .OrderBy(pr => pr.Tratamiento != null ? pr.Tratamiento.Nombre : "")
+                .Select(pr => new { pr.Tratamiento!.Nombre, pr.Notas, pr.PrecioAplicado })
+                .ToListAsync();
+            procedimientos = lista.Select(p => (p.Nombre, p.Notas, Precio: p.PrecioAplicado)).ToList();
+        }
+        ViewBag.Procedimientos = procedimientos;
+        ViewBag.TotalProcedimientos = procedimientos.Sum(p => p.Precio);
         return View(new PagoRegistroViewModel { OrdenCobroId = id, SaldoPendiente = saldo });
     }
 

@@ -1,6 +1,8 @@
 @model PagoRegistroViewModel
 @{
     var orden = ViewBag.Orden as Odontari.Web.Models.OrdenCobro;
+    var procedimientos = ViewBag.Procedimientos as List<(string Nombre, string? Notas, decimal Precio)> ?? new List<(string, string?, decimal)>();
+    var totalProcedimientos = ViewBag.TotalProcedimientos as decimal? ?? orden?.Total ?? 0;
     ViewData["Title"] = "Registrar pago";
 }
 @section Styles {
@@ -31,6 +33,41 @@
             </div>
         </div>
     }
+
+    <div class="cobrar-procedimientos-card">
+        <h2 class="cobrar-procedimientos-title">Procedimientos a cobrar</h2>
+        @if (procedimientos.Any())
+        {
+            <table class="cobrar-procedimientos-table">
+                <thead>
+                    <tr>
+                        <th>Tratamiento</th>
+                        <th class="cobrar-procedimientos-th-precio">Precio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in procedimientos)
+                    {
+                        <tr>
+                            <td>@p.Nombre @if (!string.IsNullOrEmpty(p.Notas)) { <span class="cobrar-procedimientos-notas">(@p.Notas)</span> }</td>
+                            <td class="cobrar-procedimientos-precio">RD$ @p.Precio.ToString("N2")</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="cobrar-procedimientos-total-row">
+                        <td><strong>Total</strong></td>
+                        <td class="cobrar-procedimientos-precio"><strong>RD$ @totalProcedimientos.ToString("N2")</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        }
+        else
+        {
+            <p class="cobrar-procedimientos-empty">No hay detalle de procedimientos para esta orden. El total mostrado corresponde a la orden de cobro.</p>
+            <p class="cobrar-procedimientos-total-solo"><strong>Total orden:</strong> RD$ @(orden?.Total.ToString("N2") ?? "0.00")</p>
+        }
+    </div>
 
     <div class="cobrar-card">
         <form asp-action="Cobrar" asp-route-id="@Model.OrdenCobroId" method="post" class="cobrar-form">
