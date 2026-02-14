@@ -1,0 +1,62 @@
+@* Formulario para nueva cita dentro del modal (estilo referencia "Book a visit"). *@
+@{
+    var pacientes = ViewBag.Pacientes as IEnumerable<dynamic> ?? new List<dynamic>();
+    var doctores = ViewBag.Doctores as IEnumerable<dynamic> ?? new List<dynamic>();
+    var fechaHoraDefault = ViewBag.FechaHoraModal ?? DateTime.Today.AddHours(9);
+    var returnFecha = ViewBag.ReturnFecha as string ?? "";
+    var returnVista = ViewBag.ReturnVista as string ?? "semanal";
+    var returnDoctorId = ViewBag.ReturnDoctorId as string ?? "";
+    var returnPacienteId = ViewBag.ReturnPacienteId as string ?? "";
+    var returnMotivo = ViewBag.ReturnMotivo as string ?? "";
+}
+<div class="agenda-modal-card" role="dialog" aria-modal="true" aria-labelledby="modalNuevaCitaTitle">
+    <h2 class="agenda-modal-title" id="modalNuevaCitaTitle">Nueva cita</h2>
+    <form asp-area="Clinica" asp-controller="Agenda" asp-action="Create" method="post" id="formModalNuevaCita" class="agenda-modal-form">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="FechaHora" id="ModalFechaHora" value="@fechaHoraDefault.ToString("yyyy-MM-ddTHH:mm")" />
+        <input type="hidden" name="returnToVistaDinamica" value="1" />
+        <input type="hidden" name="returnFecha" value="@returnFecha" />
+        <input type="hidden" name="returnVista" value="@returnVista" />
+        <input type="hidden" name="returnDoctorId" value="@returnDoctorId" />
+        <input type="hidden" name="returnPacienteId" value="@returnPacienteId" />
+        <input type="hidden" name="returnMotivo" value="@returnMotivo" />
+        <input type="hidden" name="isModalForm" value="1" />
+
+        <div class="agenda-modal-field">
+            <label for="ModalPacienteId" class="agenda-modal-label">Paciente</label>
+            <select name="PacienteId" id="ModalPacienteId" class="agenda-modal-input" required>
+                <option value="">Seleccione paciente</option>
+                @foreach (var p in pacientes)
+                {
+                    <option value="@p.Id">@p.Nombre</option>
+                }
+            </select>
+        </div>
+        <div class="agenda-modal-field">
+            <label for="ModalDoctorId" class="agenda-modal-label">Doctor</label>
+            <select name="DoctorId" id="ModalDoctorId" class="agenda-modal-input" required>
+                <option value="">Seleccione doctor</option>
+                @foreach (var d in doctores)
+                {
+                    <option value="@d.Id">@(d.NombreCompleto ?? d.Nombre ?? d.Id)</option>
+                }
+            </select>
+        </div>
+        <div class="agenda-modal-field agenda-modal-datetime">
+            <label class="agenda-modal-label">Fecha y hora</label>
+            <div class="agenda-modal-datetime-row">
+                <input type="date" id="ModalFecha" class="agenda-modal-input" value="@fechaHoraDefault.ToString("yyyy-MM-dd")" required />
+                <input type="time" id="ModalHora" class="agenda-modal-input" value="@fechaHoraDefault.ToString("HH:mm")" required />
+            </div>
+        </div>
+        <div class="agenda-modal-field">
+            <label for="ModalMotivo" class="agenda-modal-label">Motivo / Procedimiento</label>
+            <input type="text" name="Motivo" id="ModalMotivo" class="agenda-modal-input" placeholder="Ej. Limpieza general, Revisión" />
+        </div>
+        <div id="modalNuevaCitaErrores" class="agenda-modal-errors" role="alert" aria-live="polite"></div>
+        <div class="agenda-modal-actions">
+            <button type="button" class="agenda-modal-btn-cancel" id="btnCerrarModalNuevaCita">Cancelar</button>
+            <button type="submit" class="agenda-modal-btn-primary">Agendar</button>
+        </div>
+    </form>
+</div>

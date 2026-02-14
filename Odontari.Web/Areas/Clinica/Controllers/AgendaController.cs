@@ -92,6 +92,12 @@ public class AgendaController : Controller
         ViewBag.PacienteIdSel = pacienteId;
         ViewBag.MotivoSel = motivo;
         ViewBag.LocalizacionSel = localizacion;
+        ViewBag.FechaHoraModal = inicio.Date.AddHours(9);
+        ViewBag.ReturnFecha = inicio.ToString("yyyy-MM-dd");
+        ViewBag.ReturnVista = vista;
+        ViewBag.ReturnDoctorId = doctorId ?? "";
+        ViewBag.ReturnPacienteId = pacienteId.HasValue ? pacienteId.Value.ToString() : "";
+        ViewBag.ReturnMotivo = motivo ?? "";
 
         return View(list);
     }
@@ -159,10 +165,12 @@ public class AgendaController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CitaEditViewModel vm)
+    public async Task<IActionResult> Create(CitaEditViewModel vm, string? returnToVistaDinamica, string? returnFecha, string? returnVista, string? returnDoctorId, string? returnPacienteId, string? returnMotivo, string? isModalForm)
     {
         var cid = ClinicaId;
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
+        var desdeModal = isModalForm == "1";
+
         if (ModelState.IsValid)
         {
             // 1. El doctor no debe estar con otro cliente a esa misma hora
@@ -170,6 +178,7 @@ public class AgendaController : Controller
             if (conflicto)
             {
                 ModelState.AddModelError("", "Ya existe una cita para ese doctor en ese horario con otro paciente. Elija otro doctor u otra hora.");
+                if (desdeModal) return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
                 await CargarViewBagCreateAsync(cid.Value, vm);
                 return View(vm);
             }
@@ -187,6 +196,7 @@ public class AgendaController : Controller
                     var ent = doctor.HoraEntrada.Value.ToString(@"hh\:mm");
                     var sal = doctor.HoraSalida.Value.ToString(@"hh\:mm");
                     ModelState.AddModelError("", $"La hora de la cita debe estar dentro del horario laboral del doctor ({ent} - {sal}). Elija otra hora.");
+                    if (desdeModal) return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
                     await CargarViewBagCreateAsync(cid.Value, vm);
                     return View(vm);
                 }
@@ -202,8 +212,19 @@ public class AgendaController : Controller
                 Estado = EstadoCita.Solicitada
             });
             await _db.SaveChangesAsync();
+
+            if (desdeModal && !string.IsNullOrEmpty(returnToVistaDinamica))
+            {
+                var url = Url.Action(nameof(VistaDinamica), "Agenda", new { area = "Clinica", fecha = returnFecha ?? vm.FechaHora.ToString("yyyy-MM-dd"), vista = returnVista ?? "semanal", doctorId = returnDoctorId, pacienteId = returnPacienteId, motivo = returnMotivo });
+                return Json(new { success = true, redirectUrl = url });
+            }
+            if (!string.IsNullOrEmpty(returnToVistaDinamica))
+                return RedirectToAction(nameof(VistaDinamica), new { area = "Clinica", fecha = returnFecha ?? vm.FechaHora.Date.ToString("yyyy-MM-dd"), vista = returnVista ?? "semanal", doctorId = returnDoctorId, pacienteId = returnPacienteId, motivo = returnMotivo });
             return RedirectToAction(nameof(Index), new { fecha = vm.FechaHora.Date });
         }
+
+        if (desdeModal)
+            return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
         await CargarViewBagCreateAsync(cid.Value, vm);
         return View(vm);
     }
