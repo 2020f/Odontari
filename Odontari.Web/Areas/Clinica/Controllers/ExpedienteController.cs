@@ -377,7 +377,7 @@ public class ExpedienteController : Controller
                         {
                             CitaId = cita.Id,
                             TratamientoId = tratamiento.Id,
-                            PrecioAplicado = 0, // Sin precio hasta que la clínica lo defina
+                            PrecioAplicado = tratamiento.PrecioBase, // Si ya se definió precio en la tabla Tratamiento, se usa; si no, 0
                             MarcadoRealizado = false,
                             Notas = notasKey
                         });

@@ -122,6 +122,7 @@ public class AtencionController : Controller
         return RedirectToAction(nameof(Expediente), new { id = pr.CitaId });
     }
 
+    /// <summary>Actualiza el precio del procedimiento en esta cita y lo fija en la tabla Tratamiento para usos futuros.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ActualizarPrecioProcedimiento(int procedimientoId, decimal precio)
@@ -130,10 +131,13 @@ public class AtencionController : Controller
         if (cid == null) return Unauthorized();
         var pr = await _db.ProcedimientosRealizados
             .Include(p => p.Cita)
+            .Include(p => p.Tratamiento)
             .FirstOrDefaultAsync(p => p.Cita!.ClinicaId == cid && p.Id == procedimientoId);
         if (pr == null) return NotFound();
         if (precio < 0) precio = 0;
         pr.PrecioAplicado = precio;
+        if (pr.Tratamiento != null)
+            pr.Tratamiento.PrecioBase = precio;
         await _db.SaveChangesAsync();
         return RedirectToAction(nameof(Expediente), new { id = pr.CitaId });
     }
