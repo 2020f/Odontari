@@ -41,61 +41,75 @@
 }
 
 <div class="agenda-dinamica-page">
-    <div class="agenda-dinamica-header">
-        <div class="agenda-dinamica-title-row">
-            <h1>Agenda de Citas</h1>
-            <div class="agenda-dinamica-header-actions">
-                <a asp-action="Index" class="btn-agenda-vista @(vista == "clasica" ? "active" : "")">Vista clásica</a>
-                <a asp-action="VistaDinamica" asp-route-vista="diario" asp-route-fecha="@inicio.ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" asp-route-pacienteId="@pacienteIdSel" asp-route-motivo="@motivoSel" class="btn-agenda-vista @(vista == "diario" ? "active" : "")">Diario</a>
-                <a asp-action="VistaDinamica" asp-route-vista="semanal" asp-route-fecha="@inicio.ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" asp-route-pacienteId="@pacienteIdSel" asp-route-motivo="@motivoSel" class="btn-agenda-vista @(vista == "semanal" ? "active" : "")">Semanal</a>
+    <header class="agenda-dinamica-header">
+        <div class="agenda-dinamica-toolbar">
+            <h1 class="agenda-dinamica-titulo">Agenda de Citas</h1>
+            <div class="agenda-dinamica-nav-wrap">
+                <div class="agenda-dinamica-nav" aria-label="Navegación de fechas">
+                    <a asp-action="VistaDinamica" asp-route-vista="@vista" asp-route-fecha="@inicio.AddDays(vista == "diario" ? -1 : -7).ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" asp-route-pacienteId="@pacienteIdSel" asp-route-motivo="@motivoSel" class="btn-nav" aria-label="Semana anterior">‹</a>
+                    <span class="agenda-dinamica-rango">@FmtRango()</span>
+                    <a asp-action="VistaDinamica" asp-route-vista="@vista" asp-route-fecha="@inicio.AddDays(vista == "diario" ? 1 : 7).ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" asp-route-pacienteId="@pacienteIdSel" asp-route-motivo="@motivoSel" class="btn-nav" aria-label="Semana siguiente">›</a>
+                </div>
+                <div class="agenda-dinamica-vistas" role="group" aria-label="Tipo de vista">
+                    <a asp-action="Index" class="btn-agenda-vista @(vista == "clasica" ? "active" : "")">Vista clásica</a>
+                    <a asp-action="VistaDinamica" asp-route-vista="diario" asp-route-fecha="@inicio.ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" asp-route-pacienteId="@pacienteIdSel" asp-route-motivo="@motivoSel" class="btn-agenda-vista @(vista == "diario" ? "active" : "")">Diario</a>
+                    <a asp-action="VistaDinamica" asp-route-vista="semanal" asp-route-fecha="@inicio.ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" asp-route-pacienteId="@pacienteIdSel" asp-route-motivo="@motivoSel" class="btn-agenda-vista @(vista == "semanal" ? "active" : "")">Semanal</a>
+                </div>
             </div>
         </div>
-
-        <div class="agenda-dinamica-nav">
-            <a asp-action="VistaDinamica" asp-route-vista="@vista" asp-route-fecha="@inicio.AddDays(vista == "diario" ? -1 : -7).ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" asp-route-pacienteId="@pacienteIdSel" asp-route-motivo="@motivoSel" class="btn-nav">‹</a>
-            <span class="agenda-dinamica-rango">@FmtRango()</span>
-            <a asp-action="VistaDinamica" asp-route-vista="@vista" asp-route-fecha="@inicio.AddDays(vista == "diario" ? 1 : 7).ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" asp-route-pacienteId="@pacienteIdSel" asp-route-motivo="@motivoSel" class="btn-nav">›</a>
-        </div>
-
-        <form method="get" class="agenda-dinamica-filters" asp-action="VistaDinamica">
+        <form method="get" class="agenda-dinamica-filters" asp-action="VistaDinamica" aria-label="Filtros de agenda">
             <input type="hidden" name="vista" value="@vista" />
             <input type="hidden" name="fecha" value="@inicio.ToString("yyyy-MM-dd")" />
-            <select name="doctorId" class="form-select form-select-sm filter-select">
-                <option value="">Personal (todos)</option>
-                @if (doctores != null)
-                {
-                    @foreach (var d in doctores)
-                    {
-                        <option value="@d.Id" selected="@(doctorIdSel == d.Id)">@(d.NombreCompleto ?? d.Id)</option>
-                    }
-                }
-            </select>
-            <select name="pacienteId" class="form-select form-select-sm filter-select">
-                <option value="">Clientes (todos)</option>
-                @if (pacientes != null)
-                {
-                    @foreach (var p in pacientes)
-                    {
-                        <option value="@p.Id" selected="@(pacienteIdSel == p.Id)">@p.Nombre</option>
-                    }
-                }
-            </select>
-            <select name="motivo" class="form-select form-select-sm filter-select">
-                <option value="">Servicios (todos)</option>
-                @if (motivos != null)
-                {
-                    @foreach (var m in motivos)
-                    {
-                        <option value="@m" selected="@(motivoSel == m)">@m</option>
-                    }
-                }
-            </select>
-            <select name="localizacion" class="form-select form-select-sm filter-select">
-                <option value="">Localización (todas)</option>
-            </select>
-            <button type="submit" class="btn btn-sm btn-outline-secondary">Filtrar</button>
+            <div class="agenda-dinamica-filters-inner">
+                <div class="agenda-dinamica-filter-group">
+                    <label class="agenda-dinamica-filter-label" for="filterDoctor">Personal</label>
+                    <select name="doctorId" class="form-select form-select-sm filter-select" id="filterDoctor">
+                        <option value="">Todos</option>
+                        @if (doctores != null)
+                        {
+                            @foreach (var d in doctores)
+                            {
+                                <option value="@d.Id" selected="@(doctorIdSel == d.Id)">@(d.NombreCompleto ?? d.Id)</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="agenda-dinamica-filter-group">
+                    <label class="agenda-dinamica-filter-label" for="filterPaciente">Clientes</label>
+                    <select name="pacienteId" class="form-select form-select-sm filter-select" id="filterPaciente">
+                        <option value="">Todos</option>
+                        @if (pacientes != null)
+                        {
+                            @foreach (var p in pacientes)
+                            {
+                                <option value="@p.Id" selected="@(pacienteIdSel == p.Id)">@p.Nombre</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="agenda-dinamica-filter-group">
+                    <label class="agenda-dinamica-filter-label" for="filterMotivo">Servicios</label>
+                    <select name="motivo" class="form-select form-select-sm filter-select" id="filterMotivo">
+                        <option value="">Todos</option>
+                        @if (motivos != null)
+                        {
+                            @foreach (var m in motivos)
+                            {
+                                <option value="@m" selected="@(motivoSel == m)">@m</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="agenda-dinamica-filter-group">
+                    <label class="agenda-dinamica-filter-label" for="filterLocalizacion">Localización</label>
+                    <select name="localizacion" class="form-select form-select-sm filter-select" id="filterLocalizacion">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <button type="submit" class="agenda-dinamica-btn-filtrar">Filtrar</button>
+            </div>
         </form>
-    </div>
+    </header>
 
     <div class="agenda-dinamica-legend">
         <span><span class="dot dot-solicitada"></span> Pendiente</span>

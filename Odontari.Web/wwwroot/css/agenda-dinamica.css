@@ -9,83 +9,39 @@
   --border: rgba(0, 29, 57, 0.08);
 }
 
+/* Header: barra superior + barra de filtros */
 .agenda-dinamica-header {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
-.agenda-dinamica-title-row {
+.agenda-dinamica-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
 }
 
-.agenda-dinamica-title-row h1 {
+.agenda-dinamica-titulo {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--odon);
 }
 
-.agenda-dinamica-header-actions {
+.agenda-dinamica-nav-wrap {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
-}
-
-.btn-agenda-vista {
-  padding: 0.4rem 0.9rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  text-decoration: none;
-  color: #5a6c7d;
-  background: #fff;
-  border: 1px solid var(--border);
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
-}
-
-.btn-agenda-vista:hover {
-  background: var(--odon-pale);
-  color: var(--odon-hover);
-  border-color: var(--odon-accent);
-}
-
-.btn-agenda-vista.active {
-  background: var(--odon-accent);
-  color: #fff;
-  border-color: var(--odon-accent);
-}
-
-.agenda-dinamica-header-actions .btn-nueva-cita {
-  background: var(--odon-accent);
-  color: #fff;
-  border: none;
-  padding: 0.45rem 0.9rem;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.9rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  text-decoration: none;
-  transition: background 0.2s;
-}
-
-.agenda-dinamica-header-actions .btn-nueva-cita:hover {
-  background: var(--odon-light);
-  color: #fff;
+  gap: 1rem;
 }
 
 .agenda-dinamica-nav {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 0.5rem;
 }
 
 .agenda-dinamica-nav .btn-nav {
@@ -110,27 +66,101 @@
 }
 
 .agenda-dinamica-rango {
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--odon);
-  min-width: 200px;
+  min-width: 160px;
   text-align: center;
 }
 
+.agenda-dinamica-vistas {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.btn-agenda-vista {
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: #5a6c7d;
+  background: #fff;
+  border: 1px solid var(--border);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.btn-agenda-vista:hover {
+  background: var(--odon-pale);
+  color: var(--odon-hover);
+  border-color: var(--odon-accent);
+}
+
+.btn-agenda-vista.active {
+  background: var(--odon-accent);
+  color: #fff;
+  border-color: var(--odon-accent);
+}
+
+/* Barra de filtros: una fila horizontal con etiquetas y botón */
 .agenda-dinamica-filters {
+  margin-top: 0;
+  padding: 1rem;
+  background: var(--odon-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.agenda-dinamica-filters-inner {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 0;
-  border-top: 1px solid var(--border);
+  align-items: flex-end;
+  gap: 0.75rem 1.5rem;
+}
+
+.agenda-dinamica-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.agenda-dinamica-filter-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #5a6c7d;
+  margin: 0;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .agenda-dinamica-filters .filter-select {
   min-width: 140px;
+  max-width: 180px;
   border-radius: 8px;
-  border-color: var(--border);
+  border: 1px solid var(--border);
   font-size: 0.875rem;
+  padding: 0.4rem 0.65rem;
+  background: #fff;
+}
+
+.agenda-dinamica-btn-filtrar {
+  padding: 0.45rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--odon-accent);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-left: auto;
+}
+
+.agenda-dinamica-btn-filtrar:hover {
+  background: var(--odon-light);
 }
 
 .agenda-dinamica-legend {
