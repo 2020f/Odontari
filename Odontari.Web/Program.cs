@@ -37,7 +37,6 @@ builder.Services.ConfigureApplicationCookie(options =>
                 ctx.Response.Redirect("/Saas/Dashboard/Index?accesoDenegado=1");
             else
                 ctx.Response.Redirect("/Home/AccesoDenegado?ReturnUrl=" + Uri.EscapeDataString(ctx.Request.Path));
-            ctx.Handled = true;
             return Task.CompletedTask;
         }
     };
