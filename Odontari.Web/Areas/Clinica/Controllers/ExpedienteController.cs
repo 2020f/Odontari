@@ -329,10 +329,12 @@ public class ExpedienteController : Controller
         var descripcion = listaHallazgos.Count > 0
             ? "Odontograma actualizado" + "\n" + string.Join("\n", listaHallazgos)
             : "Odontograma actualizado";
+        var citaIdParaHistorial = request.CitaId;
         _db.HistorialClinico.Add(new HistorialClinico
         {
             PacienteId = pacienteId,
             ClinicaId = cid.Value,
+            CitaId = citaIdParaHistorial,
             FechaEvento = DateTime.UtcNow,
             TipoEvento = "Actualización odontograma",
             Descripcion = descripcion,
@@ -340,7 +342,70 @@ public class ExpedienteController : Controller
         });
         await _db.SaveChangesAsync();
 
+        // Sincronizar hallazgos a procedimientos de la cita (para cobro), sin precio por defecto
+        if (request.CitaId.HasValue && request.CitaId.Value > 0)
+        {
+            var cita = await _db.Citas
+                .Include(c => c.ProcedimientosRealizados)
+                .FirstOrDefaultAsync(c => c.ClinicaId == cid && c.Id == request.CitaId.Value && c.PacienteId == pacienteId);
+            if (cita != null)
+            {
+                foreach (var linea in listaHallazgos)
+                {
+                    var (notasKey, nombreEstado) = ParseHallazgoLinea(linea);
+                    if (string.IsNullOrWhiteSpace(nombreEstado)) continue;
+                    var nombreTratamiento = NormalizarNombreTratamiento(nombreEstado);
+                    var tratamiento = await _db.Tratamientos
+                        .FirstOrDefaultAsync(t => t.ClinicaId == cid && t.Nombre.ToLower() == nombreTratamiento.ToLower());
+                    if (tratamiento == null)
+                    {
+                        tratamiento = new Tratamiento
+                        {
+                            ClinicaId = cid.Value,
+                            Nombre = nombreTratamiento,
+                            PrecioBase = 0,
+                            Activo = true,
+                            DuracionMinutos = 30
+                        };
+                        _db.Tratamientos.Add(tratamiento);
+                        await _db.SaveChangesAsync();
+                    }
+                    var yaExiste = cita.ProcedimientosRealizados.Any(pr => pr.TratamientoId == tratamiento.Id && pr.Notas == notasKey);
+                    if (!yaExiste)
+                    {
+                        _db.ProcedimientosRealizados.Add(new ProcedimientoRealizado
+                        {
+                            CitaId = cita.Id,
+                            TratamientoId = tratamiento.Id,
+                            PrecioAplicado = 0, // Sin precio hasta que la clínica lo defina
+                            MarcadoRealizado = false,
+                            Notas = notasKey
+                        });
+                    }
+                }
+                await _db.SaveChangesAsync();
+            }
+        }
+
         return Ok();
+    }
+
+    /// <summary>Parsea "Diente 11: IMPLANTE" o "Diente 13 (palatino): SELLANTE" en (notasKey, nombreEstado).</summary>
+    private static (string notasKey, string nombreEstado) ParseHallazgoLinea(string linea)
+    {
+        if (string.IsNullOrWhiteSpace(linea)) return ("", "");
+        var idx = linea.IndexOf(": ", StringComparison.Ordinal);
+        if (idx <= 0) return ("", "");
+        var notasKey = linea[..idx].Trim();
+        var nombreEstado = linea[(idx + 2)..].Trim();
+        return (notasKey, nombreEstado);
+    }
+
+    private static string NormalizarNombreTratamiento(string estado)
+    {
+        if (string.IsNullOrWhiteSpace(estado)) return estado;
+        if (estado.Length == 1) return estado.ToUpperInvariant();
+        return char.ToUpperInvariant(estado[0]) + estado[1..].ToLowerInvariant();
     }
 
     /// <summary>Ver detalle de un evento del timeline (cuando no está asociado a una cita).</summary>

@@ -106,13 +106,34 @@ public class AtencionController : Controller
         var cid = ClinicaId;
         if (cid == null) return Unauthorized();
         var pr = await _db.ProcedimientosRealizados
-            .Include(pr => pr.Cita)
-            .Include(pr => pr.Tratamiento)
-            .FirstOrDefaultAsync(pr => pr.Cita!.ClinicaId == cid && pr.Id == procedimientoId);
+            .Include(p => p.Cita)
+            .Include(p => p.Tratamiento)
+            .FirstOrDefaultAsync(p => p.Cita!.ClinicaId == cid && p.Id == procedimientoId);
         if (pr == null) return NotFound();
+        if (pr.PrecioAplicado == 0)
+        {
+            TempData["MostrarMensajePreciosProcedimientos"] = true;
+            return RedirectToAction(nameof(Expediente), new { id = pr.CitaId });
+        }
         pr.MarcadoRealizado = true;
         pr.RealizadoAt = DateTime.Now;
         _db.HistorialClinico.Add(new HistorialClinico { PacienteId = pr.Cita!.PacienteId, ClinicaId = pr.Cita.ClinicaId, CitaId = pr.CitaId, FechaEvento = DateTime.UtcNow, TipoEvento = "Procedimiento realizado", Descripcion = pr.Tratamiento?.Nombre ?? "Tratamiento", UsuarioId = UserId });
+        await _db.SaveChangesAsync();
+        return RedirectToAction(nameof(Expediente), new { id = pr.CitaId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ActualizarPrecioProcedimiento(int procedimientoId, decimal precio)
+    {
+        var cid = ClinicaId;
+        if (cid == null) return Unauthorized();
+        var pr = await _db.ProcedimientosRealizados
+            .Include(p => p.Cita)
+            .FirstOrDefaultAsync(p => p.Cita!.ClinicaId == cid && p.Id == procedimientoId);
+        if (pr == null) return NotFound();
+        if (precio < 0) precio = 0;
+        pr.PrecioAplicado = precio;
         await _db.SaveChangesAsync();
         return RedirectToAction(nameof(Expediente), new { id = pr.CitaId });
     }

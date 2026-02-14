@@ -8,6 +8,7 @@
 }
 @section Styles {
     <link rel="stylesheet" href="~/css/odontograma.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/agenda-form.css" asp-append-version="true" />
 }
 
 @{
@@ -23,6 +24,21 @@
         Odontari.Web.Models.Enums.EstadoCita.NoShow => "atencion-estado-noshow",
         _ => "atencion-estado-default"
     };
+}
+@if (TempData["MostrarMensajePreciosProcedimientos"] != null)
+{
+    <div class="agenda-message-overlay atencion-message-overlay show" id="mensajePreciosProcedimientos" role="alert" onclick="if (event.target === this) this.classList.remove('show')">
+        <div class="agenda-message-flotante" onclick="event.stopPropagation()">
+            <div class="agenda-message-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="agenda-message-body">
+                <h3 class="agenda-message-title">Precios pendientes</h3>
+                <p class="agenda-message-text">Para continuar debe agregar los precios a los procedimientos. Defina el precio en cada fila que muestre RD$ 0,00 y luego podrá marcarlos como realizados.</p>
+            </div>
+            <button type="button" class="agenda-message-close" onclick="document.getElementById('mensajePreciosProcedimientos').classList.remove('show')" aria-label="Cerrar">Entendido</button>
+        </div>
+    </div>
 }
 <div class="atencion-section">
 <div class="atencion-header">
@@ -69,8 +85,23 @@
                 @foreach (var pr in Model.ProcedimientosRealizados)
                 {
                     <tr>
-                        <td>@pr.Tratamiento?.Nombre</td>
-                        <td>RD$ @pr.PrecioAplicado.ToString("N2")</td>
+                        <td>@pr.Tratamiento?.Nombre @if (!string.IsNullOrEmpty(pr.Notas)) { <span class="text-muted small">(@pr.Notas)</span> }</td>
+                        <td>
+                            @if (pr.PrecioAplicado == 0 && !pr.MarcadoRealizado)
+                            {
+                                <form asp-action="ActualizarPrecioProcedimiento" method="post" class="d-inline-flex align-items-center gap-1">
+                                    <input type="hidden" name="procedimientoId" value="@pr.Id" />
+                                    <input type="number" name="precio" value="0" min="0" step="0.01" class="form-control form-control-sm" style="width:100px" placeholder="Precio" required />
+                                    <span class="small">RD$</span>
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">Definir precio</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <text>RD$ @pr.PrecioAplicado.ToString("N2")</text>
+                            }
+                        </td>
                         <td>@(pr.MarcadoRealizado ? "Sí" : "No")</td>
                         <td>
                             @if (!pr.MarcadoRealizado)
@@ -202,6 +233,7 @@
         </div>
         </div>
         <input type="hidden" id="pacienteIdAt" value="@pacienteId" />
+        <input type="hidden" id="citaIdAt" value="@Model.Id" />
         <input type="hidden" id="estadoInicialAt" value="@Html.Raw(odontogramaJson)" />
     </div>
 

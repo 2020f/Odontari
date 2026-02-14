@@ -277,9 +277,12 @@
       const pacienteId = pidEl ? parseInt(pidEl.value, 10) : 0;
       if (!pacienteId) return;
       if (obsEl) state.observations = obsEl.value;
+      const citaIdEl = document.getElementById('citaIdAt');
+      const citaId = citaIdEl ? parseInt(citaIdEl.value, 10) : 0;
       const payload = JSON.stringify({
         PacienteId: pacienteId,
-        EstadoJson: JSON.stringify({ teeth: state.teeth, observations: state.observations })
+        EstadoJson: JSON.stringify({ teeth: state.teeth, observations: state.observations }),
+        CitaId: citaId || null
       });
       const msg = document.getElementById('guardarMsgAt');
       if (msg) msg.textContent = 'Guardando...';
@@ -290,9 +293,10 @@
       })
         .then(r => {
           if (msg) msg.textContent = r.ok ? 'Guardado.' : 'Error al guardar.';
+          if (r.ok && citaId) window.location.reload();
         })
         .catch(() => { if (msg) msg.textContent = 'Error de conexión.'; })
-        .finally(() => { setTimeout(() => { if (msg) msg.textContent = ''; }, 3000); });
+        .finally(() => { if (!citaId) setTimeout(() => { if (msg) msg.textContent = ''; }, 3000); });
     });
   }
 
