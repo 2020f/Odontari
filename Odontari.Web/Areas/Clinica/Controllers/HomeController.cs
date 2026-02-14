@@ -34,7 +34,7 @@ public class HomeController : Controller
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!string.IsNullOrEmpty(userId))
-                queryCitas = queryCitas.Where(c => c.DoctorId == userId);
+                queryCitas =  queryCitas.Where(c => c.DoctorId == userId);
         }
         ViewBag.CitasHoy = await queryCitas.OrderBy(c => c.FechaHora).ToListAsync();
         ViewBag.PendientesCobro = await _db.OrdenesCobro

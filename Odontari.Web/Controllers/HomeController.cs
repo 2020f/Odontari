@@ -15,6 +15,13 @@ public class HomeController : Controller
         _logger = logger;
     }
 
+    /// <summary>Mensaje de acceso denegado (sin redirección a otra app). Permite anónimo para poder mostrarlo.</summary>
+    [AllowAnonymous]
+    public IActionResult AccesoDenegado()
+    {
+        return View();
+    }
+
     public IActionResult Index()
     {
         return View();
