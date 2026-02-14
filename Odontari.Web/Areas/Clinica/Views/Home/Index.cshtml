@@ -111,3 +111,8 @@
         </div>
     </div>
 </div>
+
+@if (ViewBag.MostrarAccesoDenegado == true)
+{
+    @await Html.PartialAsync("_AccesoDenegadoOverlay")
+}

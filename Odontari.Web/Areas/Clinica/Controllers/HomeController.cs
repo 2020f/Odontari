@@ -22,6 +22,7 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
+        ViewBag.MostrarAccesoDenegado = string.Equals(Request.Query["accesoDenegado"], "1", StringComparison.Ordinal);
         var cid = await _clinicaActual.GetClinicaIdActualAsync();
         if (cid == null) return RedirectToAction(nameof(SinClinica));
         var hoy = DateTime.Today;

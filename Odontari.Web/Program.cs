@@ -26,6 +26,21 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Identity/Account/Login";
     options.LogoutPath = "/Identity/Account/Logout";
     options.AccessDeniedPath = "/Home/AccesoDenegado";
+    options.Events = new Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationEvents
+    {
+        OnRedirectToAccessDenied = ctx =>
+        {
+            var path = ctx.Request.Path.Value ?? "";
+            if (path.StartsWith("/Clinica", StringComparison.OrdinalIgnoreCase))
+                ctx.Response.Redirect("/Clinica/Home/Index?accesoDenegado=1");
+            else if (path.StartsWith("/Saas", StringComparison.OrdinalIgnoreCase))
+                ctx.Response.Redirect("/Saas/Dashboard/Index?accesoDenegado=1");
+            else
+                ctx.Response.Redirect("/Home/AccesoDenegado?ReturnUrl=" + Uri.EscapeDataString(ctx.Request.Path));
+            ctx.Handled = true;
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddControllersWithViews(o =>
