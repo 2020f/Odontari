@@ -1,0 +1,227 @@
+/* Registrar pago — estilo coherente con área Clínica */
+.cobrar-page {
+  --odon: #001D39;
+  --odon-hover: #0A4174;
+  --odon-accent: #4E8EA2;
+  --odon-light: #6EA2B3;
+  --odon-pale: #BDD8E9;
+  --odon-bg: #f8fafc;
+  --border: rgba(0, 29, 57, 0.08);
+  max-width: 520px;
+}
+
+.cobrar-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.cobrar-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--odon);
+}
+
+.cobrar-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--odon-accent);
+  background: #fff;
+  border: 1px solid var(--odon-accent);
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.cobrar-back:hover {
+  background: var(--odon-pale);
+  color: var(--odon-hover);
+}
+
+.cobrar-resumen {
+  background: var(--odon-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.cobrar-resumen-paciente {
+  margin-bottom: 0.75rem;
+}
+
+.cobrar-resumen-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #5a6c7d;
+  margin-bottom: 0.2rem;
+}
+
+.cobrar-resumen-valor {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--odon);
+}
+
+.cobrar-resumen-financiero {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
+  color: #5a6c7d;
+}
+
+.cobrar-resumen-item strong {
+  color: var(--odon);
+  font-weight: 600;
+}
+
+.cobrar-saldo {
+  color: var(--odon-accent);
+  font-weight: 600;
+}
+
+.cobrar-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 29, 57, 0.08);
+  border: 1px solid var(--border);
+  padding: 2rem;
+}
+
+.cobrar-form .cobrar-field {
+  margin-bottom: 1.35rem;
+}
+
+.cobrar-form .cobrar-field:last-of-type {
+  margin-bottom: 1.75rem;
+}
+
+.cobrar-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--odon);
+  margin-bottom: 0.45rem;
+}
+
+.cobrar-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cobrar-input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #8a9ba8;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cobrar-input-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.cobrar-input {
+  width: 100%;
+  padding: 0.6rem 0.85rem 0.6rem 44px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 29, 57, 0.12);
+  font-size: 0.95rem;
+  background: #fafbfc;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.cobrar-input:focus {
+  outline: none;
+  border-color: var(--odon-accent);
+  box-shadow: 0 0 0 3px rgba(78, 142, 162, 0.18);
+  background: #fff;
+}
+
+.cobrar-input::placeholder {
+  color: #94a3b8;
+}
+
+select.cobrar-input {
+  appearance: auto;
+  cursor: pointer;
+}
+
+.cobrar-validation {
+  display: block;
+  font-size: 0.85rem;
+  color: #c92a2a;
+  margin-top: 0.35rem;
+}
+
+.cobrar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.cobrar-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--odon-accent);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.05s;
+}
+
+.cobrar-btn-primary:hover {
+  background: var(--odon-light);
+  transform: translateY(-1px);
+}
+
+.cobrar-btn-primary:active {
+  transform: translateY(0);
+}
+
+.cobrar-btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.6rem 1.1rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #5a6c7d;
+  background: #fff;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.cobrar-btn-cancel:hover {
+  background: var(--odon-bg);
+  color: var(--odon);
+}

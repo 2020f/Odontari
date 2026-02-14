@@ -3,35 +3,81 @@
     var orden = ViewBag.Orden as Odontari.Web.Models.OrdenCobro;
     ViewData["Title"] = "Registrar pago";
 }
-
-<h1>Registrar pago</h1>
-@if (orden != null)
-{
-    <p><strong>Paciente:</strong> @orden.Paciente?.Nombre @orden.Paciente?.Apellidos</p>
-    <p><strong>Total orden:</strong> RD$ @orden.Total.ToString("N2") | <strong>Ya pagado:</strong> RD$ @orden.MontoPagado.ToString("N2") | <strong>Saldo:</strong> RD$ @Model.SaldoPendiente.ToString("N2")</p>
+@section Styles {
+    <link rel="stylesheet" href="~/css/clinica-content.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/caja-cobrar.css" asp-append-version="true" />
 }
-<form asp-action="Cobrar" asp-route-id="@Model.OrdenCobroId" method="post">
-    <input type="hidden" asp-for="OrdenCobroId" />
-    <input type="hidden" asp-for="SaldoPendiente" />
-    <div class="form-group">
-        <label asp-for="Monto"></label>
-        <input asp-for="Monto" type="number" step="0.01" class="form-control" />
-        <span asp-validation-for="Monto"></span>
+
+<div class="clinica-content cobrar-page">
+    <div class="cobrar-header">
+        <h1 class="cobrar-title">Registrar pago</h1>
+        <a asp-action="Index" class="cobrar-back">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Volver a Caja
+        </a>
     </div>
-    <div class="form-group">
-        <label asp-for="MetodoPago"></label>
-        <select asp-for="MetodoPago" class="form-control">
-            <option value="">-- Seleccionar --</option>
-            <option value="Efectivo">Efectivo</option>
-            <option value="Tarjeta">Tarjeta</option>
-            <option value="Transferencia">Transferencia</option>
-        </select>
+
+    @if (orden != null)
+    {
+        <div class="cobrar-resumen">
+            <div class="cobrar-resumen-paciente">
+                <span class="cobrar-resumen-label">Paciente</span>
+                <span class="cobrar-resumen-valor">@orden.Paciente?.Nombre @orden.Paciente?.Apellidos</span>
+            </div>
+            <div class="cobrar-resumen-financiero">
+                <span class="cobrar-resumen-item"><strong>Total orden:</strong> RD$ @orden.Total.ToString("N2")</span>
+                <span class="cobrar-resumen-item"><strong>Ya pagado:</strong> RD$ @orden.MontoPagado.ToString("N2")</span>
+                <span class="cobrar-resumen-item cobrar-saldo"><strong>Saldo:</strong> RD$ @Model.SaldoPendiente.ToString("N2")</span>
+            </div>
+        </div>
+    }
+
+    <div class="cobrar-card">
+        <form asp-action="Cobrar" asp-route-id="@Model.OrdenCobroId" method="post" class="cobrar-form">
+            <input type="hidden" asp-for="OrdenCobroId" />
+            <input type="hidden" asp-for="SaldoPendiente" />
+            <div class="cobrar-field">
+                <label asp-for="Monto" class="cobrar-label">Monto (RD$)</label>
+                <div class="cobrar-input-wrap">
+                    <span class="cobrar-input-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </span>
+                    <input asp-for="Monto" type="number" step="0.01" min="0" class="cobrar-input" placeholder="0.00" />
+                </div>
+                <span asp-validation-for="Monto" class="cobrar-validation"></span>
+            </div>
+            <div class="cobrar-field">
+                <label asp-for="MetodoPago" class="cobrar-label">Método de pago</label>
+                <div class="cobrar-input-wrap">
+                    <span class="cobrar-input-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    </span>
+                    <select asp-for="MetodoPago" class="cobrar-input">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Tarjeta">Tarjeta</option>
+                        <option value="Transferencia">Transferencia</option>
+                    </select>
+                </div>
+            </div>
+            <div class="cobrar-field">
+                <label asp-for="Referencia" class="cobrar-label">Referencia</label>
+                <div class="cobrar-input-wrap">
+                    <span class="cobrar-input-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    </span>
+                    <input asp-for="Referencia" class="cobrar-input" placeholder="Nº de referencia o nota" />
+                </div>
+            </div>
+            <div class="cobrar-actions">
+                <button type="submit" class="cobrar-btn-primary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Registrar pago
+                </button>
+                <a asp-action="Index" class="cobrar-btn-cancel">Cancelar</a>
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-        <label asp-for="Referencia"></label>
-        <input asp-for="Referencia" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-primary">Registrar pago</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-</form>
+</div>
+
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }
