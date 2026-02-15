@@ -7,6 +7,7 @@ using Odontari.Web.Data;
 using Odontari.Web.Models;
 using Odontari.Web.Models.Enums;
 using Odontari.Web.Services;
+using Odontari.Web.ViewModels;
 
 namespace Odontari.Web.Areas.Clinica.Controllers;
 
@@ -17,11 +18,13 @@ public class ReportesController : Controller
 {
     private readonly ApplicationDbContext _db;
     private readonly IClinicaActualService _clinicaActual;
+    private readonly ReporteFinancieroExportService _exportService;
 
-    public ReportesController(ApplicationDbContext db, IClinicaActualService clinicaActual)
+    public ReportesController(ApplicationDbContext db, IClinicaActualService clinicaActual, ReporteFinancieroExportService exportService)
     {
         _db = db;
         _clinicaActual = clinicaActual;
+        _exportService = exportService;
     }
 
     private int? ClinicaId => _clinicaActual.GetClinicaIdActual();
@@ -216,6 +219,183 @@ public class ReportesController : Controller
 
         ViewData["Title"] = "Reportes";
         return View();
+    }
+
+    /// <summary>Exportar reporte financiero a Excel (4 hojas: Resumen, Detalle, Cuentas por cobrar, Producción por doctor).</summary>
+    public async Task<IActionResult> ExportExcel(DateTime? fechaInicio, DateTime? fechaFin, string? doctorId, int? estadoCobro)
+    {
+        var cid = ClinicaId;
+        if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
+        var (inicio, fin) = NormalizarRangoFechas(fechaInicio, fechaFin);
+        if (User.IsInRole(OdontariRoles.Doctor))
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!string.IsNullOrEmpty(userId)) doctorId = userId;
+        }
+        var data = await BuildReporteFinancieroDataAsync(cid.Value, inicio, fin, doctorId, estadoCobro);
+        var bytes = _exportService.GenerateExcel(data);
+        var nombre = $"ReporteFinanciero_{inicio:yyyyMMdd}_{fin:yyyyMMdd}.xlsx";
+        return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", nombre);
+    }
+
+    /// <summary>Exportar reporte financiero a PDF (resumen ejecutivo formal).</summary>
+    public async Task<IActionResult> ExportPdf(DateTime? fechaInicio, DateTime? fechaFin, string? doctorId, int? estadoCobro)
+    {
+        var cid = ClinicaId;
+        if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
+        var (inicio, fin) = NormalizarRangoFechas(fechaInicio, fechaFin);
+        if (User.IsInRole(OdontariRoles.Doctor))
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!string.IsNullOrEmpty(userId)) doctorId = userId;
+        }
+        var data = await BuildReporteFinancieroDataAsync(cid.Value, inicio, fin, doctorId, estadoCobro);
+        var bytes = _exportService.GeneratePdf(data);
+        var nombre = $"ReporteFinanciero_{inicio:yyyyMMdd}_{fin:yyyyMMdd}.pdf";
+        return File(bytes, "application/pdf", nombre);
+    }
+
+    private static (DateTime inicio, DateTime fin) NormalizarRangoFechas(DateTime? fechaInicio, DateTime? fechaFin)
+    {
+        var hoy = DateTime.Today;
+        var inicioMes = new DateTime(hoy.Year, hoy.Month, 1);
+        var fin = fechaFin?.Date ?? hoy;
+        var inicio = fechaInicio?.Date ?? inicioMes;
+        if (inicio > fin) (inicio, fin) = (fin, inicio);
+        return (inicio, fin);
+    }
+
+    private async Task<ReporteFinancieroData> BuildReporteFinancieroDataAsync(int cid, DateTime inicio, DateTime fin, string? doctorId, int? estadoCobro)
+    {
+        var finMasUno = fin.AddDays(1);
+        var ci = CultureInfo.GetCultureInfo("es-ES");
+        var userName = User.Identity?.Name ?? User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Sistema";
+
+        var clinica = await _db.Clinicas.Where(c => c.Id == cid).Select(c => new { c.Nombre, c.Direccion, c.Telefono }).FirstOrDefaultAsync();
+        var encabezado = new EncabezadoReporte
+        {
+            NombreClinica = clinica?.Nombre ?? "Clínica",
+            RNC = "N/A",
+            Direccion = clinica?.Direccion ?? "",
+            Telefono = clinica?.Telefono ?? "",
+            FechaGeneracion = DateTime.Now,
+            RangoFechas = $"{inicio:dd/MM/yyyy} - {fin:dd/MM/yyyy}",
+            UsuarioGenero = userName
+        };
+
+        IQueryable<OrdenCobro> queryOrdenes = _db.OrdenesCobro
+            .Where(o => o.ClinicaId == cid && o.CreadoAt >= inicio && o.CreadoAt < finMasUno)
+            .Include(o => o.Paciente)
+            .Include(o => o.Pagos)
+            .Include(o => o.Cita!)
+                .ThenInclude(c => c.Doctor)
+            .Include(o => o.Cita!)
+                .ThenInclude(c => c.ProcedimientosRealizados!)
+                .ThenInclude(pr => pr.Tratamiento);
+        if (!string.IsNullOrEmpty(doctorId))
+        {
+            var citaIds = await _db.Citas.Where(c => c.ClinicaId == cid && c.DoctorId == doctorId).Select(c => c.Id).ToListAsync();
+            queryOrdenes = queryOrdenes.Where(o => o.CitaId != null && citaIds.Contains(o.CitaId.Value));
+        }
+        if (estadoCobro.HasValue && estadoCobro.Value >= 0 && estadoCobro.Value <= 3)
+            queryOrdenes = queryOrdenes.Where(o => (int)o.Estado == estadoCobro.Value);
+
+        var ordenes = await queryOrdenes.OrderBy(o => o.CreadoAt).ToListAsync();
+
+        var totalFacturado = ordenes.Sum(o => o.Total);
+        var totalCobrado = ordenes.Sum(o => o.MontoPagado);
+        var totalPendiente = ordenes.Sum(o => o.Total - o.MontoPagado);
+        var totalAnulado = ordenes.Where(o => o.Estado == EstadoCobro.Anulado).Sum(o => o.Total);
+        var resumen = new ResumenFinanciero
+        {
+            TotalFacturado = totalFacturado,
+            TotalCobrado = totalCobrado,
+            TotalPendiente = totalPendiente,
+            TotalAnulado = totalAnulado,
+            DescuentosAplicados = 0,
+            TotalNetoReal = totalCobrado
+        };
+
+        var detalle = new List<DetalleIngresoRow>();
+        foreach (var o in ordenes)
+        {
+            var tratamientos = o.Cita?.ProcedimientosRealizados?.Select(pr => pr.Tratamiento?.Nombre ?? "").Where(s => !string.IsNullOrEmpty(s)).ToList() ?? new List<string>();
+            var metodoPago = o.Pagos?.Any() == true
+                ? (o.Pagos.Count == 1 ? (o.Pagos.First().MetodoPago ?? "—") : "Varios")
+                : "—";
+            detalle.Add(new DetalleIngresoRow
+            {
+                Fecha = o.CreadoAt,
+                NumeroCita = o.CitaId,
+                Paciente = o.Paciente != null ? (o.Paciente.Nombre + " " + (o.Paciente.Apellidos ?? "")).Trim() : "",
+                Doctor = o.Cita?.Doctor?.NombreCompleto ?? o.Cita?.Doctor?.Email ?? "—",
+                Tratamiento = string.Join(", ", tratamientos),
+                MetodoPago = metodoPago,
+                MontoTotal = o.Total,
+                MontoPagado = o.MontoPagado,
+                SaldoPendiente = o.Total - o.MontoPagado,
+                Estado = o.Estado switch { EstadoCobro.Pagado => "Pagado", EstadoCobro.Parcial => "Parcial", EstadoCobro.Pendiente => "Pendiente", EstadoCobro.Anulado => "Anulado", _ => o.Estado.ToString() }
+            });
+        }
+
+        var porDoctor = ordenes
+            .Where(o => o.Cita?.DoctorId != null)
+            .GroupBy(o => o.Cita!.DoctorId)
+            .Select(g =>
+            {
+                var first = g.First();
+                var nombre = first.Cita?.Doctor?.NombreCompleto ?? first.Cita?.Doctor?.Email ?? g.Key ?? "";
+                var pacientesDistintos = g.Select(x => x.PacienteId).Distinct().Count();
+                return new ProduccionDoctorRow
+                {
+                    Doctor = nombre,
+                    TotalFacturado = g.Sum(x => x.Total),
+                    TotalCobrado = g.Sum(x => x.MontoPagado),
+                    CantidadPacientesAtendidos = pacientesDistintos
+                };
+            })
+            .OrderByDescending(x => x.TotalFacturado)
+            .ToList();
+
+        var procedimientos = await _db.ProcedimientosRealizados
+            .Where(pr => pr.Cita!.ClinicaId == cid && pr.Cita.FechaHora >= inicio && pr.Cita.FechaHora < finMasUno && pr.MarcadoRealizado)
+            .Include(pr => pr.Tratamiento)
+            .ToListAsync();
+        if (!string.IsNullOrEmpty(doctorId)) procedimientos = procedimientos.Where(pr => pr.Cita!.DoctorId == doctorId).ToList();
+        var tratamientosVendidos = procedimientos
+            .GroupBy(pr => pr.Tratamiento?.Nombre ?? "Sin nombre")
+            .Select(g => new TratamientoVendidoRow { Tratamiento = g.Key, Cantidad = g.Count(), TotalGenerado = g.Sum(pr => pr.PrecioAplicado) })
+            .OrderByDescending(x => x.TotalGenerado)
+            .ToList();
+
+        var ordenesCxC = await _db.OrdenesCobro
+            .Where(o => o.ClinicaId == cid && (o.Estado == EstadoCobro.Pendiente || o.Estado == EstadoCobro.Parcial))
+            .Include(o => o.Paciente)
+            .Include(o => o.Pagos)
+            .ToListAsync();
+        var hoy = DateTime.Today;
+        var cuentasPorCobrar = ordenesCxC.Select(o =>
+        {
+            var ultima = o.Pagos?.Any() == true ? o.Pagos.Max(p => p.FechaPago) : (DateTime?)null;
+            var diasVencidos = ultima.HasValue && ultima.Value.Date < hoy ? (int)(hoy - ultima.Value.Date).TotalDays : (int?)null;
+            return new CuentaPorCobrarRow
+            {
+                Paciente = (o.Paciente?.Nombre + " " + (o.Paciente?.Apellidos ?? "")).Trim(),
+                TotalPendiente = o.Total - o.MontoPagado,
+                UltimaFechaAtencion = ultima,
+                DiasVencidos = diasVencidos
+            };
+        }).ToList();
+
+        return new ReporteFinancieroData
+        {
+            Encabezado = encabezado,
+            Resumen = resumen,
+            DetalleIngresos = detalle,
+            ProduccionPorDoctor = porDoctor,
+            TratamientosMasVendidos = tratamientosVendidos,
+            CuentasPorCobrar = cuentasPorCobrar
+        };
     }
 
     /// <summary>Listado de citas No-Show para el período (modal o parcial).</summary>

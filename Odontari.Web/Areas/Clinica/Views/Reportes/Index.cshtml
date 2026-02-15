@@ -38,8 +38,8 @@
     <div class="content-header reportes-header">
         <h1>Reportes</h1>
         <div class="reportes-actions">
-            <button type="button" class="btn-reportes-export" id="btnExportPdf" title="Exportar PDF">📄 Exportar PDF</button>
-            <button type="button" class="btn-reportes-export" id="btnExportExcel" title="Exportar Excel">📊 Exportar Excel</button>
+            <a asp-action="ExportPdf" asp-route-fechaInicio="@fechaInicio" asp-route-fechaFin="@fechaFin" asp-route-doctorId="@doctorIdSel" asp-route-estadoCobro="@estadoCobroSel" class="btn-reportes-export" title="Exportar PDF">📄 Exportar PDF</a>
+            <a asp-action="ExportExcel" asp-route-fechaInicio="@fechaInicio" asp-route-fechaFin="@fechaFin" asp-route-doctorId="@doctorIdSel" asp-route-estadoCobro="@estadoCobroSel" class="btn-reportes-export" title="Exportar Excel">📊 Exportar Excel</a>
         </div>
     </div>
 
@@ -323,8 +323,6 @@
                 });
             }
 
-            document.getElementById('btnExportPdf')?.addEventListener('click', function () { alert('Exportar PDF: en una siguiente iteración se implementará la generación del PDF.'); });
-            document.getElementById('btnExportExcel')?.addEventListener('click', function () { alert('Exportar Excel: en una siguiente iteración se implementará la exportación.'); });
         })();
     </script>
 }
