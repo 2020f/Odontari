@@ -14,6 +14,8 @@ public class Cita
     public ApplicationUser? Doctor { get; set; }
 
     public DateTime FechaHora { get; set; }
+    /// <summary>Duración en minutos de la cita en consultorio. Por defecto 30.</summary>
+    public int DuracionMinutos { get; set; } = 30;
     public string? Motivo { get; set; }
     public EstadoCita Estado { get; set; } = EstadoCita.Solicitada;
     public DateTime? InicioAtencionAt { get; set; }

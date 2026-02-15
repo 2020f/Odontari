@@ -36,6 +36,17 @@
                 <input asp-for="FechaHora" type="datetime-local" class="form-control" />
                 <span asp-validation-for="FechaHora" class="text-danger"></span>
             </div>
+            <div class="mb-3">
+                <label asp-for="DuracionMinutos" class="form-label">Duración en consultorio (minutos)</label>
+                <select asp-for="DuracionMinutos" class="form-select">
+                    <option value="15" selected="@(Model.DuracionMinutos == 15)">15 min</option>
+                    <option value="30" selected="@(Model.DuracionMinutos == 30)">30 min</option>
+                    <option value="45" selected="@(Model.DuracionMinutos == 45)">45 min</option>
+                    <option value="60" selected="@(Model.DuracionMinutos == 60)">1 hora</option>
+                    <option value="90" selected="@(Model.DuracionMinutos == 90)">1 h 30 min</option>
+                    <option value="120" selected="@(Model.DuracionMinutos == 120)">2 horas</option>
+                </select>
+            </div>
             <div class="mb-4">
                 <label asp-for="Motivo" class="form-label">Motivo / Procedimiento</label>
                 <input asp-for="Motivo" class="form-control" placeholder="Ej. Limpieza general, Revisión" />

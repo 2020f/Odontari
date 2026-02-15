@@ -157,7 +157,7 @@
                                 _ => c.Estado.ToString()
                             };
                             <a asp-action="Editar" asp-route-id="@c.Id" class="agenda-dinamica-block @estadoClase" title="@(c.PacienteNombre) — @(c.Motivo ?? "Consulta")">
-                                <span class="block-time">@c.FechaHora.ToString("HH:mm") - @c.FechaHora.AddMinutes(30).ToString("HH:mm")</span>
+                                <span class="block-time">@c.FechaHora.ToString("HH:mm") - @c.FechaHora.AddMinutes(c.DuracionMinutos > 0 ? c.DuracionMinutos : 30).ToString("HH:mm")</span>
                                 <span class="block-name">@c.PacienteNombre</span>
                                 <span class="block-motive">@(c.Motivo ?? "Consulta")</span>
                                 <span class="block-doctor">@(c.DoctorNombre ?? "—")</span>
