@@ -264,12 +264,16 @@
   border-right: none;
 }
 
-/* Bloques de cita: hijos directos del grid, abarcan varias filas según duración */
+/* Bloques de cita: dentro de la celda donde empieza, altura según duración (--span = nº de franjas de 30 min) */
 .agenda-dinamica-block {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  height: calc(var(--span, 1) * 56px - 4px);
   display: flex;
   flex-direction: column;
   padding: 0.4rem 0.6rem;
-  margin: 2px;
   border-radius: 8px;
   font-size: 0.75rem;
   text-decoration: none;
@@ -280,7 +284,6 @@
   word-wrap: break-word;
   line-height: 1.35;
   transition: opacity 0.15s, transform 0.05s, box-shadow 0.2s;
-  min-height: 0;
   z-index: 1;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
