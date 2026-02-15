@@ -27,6 +27,27 @@
         if (h < 19) slots.Add(new TimeSpan(h, 30, 0));
     }
 
+    int SlotIndex(TimeSpan t)
+    {
+        var idx = (int)((t.TotalHours - 8) * 2);
+        return Math.Clamp(idx, 0, slots.Count - 1);
+    }
+    var citasConUbicacion = Model
+        .Select(c =>
+        {
+            var fd = c.FechaHora.Date;
+            var ft = c.FechaHora.TimeOfDay;
+            var dayIdx = dias.FindIndex(d => d.Date == fd);
+            if (dayIdx < 0) return (c, dayIndex: -1, startRow: 1, rowSpan: 1);
+            var startRow = 1 + SlotIndex(ft);
+            var duracion = c.DuracionMinutos > 0 ? c.DuracionMinutos : 30;
+            var rowSpan = Math.Max(1, duracion / 30);
+            if (startRow + rowSpan > slots.Count + 1) rowSpan = slots.Count + 1 - startRow;
+            return (c, dayIndex: dayIdx, startRow, rowSpan);
+        })
+        .Where(x => x.dayIndex >= 0)
+        .ToList();
+
     string FmtFechaCorta(DateTime dt) => dt.ToString("dd.MM.yyyy", ci);
     string FmtDiaNombre(DateTime dt) => ci.DateTimeFormat.GetDayName(dt.DayOfWeek);
     string FmtRango() => vista == "diario"
@@ -134,38 +155,32 @@
                 <div class="agenda-dinamica-time-label">@slot.ToString(@"hh\:mm")</div>
                 @foreach (var dia in dias)
                 {
-                    var slotFin = slot.Add(TimeSpan.FromMinutes(30));
-                    var citasEnCelda = Model.Where(c =>
-                    {
-                        var fd = c.FechaHora.Date;
-                        var ft = c.FechaHora.TimeOfDay;
-                        return fd == dia.Date && ft >= slot && ft < slotFin;
-                    }).ToList();
                     var esHoy = dia.Date == hoy;
-                    <div class="agenda-dinamica-cell @(esHoy ? "today" : "")" data-day="@dia.ToString("yyyy-MM-dd")" data-slot="@slot">
-                        @foreach (var c in citasEnCelda)
-                        {
-                            var estadoClase = "estado-" + c.Estado.ToString().ToLowerInvariant();
-                            var estadoNombre = c.Estado switch
-                            {
-                                EstadoCita.Solicitada => "Pendiente",
-                                EstadoCita.Confirmada => "Confirmada",
-                                EstadoCita.EnSala => "En sala",
-                                EstadoCita.EnAtencion => "En atención",
-                                EstadoCita.Finalizada => "Finalizada",
-                                EstadoCita.Cancelada => "Cancelada",
-                                _ => c.Estado.ToString()
-                            };
-                            <a asp-action="Editar" asp-route-id="@c.Id" class="agenda-dinamica-block @estadoClase" title="@(c.PacienteNombre) — @(c.Motivo ?? "Consulta")">
-                                <span class="block-time">@c.FechaHora.ToString("HH:mm") - @c.FechaHora.AddMinutes(c.DuracionMinutos > 0 ? c.DuracionMinutos : 30).ToString("HH:mm")</span>
-                                <span class="block-name">@c.PacienteNombre</span>
-                                <span class="block-motive">@(c.Motivo ?? "Consulta")</span>
-                                <span class="block-doctor">@(c.DoctorNombre ?? "—")</span>
-                                <span class="block-estado">@estadoNombre</span>
-                            </a>
-                        }
-                    </div>
+                    var isLastCol = dia == dias.Last();
+                    <div class="agenda-dinamica-cell @(esHoy ? "today" : "") @(isLastCol ? "last-col" : "")" data-day="@dia.ToString("yyyy-MM-dd")" data-slot="@slot"></div>
                 }
+            }
+            @foreach (var item in citasConUbicacion)
+            {
+                var c = item.c;
+                var estadoClase = "estado-" + c.Estado.ToString().ToLowerInvariant();
+                var estadoNombre = c.Estado switch
+                {
+                    EstadoCita.Solicitada => "Pendiente",
+                    EstadoCita.Confirmada => "Confirmada",
+                    EstadoCita.EnSala => "En sala",
+                    EstadoCita.EnAtencion => "En atención",
+                    EstadoCita.Finalizada => "Finalizada",
+                    EstadoCita.Cancelada => "Cancelada",
+                    _ => c.Estado.ToString()
+                };
+                <a asp-action="Editar" asp-route-id="@c.Id" class="agenda-dinamica-block @estadoClase" style="grid-column: @(item.dayIndex + 2); grid-row: @(item.startRow) / span @(item.rowSpan);" title="@(c.PacienteNombre) — @(c.Motivo ?? "Consulta")">
+                    <span class="block-time">@c.FechaHora.ToString("HH:mm") - @c.FechaHora.AddMinutes(c.DuracionMinutos > 0 ? c.DuracionMinutos : 30).ToString("HH:mm")</span>
+                    <span class="block-name">@c.PacienteNombre</span>
+                    <span class="block-motive">@(c.Motivo ?? "Consulta")</span>
+                    <span class="block-doctor">@(c.DoctorNombre ?? "—")</span>
+                    <span class="block-estado">@estadoNombre</span>
+                </a>
             }
         </div>
         <div class="agenda-dinamica-now-line" id="nowLine" aria-hidden="true"></div>

@@ -249,76 +249,86 @@
 
 .agenda-dinamica-cell {
   min-height: 56px;
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: 3px;
+  border-right: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fafafa;
   position: relative;
   overflow: visible;
 }
 
 .agenda-dinamica-cell.today {
-  background: rgba(78, 142, 162, 0.04);
+  background: rgba(78, 142, 162, 0.05);
 }
 
-.agenda-dinamica-cell:last-of-type {
+.agenda-dinamica-cell.last-col {
   border-right: none;
 }
 
+/* Bloques de cita: hijos directos del grid, abarcan varias filas según duración */
 .agenda-dinamica-block {
-  display: block;
-  padding: 0.35rem 0.5rem;
-  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  padding: 0.4rem 0.6rem;
+  margin: 2px;
+  border-radius: 8px;
   font-size: 0.75rem;
   text-decoration: none;
   color: #1a252f;
-  border-left: 3px solid currentColor;
-  margin-bottom: 2px;
-  overflow: visible;
+  border-left: 4px solid currentColor;
+  overflow: hidden;
   white-space: normal;
   word-wrap: break-word;
-  line-height: 1.3;
-  transition: opacity 0.15s, transform 0.05s;
+  line-height: 1.35;
+  transition: opacity 0.15s, transform 0.05s, box-shadow 0.2s;
+  min-height: 0;
+  z-index: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .agenda-dinamica-block:hover {
   opacity: 0.95;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .agenda-dinamica-block .block-time {
   display: block;
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   color: inherit;
   opacity: 0.9;
-  margin-bottom: 1px;
+  margin-bottom: 0.2rem;
+  flex-shrink: 0;
 }
 
 .agenda-dinamica-block .block-name {
-  font-weight: 600;
+  font-weight: 700;
   display: block;
+  flex-shrink: 0;
 }
 
 .agenda-dinamica-block .block-motive,
 .agenda-dinamica-block .block-doctor {
   display: block;
-  font-size: 0.65rem;
-  opacity: 0.85;
+  font-size: 0.7rem;
+  opacity: 0.88;
   white-space: normal;
   overflow-wrap: break-word;
+  flex-shrink: 0;
 }
 
 .agenda-dinamica-block .block-estado {
   display: inline-block;
-  margin-top: 2px;
-  font-size: 0.6rem;
-  padding: 0.1rem 0.35rem;
+  margin-top: auto;
+  font-size: 0.65rem;
+  padding: 0.15rem 0.4rem;
   border-radius: 999px;
   font-weight: 500;
+  align-self: flex-start;
 }
 
-/* Colores por estado (igual que agenda clásica) */
+/* Colores por estado (bloque beige/naranja para Pendiente como en referencia) */
 .agenda-dinamica-block.estado-solicitada {
-  background: rgba(230, 162, 60, 0.18);
-  border-left-color: #e6a23c;
+  background: #faf6ef;
+  border-left-color: #d4a84b;
 }
 
 .agenda-dinamica-block.estado-confirmada {
@@ -346,16 +356,17 @@
   border-left-color: #f56c6c;
 }
 
-/* Línea de hora actual */
+/* Línea de hora actual (azul) */
 .agenda-dinamica-now-line {
   display: none;
   position: absolute;
   left: 56px;
   right: 0;
   height: 2px;
-  background: var(--odon-accent);
-  z-index: 2;
+  background: #2563eb;
+  z-index: 3;
   pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.3);
 }
 
 /* FAB: botón flotante redondo con + (estilo referencia) */
