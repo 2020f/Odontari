@@ -55,18 +55,18 @@
     <div class="agenda-layout">
         <div class="agenda-calendar-card">
             <div class="agenda-calendar-nav">
-                <a asp-action="Index" asp-route-fecha="@mesAnt" asp-route-doctorId="@doctorIdSel">‹</a>
+                <a asp-action="Index" asp-route-fecha="@mesAnt.ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" title="Mes anterior">‹</a>
                 <span>@nombreMes @fecha.Year</span>
-                <a asp-action="Index" asp-route-fecha="@mesSig" asp-route-doctorId="@doctorIdSel">›</a>
+                <a asp-action="Index" asp-route-fecha="@mesSig.ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" title="Mes siguiente">›</a>
             </div>
-            <div class="agenda-calendar-grid">
+            <div class="agenda-calendar-grid" role="grid" aria-label="Calendario: seleccione un día para ver sus citas">
                 <span class="day-name">LU</span><span class="day-name">MA</span><span class="day-name">MI</span><span class="day-name">JU</span><span class="day-name">VI</span><span class="day-name">SÁ</span><span class="day-name">DO</span>
                 @{
                     var col = 0;
                     for (var i = 1; i < primerDiaSemana; i++, col++)
                     {
                         var dAnt = mesActual.AddDays(-(primerDiaSemana - i));
-                        <a asp-action="Index" asp-route-fecha="@dAnt.Date" asp-route-doctorId="@doctorIdSel" class="day-num other-month">@dAnt.Day</a>
+                        <a asp-action="Index" asp-route-fecha="@dAnt.ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" class="day-num other-month" title="Ver citas del @dAnt.ToString("d", ci)">@dAnt.Day</a>
                     }
                     for (var d = 1; d <= diasEnMes; d++, col++)
                     {
@@ -74,13 +74,13 @@
                         var isToday = dayDate.Date == hoy;
                         var isSelected = dayDate.Date == fecha.Date;
                         var css = "day-num" + (isToday ? " today" : "") + (isSelected ? " selected" : "");
-                        <a asp-action="Index" asp-route-fecha="@dayDate" asp-route-doctorId="@doctorIdSel" class="@css">@d</a>
+                        <a asp-action="Index" asp-route-fecha="@dayDate.ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" class="@css" title="Ver citas del @dayDate.ToString("d", ci)">@d</a>
                     }
                     var rest = Math.Max(0, 42 - col);
                     for (var i = 1; i <= rest; i++)
                     {
                         var dSig = mesActual.AddDays(diasEnMes + i - 1);
-                        <a asp-action="Index" asp-route-fecha="@dSig.Date" asp-route-doctorId="@doctorIdSel" class="day-num other-month">@dSig.Day</a>
+                        <a asp-action="Index" asp-route-fecha="@dSig.ToString("yyyy-MM-dd")" asp-route-doctorId="@doctorIdSel" class="day-num other-month" title="Ver citas del @dSig.ToString("d", ci)">@dSig.Day</a>
                     }
                 }
             </div>
