@@ -1,0 +1,330 @@
+@using System.Globalization
+@using Odontari.Web.Models
+@{
+    var fechaInicio = ViewBag.FechaInicio as string ?? DateTime.Today.AddMonths(-1).ToString("yyyy-MM-dd");
+    var fechaFin = ViewBag.FechaFin as string ?? DateTime.Today.ToString("yyyy-MM-dd");
+    var doctorIdSel = ViewBag.DoctorIdSel as string ?? "";
+    var estadoCobroSel = ViewBag.EstadoCobroSel as int?;
+    var agrupar = ViewBag.Agrupar as string ?? "mes";
+    var doctores = ViewBag.Doctores as IEnumerable<dynamic>;
+    var ingresosTotales = (decimal)(ViewBag.IngresosTotales ?? 0m);
+    var cobrado = (decimal)(ViewBag.Cobrado ?? 0m);
+    var pendiente = (decimal)(ViewBag.Pendiente ?? 0m);
+    var citasAtendidas = (int)(ViewBag.CitasAtendidas ?? 0);
+    var noShow = (int)(ViewBag.NoShow ?? 0);
+    var produccionPromedio = (decimal)(ViewBag.ProduccionPromedioDoctor ?? 0m);
+    var citasProgramadas = (int)(ViewBag.CitasProgramadas ?? 0);
+    var citasCanceladas = (int)(ViewBag.CitasCanceladas ?? 0);
+    var atendidasPct = (double)(ViewBag.CitasAtendidasPct ?? 0);
+    var noShowPct = (double)(ViewBag.NoShowPct ?? 0);
+    var canceladasPct = (double)(ViewBag.CanceladasPct ?? 0);
+    var ingresosPorPeriodoJson = ViewBag.IngresosPorPeriodoJson as string ?? "[]";
+    var ingresosPorDoctor = ViewBag.IngresosPorDoctor as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var ingresosPorDoctorJson = ViewBag.IngresosPorDoctorJson as string ?? "[]";
+    var tratamientosMasRealizados = ViewBag.TratamientosMasRealizados as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var pacientesNuevos = (int)(ViewBag.PacientesNuevos ?? 0);
+    var pacientesRecurrentes = (int)(ViewBag.PacientesRecurrentes ?? 0);
+    var pacientesNuevosVsRecurrentesJson = ViewBag.PacientesNuevosVsRecurrentesJson as string ?? "[]";
+    var cuentasPorCobrar = ViewBag.CuentasPorCobrar as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var noShowCitas = ViewBag.NoShowCitas as IEnumerable<Cita> ?? Enumerable.Empty<Cita>();
+    var ci = CultureInfo.GetCultureInfo("es-ES");
+    ViewData["Title"] = "Reportes";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/reportes.css" asp-append-version="true" />
+}
+
+<div class="reportes-page">
+    <div class="content-header reportes-header">
+        <h1>Reportes</h1>
+        <div class="reportes-actions">
+            <button type="button" class="btn-reportes-export" id="btnExportPdf" title="Exportar PDF">📄 Exportar PDF</button>
+            <button type="button" class="btn-reportes-export" id="btnExportExcel" title="Exportar Excel">📊 Exportar Excel</button>
+        </div>
+    </div>
+
+    <!-- 1. Filtros globales -->
+    <div class="content-card reportes-filters">
+        <form method="get" asp-action="Index" class="reportes-filters-form">
+            <div class="reportes-filters-row">
+                <div class="reportes-filter-group">
+                    <label for="fechaInicio">Fecha inicio</label>
+                    <input type="date" id="fechaInicio" name="fechaInicio" value="@fechaInicio" class="form-control" />
+                </div>
+                <div class="reportes-filter-group">
+                    <label for="fechaFin">Fecha fin</label>
+                    <input type="date" id="fechaFin" name="fechaFin" value="@fechaFin" class="form-control" />
+                </div>
+                <div class="reportes-filter-group">
+                    <label for="doctorId">Doctor</label>
+                    <select name="doctorId" id="doctorId" class="form-select">
+                        <option value="">Todos</option>
+                        @if (doctores != null)
+                        {
+                            @foreach (var d in doctores)
+                            {
+                                <option value="@d.Id" selected="@(doctorIdSel == d.Id)">@(d.NombreCompleto ?? d.Id)</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="reportes-filter-group">
+                    <label for="estadoCobro">Estado de pago</label>
+                    <select name="estadoCobro" id="estadoCobro" class="form-select">
+                        <option value="" selected="@(!estadoCobroSel.HasValue)">Todos</option>
+                        <option value="0" selected="@(estadoCobroSel == 0)">Pendiente</option>
+                        <option value="1" selected="@(estadoCobroSel == 1)">Parcial</option>
+                        <option value="2" selected="@(estadoCobroSel == 2)">Pagado</option>
+                    </select>
+                </div>
+                <div class="reportes-filter-group">
+                    <label for="agrupar">Agrupar (gráfico)</label>
+                    <select name="agrupar" id="agrupar" class="form-select">
+                        <option value="dia" selected="@(agrupar == "dia")">Por día</option>
+                        <option value="semana" selected="@(agrupar == "semana")">Por semana</option>
+                        <option value="mes" selected="@(agrupar == "mes")">Por mes</option>
+                    </select>
+                </div>
+                <div class="reportes-filter-group reportes-filter-submit">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn-reportes-generar">Generar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- 2. Resumen ejecutivo (KPI) -->
+    <div class="reportes-kpi-row">
+        <div class="reportes-kpi-card">
+            <span class="reportes-kpi-label">Ingresos Totales</span>
+            <span class="reportes-kpi-value">RD$ @ingresosTotales.ToString("N2", ci)</span>
+        </div>
+        <div class="reportes-kpi-card">
+            <span class="reportes-kpi-label">Cobrado</span>
+            <span class="reportes-kpi-value reportes-kpi-success">RD$ @cobrado.ToString("N2", ci)</span>
+        </div>
+        <div class="reportes-kpi-card">
+            <span class="reportes-kpi-label">Pendiente</span>
+            <span class="reportes-kpi-value reportes-kpi-warning">RD$ @pendiente.ToString("N2", ci)</span>
+        </div>
+        <div class="reportes-kpi-card">
+            <span class="reportes-kpi-label">Citas Atendidas</span>
+            <span class="reportes-kpi-value">@citasAtendidas</span>
+        </div>
+        <div class="reportes-kpi-card">
+            <span class="reportes-kpi-label">No-Show</span>
+            <span class="reportes-kpi-value reportes-kpi-danger">@noShow</span>
+        </div>
+        <div class="reportes-kpi-card">
+            <span class="reportes-kpi-label">Producción promedio por doctor</span>
+            <span class="reportes-kpi-value">RD$ @produccionPromedio.ToString("N2", ci)</span>
+        </div>
+    </div>
+
+    <!-- 3. Reportes financieros -->
+    <div class="reportes-section">
+        <h2 class="reportes-section-title">Reportes Financieros</h2>
+
+        <div class="content-card reportes-card">
+            <h3>Ingresos por período</h3>
+            <div class="reportes-chart-wrap">
+                <canvas id="chartIngresosPeriodo" height="120"></canvas>
+            </div>
+        </div>
+
+        <div class="content-card reportes-card">
+            <h3>Ingresos por Doctor</h3>
+            <div class="reportes-chart-wrap reportes-chart-bar-wrap">
+                <canvas id="chartIngresosDoctor" height="200"></canvas>
+            </div>
+            <div class="table-responsive mt-3">
+                <table class="table table-sm reportes-table">
+                    <thead>
+                        <tr>
+                            <th>Doctor</th>
+                            <th class="text-end">Total facturado</th>
+                            <th class="text-end">Pagado</th>
+                            <th class="text-end">Pendiente</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in ingresosPorDoctor)
+                        {
+                            <tr>
+                                <td>@d.DoctorNombre</td>
+                                <td class="text-end">RD$ @(((decimal)d.Total).ToString("N2", ci))</td>
+                                <td class="text-end">RD$ @(((decimal)d.Pagado).ToString("N2", ci))</td>
+                                <td class="text-end">RD$ @(((decimal)d.Pendiente).ToString("N2", ci))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @if (!ingresosPorDoctor.Any()) { <p class="text-muted mb-0">Sin datos en el período.</p> }
+            </div>
+        </div>
+
+        <div class="content-card reportes-card">
+            <h3>Tratamientos más realizados</h3>
+            <div class="table-responsive">
+                <table class="table table-sm reportes-table">
+                    <thead>
+                        <tr>
+                            <th>Tratamiento</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-end">Total generado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in tratamientosMasRealizados)
+                        {
+                            <tr>
+                                <td>@t.Tratamiento</td>
+                                <td class="text-center">@t.Cantidad</td>
+                                <td class="text-end">RD$ @(((decimal)t.Total).ToString("N2", ci))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @if (!tratamientosMasRealizados.Any()) { <p class="text-muted mb-0">Sin datos en el período.</p> }
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Reportes operativos -->
+    <div class="reportes-section">
+        <h2 class="reportes-section-title">Reportes Operativos</h2>
+
+        <div class="content-card reportes-card">
+            <h3>Citas</h3>
+            <div class="reportes-citas-stats">
+                <div class="reportes-cita-stat"><span class="reportes-cita-label">Programadas</span> <strong>@citasProgramadas</strong></div>
+                <div class="reportes-cita-stat"><span class="reportes-cita-label">Atendidas</span> <strong>@citasAtendidas</strong> (@atendidasPct.ToString("F1", ci)%)</div>
+                <div class="reportes-cita-stat"><span class="reportes-cita-label">No-Show</span> <strong>@noShow</strong> (@noShowPct.ToString("F1", ci)%)</div>
+                <div class="reportes-cita-stat"><span class="reportes-cita-label">Canceladas</span> <strong>@citasCanceladas</strong> (@canceladasPct.ToString("F1", ci)%)</div>
+            </div>
+            @if (noShowCitas != null && noShowCitas.Any())
+            {
+                <details class="reportes-noshow-details mt-2">
+                    <summary>Ver lista de No-Show (@noShowCitas.Count())</summary>
+                    <ul class="reportes-noshow-list">
+                        @foreach (var c in noShowCitas)
+                        {
+                            var nombrePac = c.Paciente != null ? (c.Paciente.Nombre + " " + (c.Paciente.Apellidos ?? "")) : "—";
+                            <li>@c.FechaHora.ToString("dd/MM/yyyy HH:mm", ci) — @nombrePac</li>
+                        }
+                    </ul>
+                </details>
+            }
+        </div>
+
+        <div class="content-card reportes-card">
+            <h3>Pacientes Nuevos vs Recurrentes</h3>
+            <div class="reportes-chart-wrap reportes-chart-doughnut-wrap">
+                <canvas id="chartPacientesNuevosRecurrentes" height="180"></canvas>
+            </div>
+            <p class="reportes-legend-text mb-0">Nuevos: @pacientesNuevos · Recurrentes: @pacientesRecurrentes</p>
+        </div>
+    </div>
+
+    <!-- 5. Cuentas por cobrar -->
+    <div class="reportes-section">
+        <h2 class="reportes-section-title">Cuentas por Cobrar</h2>
+        <div class="content-card reportes-card">
+            <div class="table-responsive">
+                <table class="table table-sm reportes-table">
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th class="text-end">Total</th>
+                            <th class="text-end">Pagado</th>
+                            <th class="text-end">Saldo</th>
+                            <th>Última visita</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var o in cuentasPorCobrar)
+                        {
+                            <tr>
+                                <td>@o.PacienteNombre</td>
+                                <td class="text-end">RD$ @(((decimal)o.Total).ToString("N2", ci))</td>
+                                <td class="text-end">RD$ @(((decimal)o.MontoPagado).ToString("N2", ci))</td>
+                                <td class="text-end"><strong>RD$ @(((decimal)o.Saldo).ToString("N2", ci))</strong></td>
+                                <td>@(o.UltimaVisita != null ? ((DateTime)o.UltimaVisita).ToString("dd/MM/yyyy", ci) : "—")</td>
+                                <td><a asp-controller="Caja" asp-action="Cobrar" asp-route-id="@o.Id" class="btn btn-primary btn-sm">Ir a Cobro</a></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @if (!cuentasPorCobrar.Any()) { <p class="text-muted mb-0">No hay cuentas pendientes de cobro.</p> }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        (function () {
+            var ci = { NumberFormat: function (n, d) { return Number(n).toLocaleString('es-ES', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 2 }); } };
+
+            // Ingresos por período (línea)
+            var datosPeriodo = @Html.Raw(ingresosPorPeriodoJson);
+            var ctxPeriodo = document.getElementById('chartIngresosPeriodo');
+            if (ctxPeriodo && datosPeriodo && datosPeriodo.length) {
+                new Chart(ctxPeriodo, {
+                    type: 'line',
+                    data: {
+                        labels: datosPeriodo.map(function (x) { return x.label; }),
+                        datasets: [{ label: 'Cobrado (RD$)', data: datosPeriodo.map(function (x) { return x.value; }), borderColor: '#4E8EA2', backgroundColor: 'rgba(78, 142, 162, 0.1)', fill: true, tension: 0.3 }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { callback: function (v) { return 'RD$ ' + ci.NumberFormat(v, 0); } } }
+                        }
+                    }
+                });
+            }
+
+            // Ingresos por doctor (barras)
+            var datosDoctor = @Html.Raw(ingresosPorDoctorJson);
+            var ctxDoctor = document.getElementById('chartIngresosDoctor');
+            if (ctxDoctor && datosDoctor && datosDoctor.length) {
+                new Chart(ctxDoctor, {
+                    type: 'bar',
+                    data: {
+                        labels: datosDoctor.map(function (x) { return x.label; }),
+                        datasets: [{ label: 'Total (RD$)', data: datosDoctor.map(function (x) { return x.value; }), backgroundColor: 'rgba(78, 142, 162, 0.7)' }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { beginAtZero: true, ticks: { callback: function (v) { return 'RD$ ' + ci.NumberFormat(v, 0); } } }
+                        }
+                    }
+                });
+            }
+
+            // Pacientes nuevos vs recurrentes (doughnut)
+            var datosPac = @Html.Raw(pacientesNuevosVsRecurrentesJson);
+            var ctxPac = document.getElementById('chartPacientesNuevosRecurrentes');
+            if (ctxPac && datosPac && (datosPac[0].value > 0 || datosPac[1].value > 0)) {
+                new Chart(ctxPac, {
+                    type: 'doughnut',
+                    data: {
+                        labels: datosPac.map(function (x) { return x.label; }),
+                        datasets: [{ data: datosPac.map(function (x) { return x.value; }), backgroundColor: ['#4E8EA2', '#6EA2B3'] }]
+                    },
+                    options: { responsive: true }
+                });
+            }
+
+            document.getElementById('btnExportPdf')?.addEventListener('click', function () { alert('Exportar PDF: en una siguiente iteración se implementará la generación del PDF.'); });
+            document.getElementById('btnExportExcel')?.addEventListener('click', function () { alert('Exportar Excel: en una siguiente iteración se implementará la exportación.'); });
+        })();
+    </script>
+}

@@ -1,0 +1,197 @@
+/* Reportes – Clínica: filtros, KPIs, financieros, operativos, cuentas por cobrar */
+.reportes-page {
+  --odon: #001D39;
+  --odon-accent: #4E8EA2;
+  --odon-pale: #BDD8E9;
+  --border: rgba(0, 29, 57, 0.1);
+}
+
+.reportes-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.reportes-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-reportes-export {
+  padding: 0.45rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--odon);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-reportes-export:hover {
+  background: var(--odon-pale);
+  color: var(--odon-accent);
+}
+
+/* Filtros globales */
+.reportes-filters {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+}
+
+.reportes-filters-form .reportes-filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem 1.5rem;
+}
+
+.reportes-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.reportes-filter-group label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #5a6c7d;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.reportes-filter-group .form-control,
+.reportes-filter-group .form-select {
+  min-width: 140px;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.reportes-filter-submit .btn-reportes-generar {
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: var(--odon-accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.reportes-filter-submit .btn-reportes-generar:hover {
+  background: #3d7a8a;
+}
+
+/* KPI cards */
+.reportes-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.reportes-kpi-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0, 29, 57, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.reportes-kpi-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #5a6c7d;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.reportes-kpi-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--odon);
+}
+.reportes-kpi-value.reportes-kpi-success { color: #0d6b2c; }
+.reportes-kpi-value.reportes-kpi-warning { color: #b8860b; }
+.reportes-kpi-value.reportes-kpi-danger { color: #c92a2a; }
+
+/* Secciones */
+.reportes-section {
+  margin-bottom: 2rem;
+}
+
+.reportes-section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--odon);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--odon-accent);
+}
+
+.reportes-card {
+  margin-bottom: 1.25rem;
+  padding: 1.25rem;
+}
+.reportes-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--odon);
+  margin-bottom: 1rem;
+}
+
+.reportes-chart-wrap {
+  position: relative;
+  height: 220px;
+  max-width: 100%;
+}
+.reportes-chart-bar-wrap { height: 280px; }
+.reportes-chart-doughnut-wrap { height: 220px; max-width: 320px; }
+
+.reportes-table {
+  font-size: 0.875rem;
+}
+.reportes-table th {
+  font-weight: 600;
+  color: #5a6c7d;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+/* Citas operativo */
+.reportes-citas-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+.reportes-cita-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.reportes-cita-label {
+  font-size: 0.75rem;
+  color: #5a6c7d;
+}
+.reportes-noshow-details summary {
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--odon-accent);
+}
+.reportes-noshow-list {
+  margin: 0.5rem 0 0 1.25rem;
+  padding: 0;
+  font-size: 0.85rem;
+}
+
+.reportes-legend-text {
+  font-size: 0.85rem;
+  color: #5a6c7d;
+  margin-top: 0.5rem;
+}
