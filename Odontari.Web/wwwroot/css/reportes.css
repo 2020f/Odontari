@@ -17,23 +17,51 @@
 
 .reportes-actions {
   display: flex;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .btn-reportes-export {
-  padding: 0.45rem 1rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
   font-weight: 600;
-  background: #fff;
-  border: 1px solid var(--border);
-  color: var(--odon);
+  text-decoration: none;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 .btn-reportes-export:hover {
-  background: var(--odon-pale);
-  color: var(--odon-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  text-decoration: none;
+}
+.btn-reportes-export:active {
+  transform: translateY(0);
+}
+
+/* Exportar PDF: tono rojo/documento */
+.btn-reportes-export-pdf {
+  background: linear-gradient(135deg, #c92a2a 0%, #a61e1e 100%);
+  color: #fff;
+}
+.btn-reportes-export-pdf:hover {
+  background: linear-gradient(135deg, #d64545 0%, #c92a2a 100%);
+  color: #fff;
+}
+
+/* Exportar Excel: tono verde/éxito */
+.btn-reportes-export-excel {
+  background: linear-gradient(135deg, #2b8a3e 0%, #1e6b2e 100%);
+  color: #fff;
+}
+.btn-reportes-export-excel:hover {
+  background: linear-gradient(135deg, #37b24d 0%, #2b8a3e 100%);
+  color: #fff;
 }
 
 /* Filtros globales */
