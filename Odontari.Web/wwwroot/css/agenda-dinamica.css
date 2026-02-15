@@ -270,10 +270,10 @@
   top: 2px;
   left: 2px;
   right: 2px;
-  height: calc(var(--span, 1) * 56px - 4px);
+  height: calc(var(--span, 1) * 56px - 2px);
   display: flex;
   flex-direction: column;
-  padding: 0.4rem 0.6rem;
+  padding: 0.5rem 0.6rem 0.55rem;
   border-radius: 8px;
   font-size: 0.75rem;
   text-decoration: none;
@@ -282,10 +282,11 @@
   overflow: hidden;
   white-space: normal;
   word-wrap: break-word;
-  line-height: 1.35;
+  line-height: 1.5;
   transition: opacity 0.15s, transform 0.05s, box-shadow 0.2s;
   z-index: 1;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
 }
 
 .agenda-dinamica-block:hover {
@@ -298,14 +299,16 @@
   font-size: 0.7rem;
   color: inherit;
   opacity: 0.9;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.15rem;
   flex-shrink: 0;
+  line-height: 1.4;
 }
 
 .agenda-dinamica-block .block-name {
   font-weight: 700;
   display: block;
   flex-shrink: 0;
+  line-height: 1.45;
 }
 
 .agenda-dinamica-block .block-motive,
@@ -316,6 +319,8 @@
   white-space: normal;
   overflow-wrap: break-word;
   flex-shrink: 0;
+  line-height: 1.5;
+  padding-bottom: 0.12em;
 }
 
 .agenda-dinamica-block .block-estado {
