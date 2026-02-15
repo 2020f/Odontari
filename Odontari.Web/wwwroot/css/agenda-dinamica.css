@@ -279,7 +279,8 @@
   text-decoration: none;
   color: #1a252f;
   border-left: 4px solid currentColor;
-  overflow: visible;
+  overflow: hidden;
+  min-height: 80px;
   white-space: normal;
   word-wrap: break-word;
   line-height: 1.5;
