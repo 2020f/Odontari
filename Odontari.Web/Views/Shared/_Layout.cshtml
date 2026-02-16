@@ -1,3 +1,4 @@
+@using Odontari.Web.Data
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,7 +40,8 @@
                             <li class="nav-item"><a class="nav-link text-dark" asp-area="Clinica" asp-controller="Atencion" asp-action="Index">Mis citas</a></li>
                             <li class="nav-item"><a class="nav-link text-dark" asp-area="Clinica" asp-controller="Tratamientos" asp-action="Index">Tratamientos</a></li>
                             <li class="nav-item"><a class="nav-link text-dark" asp-area="Clinica" asp-controller="Caja" asp-action="Index">Caja</a></li>
-                            @if (User.IsInRole("AdminClinica"))
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="Clinica" asp-controller="Reportes" asp-action="Index">Reportes</a></li>
+                            @if (User.IsInRole(OdontariRoles.AdminClinica))
                             {
                                 <li class="nav-item"><a class="nav-link text-dark" asp-area="Clinica" asp-controller="Personal" asp-action="Index">Doctores y Personal</a></li>
                             }

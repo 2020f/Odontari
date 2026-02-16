@@ -251,7 +251,7 @@
                                 <td class="text-end">RD$ @(((decimal)o.MontoPagado).ToString("N2", ci))</td>
                                 <td class="text-end"><strong>RD$ @(((decimal)o.Saldo).ToString("N2", ci))</strong></td>
                                 <td>@(o.UltimaVisita != null ? ((DateTime)o.UltimaVisita).ToString("dd/MM/yyyy", ci) : "—")</td>
-                                <td><a asp-controller="Caja" asp-action="Cobrar" asp-route-id="@o.Id" class="btn btn-primary btn-sm">Ir a Cobro</a></td>
+                                <td><a asp-area="Clinica" asp-controller="Caja" asp-action="Cobrar" asp-route-id="@o.Id" class="btn btn-primary btn-sm">Ir a Cobro</a></td>
                             </tr>
                         }
                     </tbody>
