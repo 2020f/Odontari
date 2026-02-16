@@ -112,3 +112,4 @@ app.MapRazorPages()
 await Odontari.Web.Data.SeedData.EnsureSeedAsync(app.Services);
 
 app.Run();
+
