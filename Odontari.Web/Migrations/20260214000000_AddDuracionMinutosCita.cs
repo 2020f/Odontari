@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Odontari.Web.Migrations
 {
     /// <inheritdoc />
+    [Migration("20260214000000_AddDuracionMinutosCita")]
     public partial class AddDuracionMinutosCita : Migration
     {
         /// <inheritdoc />
