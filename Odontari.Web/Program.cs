@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Odontari.Web.Data;
 using Odontari.Web.Models;
@@ -108,8 +109,16 @@ app.MapControllerRoute(
 app.MapRazorPages()
    .WithStaticAssets();
 
-// Fase 1: Seed roles y SuperAdmin
-await Odontari.Web.Data.SeedData.EnsureSeedAsync(app.Services);
+// Fase 1: Seed roles y SuperAdmin (si la BD no está disponible, la app arranca igual)
+try
+{
+    await Odontari.Web.Data.SeedData.EnsureSeedAsync(app.Services);
+}
+catch (SqlException ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogWarning(ex, "No se pudo conectar a SQL Server durante el seed. Verifique que SQL Server esté en ejecución y la cadena de conexión en appsettings.json (Server e instancia correctos). La aplicación arrancará pero roles/usuarios iniciales pueden no existir.");
+}
 
 app.Run();
 
