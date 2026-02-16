@@ -10,20 +10,31 @@ namespace Odontari.Web.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "DuracionMinutos",
-                table: "Citas",
-                type: "int",
-                nullable: false,
-                defaultValue: 30);
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (
+                    SELECT 1 FROM sys.columns
+                    WHERE object_id = OBJECT_ID(N'dbo.Citas') AND name = 'DuracionMinutos'
+                )
+                BEGIN
+                    ALTER TABLE dbo.Citas
+                    ADD DuracionMinutos INT NOT NULL CONSTRAINT DF_Citas_DuracionMinutos DEFAULT 30;
+                END
+            ");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "DuracionMinutos",
-                table: "Citas");
+            migrationBuilder.Sql(@"
+                IF EXISTS (
+                    SELECT 1 FROM sys.columns
+                    WHERE object_id = OBJECT_ID(N'dbo.Citas') AND name = 'DuracionMinutos'
+                )
+                BEGIN
+                    ALTER TABLE dbo.Citas DROP CONSTRAINT DF_Citas_DuracionMinutos;
+                    ALTER TABLE dbo.Citas DROP COLUMN DuracionMinutos;
+                END
+            ");
         }
     }
 }
