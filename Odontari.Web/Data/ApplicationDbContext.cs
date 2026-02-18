@@ -24,6 +24,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Odontograma> Odontogramas => Set<Odontograma>();
     public DbSet<HistorialClinico> HistorialClinico => Set<HistorialClinico>();
     public DbSet<HistoriaClinicaSistematica> HistoriasClinicasSistematicas => Set<HistoriaClinicaSistematica>();
+    public DbSet<UsuarioVistaPermiso> UsuarioVistaPermisos => Set<UsuarioVistaPermiso>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -111,6 +112,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         {
             b.HasOne(h => h.Paciente).WithOne(p => p.HistoriaClinicaSistematica).HasForeignKey<HistoriaClinicaSistematica>(h => h.PacienteId).OnDelete(DeleteBehavior.Restrict);
             b.HasOne(h => h.Clinica).WithMany(c => c.HistoriasClinicasSistematicas).HasForeignKey(h => h.ClinicaId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<UsuarioVistaPermiso>(b =>
+        {
+            b.HasKey(p => new { p.UserId, p.VistaKey });
+            b.Property(p => p.VistaKey).HasMaxLength(50);
+            b.HasOne(p => p.User).WithMany().HasForeignKey(p => p.UserId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

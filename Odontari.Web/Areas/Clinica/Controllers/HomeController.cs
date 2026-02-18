@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Odontari.Web.Data;
 using Odontari.Web.Services;
+using VistasClinica = Odontari.Web.Data.VistasClinica;
 
 namespace Odontari.Web.Areas.Clinica.Controllers;
 
@@ -55,6 +56,14 @@ public class HomeController : Controller
     public IActionResult Bloqueo(string? motivo)
     {
         ViewBag.Motivo = motivo ?? "Acceso no permitido.";
+        return View();
+    }
+
+    /// <summary>Mensaje cuando el usuario no tiene permiso para una vista (sin salir del panel).</summary>
+    public IActionResult VistaNoPermitida(string? vista)
+    {
+        ViewData["Title"] = "Sin autorización";
+        ViewBag.VistaNombre = string.IsNullOrEmpty(vista) ? "esta sección" : VistasClinica.NombrePorClave(vista);
         return View();
     }
 }

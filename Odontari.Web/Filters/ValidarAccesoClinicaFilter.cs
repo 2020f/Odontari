@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Odontari.Web.Data;
 using Odontari.Web.Services;
 
 namespace Odontari.Web.Filters;
@@ -12,11 +13,16 @@ public class ValidarAccesoClinicaFilter : IAsyncActionFilter
 {
     private readonly IClinicaActualService _clinicaActual;
     private readonly IPuertaEntradaService _puertaEntrada;
+    private readonly IUsuarioVistasPermisoService _vistasPermiso;
 
-    public ValidarAccesoClinicaFilter(IClinicaActualService clinicaActual, IPuertaEntradaService puertaEntrada)
+    public ValidarAccesoClinicaFilter(
+        IClinicaActualService clinicaActual,
+        IPuertaEntradaService puertaEntrada,
+        IUsuarioVistasPermisoService vistasPermiso)
     {
         _clinicaActual = clinicaActual;
         _puertaEntrada = puertaEntrada;
+        _vistasPermiso = vistasPermiso;
     }
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -29,7 +35,7 @@ public class ValidarAccesoClinicaFilter : IAsyncActionFilter
         }
         var controller = context.RouteData.Values["controller"] as string;
         var action = context.RouteData.Values["action"] as string;
-        if (controller == "Home" && (action == "Bloqueo" || action == "SinClinica"))
+        if (controller == "Home" && (action == "Bloqueo" || action == "SinClinica" || action == "VistaNoPermitida"))
         {
             await next();
             return;
@@ -52,6 +58,24 @@ public class ValidarAccesoClinicaFilter : IAsyncActionFilter
                     { "motivo", motivoBloqueo ?? "Acceso no permitido." }
                 });
             return;
+        }
+        // Validar límite de vistas por usuario (configuración de la clínica)
+        var userId = context.HttpContext.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(controller))
+        {
+            var puedeAcceder = await _vistasPermiso.PuedeAccederAsync(userId, controller);
+            if (!puedeAcceder)
+            {
+                context.Result = new RedirectToRouteResult(
+                    new RouteValueDictionary
+                    {
+                        { "area", "Clinica" },
+                        { "controller", "Home" },
+                        { "action", "VistaNoPermitida" },
+                        { "vista", controller }
+                    });
+                return;
+            }
         }
         await next();
     }

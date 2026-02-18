@@ -60,6 +60,7 @@ builder.Services.AddScoped<Odontari.Web.Services.IClinicaActualService, Odontari
 builder.Services.AddScoped<Odontari.Web.Services.IPuertaEntradaService, Odontari.Web.Services.PuertaEntradaService>();
 builder.Services.AddScoped<Odontari.Web.Services.IAuditService, Odontari.Web.Services.AuditService>();
 builder.Services.AddScoped<Odontari.Web.Services.ReporteFinancieroExportService>();
+builder.Services.AddScoped<Odontari.Web.Services.IUsuarioVistasPermisoService, Odontari.Web.Services.UsuarioVistasPermisoService>();
 builder.Services.AddScoped<Odontari.Web.Filters.ValidarAccesoClinicaFilter>();
 var app = builder.Build();
 

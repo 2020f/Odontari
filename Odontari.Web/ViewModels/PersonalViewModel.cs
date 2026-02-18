@@ -63,4 +63,15 @@ public class PersonalEditViewModel
     /// <summary>Horario laboral (solo doctores): hora de salida.</summary>
     [Display(Name = "Hora de salida")]
     public TimeSpan? HoraSalida { get; set; }
+
+    /// <summary>Permisos de vistas: cada item con Permitido = true significa que el usuario puede ver esa sección.</summary>
+    public List<VistaPermisoItem> PermisosVistas { get; set; } = new();
+}
+
+/// <summary>Una vista (módulo) del área Clinica con su estado permitido para un usuario.</summary>
+public class VistaPermisoItem
+{
+    public string VistaKey { get; set; } = null!;
+    public string Nombre { get; set; } = null!;
+    public bool Permitido { get; set; }
 }

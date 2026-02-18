@@ -6,6 +6,7 @@ using Odontari.Web.Data;
 using Odontari.Web.Models;
 using Odontari.Web.Services;
 using Odontari.Web.ViewModels;
+using VistasClinica = Odontari.Web.Data.VistasClinica;
 
 namespace Odontari.Web.Areas.Clinica.Controllers;
 
@@ -18,17 +19,20 @@ public class PersonalController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IClinicaActualService _clinicaActual;
     private readonly IAuditService _audit;
+    private readonly IUsuarioVistasPermisoService _vistasPermiso;
 
     public PersonalController(
         ApplicationDbContext db,
         UserManager<ApplicationUser> userManager,
         IClinicaActualService clinicaActual,
-        IAuditService audit)
+        IAuditService audit,
+        IUsuarioVistasPermisoService vistasPermiso)
     {
         _db = db;
         _userManager = userManager;
         _clinicaActual = clinicaActual;
         _audit = audit;
+        _vistasPermiso = vistasPermiso;
     }
 
     public async Task<IActionResult> Index()
@@ -150,6 +154,13 @@ public class PersonalController : Controller
         var roles = await _userManager.GetRolesAsync(user);
         var rol = roles.FirstOrDefault() ?? "";
 
+        var vistasPermitidas = await _vistasPermiso.GetVistasPermitidasAsync(user.Id);
+        var permisosVistas = VistasClinica.Todas.Select(t =>
+        {
+            var permitido = vistasPermitidas == null || vistasPermitidas.Contains(t.Key);
+            return new VistaPermisoItem { VistaKey = t.Key, Nombre = t.Nombre, Permitido = permitido };
+        }).ToList();
+
         return View(new PersonalEditViewModel
         {
             Id = user.Id,
@@ -158,7 +169,8 @@ public class PersonalController : Controller
             Rol = rol,
             Activo = user.Activo,
             HoraEntrada = user.HoraEntrada,
-            HoraSalida = user.HoraSalida
+            HoraSalida = user.HoraSalida,
+            PermisosVistas = permisosVistas
         });
     }
 
@@ -202,11 +214,27 @@ public class PersonalController : Controller
             await _userManager.RemoveFromRolesAsync(user, currentRoles);
             await _userManager.AddToRoleAsync(user, vm.Rol);
 
+            if (vm.PermisosVistas != null)
+            {
+                var permitidas = vm.PermisosVistas.Where(p => p.Permitido).Select(p => p.VistaKey).ToList();
+                await _vistasPermiso.GuardarPermisosAsync(user.Id, permitidas);
+            }
+
             await _audit.RegistrarAsync(cid, User.Identity?.Name, "Personal_Editado", "Usuario", user.Id, vm.Email);
             TempData["Message"] = "Usuario actualizado.";
             return RedirectToAction(nameof(Index));
         }
         vm.Email = user.Email ?? "";
+        // Asegurar siempre 9 vistas en el modelo para que el formulario renderice todos los toggles
+        if (vm.PermisosVistas == null || vm.PermisosVistas.Count != VistasClinica.Todas.Count)
+        {
+            var vistasPermitidas = await _vistasPermiso.GetVistasPermitidasAsync(user.Id);
+            vm.PermisosVistas = VistasClinica.Todas.Select(t =>
+            {
+                var permitido = vistasPermitidas == null || vistasPermitidas.Contains(t.Key);
+                return new VistaPermisoItem { VistaKey = t.Key, Nombre = t.Nombre, Permitido = permitido };
+            }).ToList();
+        }
         return View(vm);
     }
 
