@@ -39,6 +39,44 @@ public class SuscripcionesController : Controller
         return View(list);
     }
 
+    public async Task<IActionResult> Edit(int id)
+    {
+        var s = await _db.Suscripciones.Include(s => s.Clinica).FirstOrDefaultAsync(s => s.Id == id);
+        if (s == null) return NotFound();
+        return View(new ViewModels.SuscripcionEditViewModel
+        {
+            Id = s.Id,
+            ClinicaId = s.ClinicaId,
+            ClinicaNombre = s.Clinica.Nombre,
+            Inicio = s.Inicio.Date,
+            Vencimiento = s.Vencimiento.Date
+        });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, ViewModels.SuscripcionEditViewModel vm)
+    {
+        if (id != vm.Id) return NotFound();
+        var s = await _db.Suscripciones.FindAsync(id);
+        if (s == null) return NotFound();
+        if (vm.Vencimiento < vm.Inicio)
+        {
+            ModelState.AddModelError(nameof(vm.Vencimiento), "La fecha de vencimiento no puede ser anterior al inicio.");
+        }
+        if (ModelState.IsValid)
+        {
+            s.Inicio = vm.Inicio.Date;
+            s.Vencimiento = vm.Vencimiento.Date;
+            await _db.SaveChangesAsync();
+            await _audit.RegistrarAsync(s.ClinicaId, null, "Suscripcion_FechasEditadas", "Suscripcion", s.Id.ToString(), $"Inicio: {s.Inicio:yyyy-MM-dd}, Vencimiento: {s.Vencimiento:yyyy-MM-dd}");
+            TempData["Message"] = "Fechas actualizadas correctamente.";
+            return RedirectToAction(nameof(Index));
+        }
+        vm.ClinicaNombre = (await _db.Clinicas.FindAsync(vm.ClinicaId))?.Nombre ?? "";
+        return View(vm);
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Activar(int id)

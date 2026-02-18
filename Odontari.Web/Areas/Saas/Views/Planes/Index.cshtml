@@ -3,33 +3,47 @@
     ViewData["Title"] = "Planes";
 }
 
-<h1>Planes</h1>
-<p><a asp-action="Create">Crear plan</a></p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Precio/mes</th>
-            <th>Max usuarios</th>
-            <th>Max doctores</th>
-            <th>Facturación</th>
-            <th>Odontograma</th>
-            <th>Activo</th><th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var p in Model)
-        {
-            <tr>
-                <td>@p.Nombre</td>
-                <td>@p.PrecioMensual.ToString("N2")</td>
-                <td>@p.MaxUsuarios</td>
-                <td>@p.MaxDoctores</td>
-                <td>@(p.PermiteFacturacion ? "Sí" : "No")</td>
-                <td>@(p.PermiteOdontograma ? "Sí" : "No")</td>
-                <td>@(p.Activo ? "Sí" : "No")</td>
-                <td><a asp-action="Edit" asp-route-id="@p.Id">Editar</a></td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="saas-dashboard">
+    <header class="dashboard-hero">
+        <h1>Planes</h1>
+        <p class="dashboard-subtitle">Configuración de planes y precios.</p>
+    </header>
+    <div class="dashboard-actions" style="margin-top: 0; padding-top: 0; border-top: none;">
+        <a asp-area="Saas" asp-controller="Planes" asp-action="Create" class="btn-main btn-primary">Crear plan</a>
+    </div>
+    <div class="section-card" style="margin-top: 1.25rem;">
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Precio/mes</th>
+                    <th>Max usuarios</th>
+                    <th>Max doctores</th>
+                    <th>Facturación</th>
+                    <th>Odontograma</th>
+                    <th>Activo</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td>@p.Nombre</td>
+                        <td>@p.PrecioMensual.ToString("N2")</td>
+                        <td>@p.MaxUsuarios</td>
+                        <td>@p.MaxDoctores</td>
+                        <td>@(p.PermiteFacturacion ? "Sí" : "No")</td>
+                        <td>@(p.PermiteOdontograma ? "Sí" : "No")</td>
+                        <td>@(p.Activo ? "Sí" : "No")</td>
+                        <td><a asp-area="Saas" asp-controller="Planes" asp-action="Edit" asp-route-id="@p.Id" class="table-link">Editar</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (!Model.Any())
+    {
+        <p class="section-empty">No hay planes. Cree el primero.</p>
+    }
+</div>

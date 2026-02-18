@@ -9,131 +9,145 @@
     var nuevasClinicasMes = ViewBag.NuevasClinicasMes as IEnumerable<Clinica> ?? new List<Clinica>();
     var actividadReciente = ViewBag.ActividadReciente as IEnumerable<AuditLog> ?? new List<AuditLog>();
 }
+<div class="saas-dashboard">
+    <header class="dashboard-hero">
+        <h1>Dashboard Global</h1>
+        <p class="dashboard-subtitle">Resumen del estado de clínicas, suscripciones y actividad reciente.</p>
+    </header>
 
-<h1>Dashboard Global</h1>
+    <div class="kpi-grid">
+        <div class="kpi-card kpi-success">
+            <div class="kpi-header">
+                <span class="kpi-title">Clínicas activas</span>
+                <div class="kpi-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </div>
+            </div>
+            <p class="kpi-value">@clinicasActivas</p>
+            <a asp-area="Saas" asp-controller="Clinicas" asp-action="Index" class="kpi-link">Ver clínicas →</a>
+        </div>
+        <div class="kpi-card kpi-warning">
+            <div class="kpi-header">
+                <span class="kpi-title">Clínicas vencidas</span>
+                <div class="kpi-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+            </div>
+            <p class="kpi-value">@clinicasVencidas</p>
+            <a asp-area="Saas" asp-controller="Suscripciones" asp-action="Index" class="kpi-link">Renovar →</a>
+        </div>
+        <div class="kpi-card kpi-danger">
+            <div class="kpi-header">
+                <span class="kpi-title">Clínicas suspendidas</span>
+                <div class="kpi-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                </div>
+            </div>
+            <p class="kpi-value">@clinicasSuspendidas</p>
+            <a asp-area="Saas" asp-controller="Suscripciones" asp-action="Index" class="kpi-link">Ver suscripciones →</a>
+        </div>
+        <div class="kpi-card kpi-info">
+            <div class="kpi-header">
+                <span class="kpi-title">MRR estimado</span>
+                <div class="kpi-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+            </div>
+            <p class="kpi-value">@mrr.ToString("C2")</p>
+        </div>
+    </div>
 
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card border-success">
-            <div class="card-body">
-                <h5 class="card-title">Clínicas activas</h5>
-                <p class="card-text display-6">@clinicasActivas</p>
-                <a asp-area="Saas" asp-controller="Clinicas" asp-action="Index" class="card-link">Ver clínicas</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-warning">
-            <div class="card-body">
-                <h5 class="card-title">Clínicas vencidas</h5>
-                <p class="card-text display-6">@clinicasVencidas</p>
-                <a asp-area="Saas" asp-controller="Suscripciones" asp-action="Index" class="card-link">Renovar</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-danger">
-            <div class="card-body">
-                <h5 class="card-title">Clínicas suspendidas</h5>
-                <p class="card-text display-6">@clinicasSuspendidas</p>
-                <a asp-area="Saas" asp-controller="Suscripciones" asp-action="Index" class="card-link">Ver suscripciones</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-primary">
-            <div class="card-body">
-                <h5 class="card-title">MRR estimado</h5>
-                <p class="card-text display-6">@mrr.ToString("C2")</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">Renovaciones próximas (30 días)</div>
-            <div class="card-body p-0">
+    <div class="dashboard-section">
+        <div class="dashboard-section-grid">
+            <div class="section-card">
+                <div class="section-header">Renovaciones próximas (30 días)</div>
                 @if (renovacionesProximas.Any())
                 {
-                    <ul class="list-group list-group-flush">
+                    <ul class="section-list">
                         @foreach (var s in renovacionesProximas)
                         {
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                @s.Clinica?.Nombre
-                                <span class="badge bg-secondary">@s.Vencimiento.ToString("d")</span>
-                                <a asp-area="Saas" asp-controller="Suscripciones" asp-action="Index" class="btn btn-sm btn-outline-primary">Renovar</a>
+                            <li class="section-list-item">
+                                <div class="item-main">
+                                    <p class="item-title">@s.Clinica?.Nombre</p>
+                                </div>
+                                <div class="item-badges">
+                                    <span class="badge-date">@s.Vencimiento.ToString("d")</span>
+                                    <a asp-area="Saas" asp-controller="Suscripciones" asp-action="Index" class="btn-action btn-primary">Renovar</a>
+                                </div>
                             </li>
                         }
                     </ul>
                 }
                 else
                 {
-                    <p class="p-3 mb-0 text-muted">No hay renovaciones en los próximos 30 días.</p>
+                    <p class="section-empty">No hay renovaciones en los próximos 30 días.</p>
                 }
             </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">Nuevas clínicas del mes</div>
-            <div class="card-body p-0">
+            <div class="section-card">
+                <div class="section-header">Nuevas clínicas del mes</div>
                 @if (nuevasClinicasMes.Any())
                 {
-                    <ul class="list-group list-group-flush">
+                    <ul class="section-list">
                         @foreach (var c in nuevasClinicasMes)
                         {
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                @c.Nombre <small class="text-muted">@c.Plan?.Nombre</small>
-                                <span class="badge bg-info">@c.FechaCreacion.ToString("d")</span>
-                                <a asp-area="Saas" asp-controller="Clinicas" asp-action="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-outline-secondary">Ir</a>
+                            <li class="section-list-item">
+                                <div class="item-main">
+                                    <p class="item-title">@c.Nombre</p>
+                                    @if (c.Plan != null) { <p class="item-meta">@c.Plan.Nombre</p> }
+                                </div>
+                                <div class="item-badges">
+                                    <span class="badge-date">@c.FechaCreacion.ToString("d")</span>
+                                    <a asp-area="Saas" asp-controller="Clinicas" asp-action="Edit" asp-route-id="@c.Id" class="btn-action btn-ghost">Ir</a>
+                                </div>
                             </li>
                         }
                     </ul>
                 }
                 else
                 {
-                    <p class="p-3 mb-0 text-muted">Ninguna clínica nueva este mes.</p>
+                    <p class="section-empty">Ninguna clínica nueva este mes.</p>
                 }
             </div>
         </div>
     </div>
-</div>
 
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">Actividad reciente</div>
-            <div class="card-body p-0">
-                @if (actividadReciente.Any())
-                {
-                    <table class="table table-sm table-striped mb-0">
-                        <thead><tr><th>Fecha</th><th>Acción</th><th>Entidad</th><th>Detalle</th></tr></thead>
-                        <tbody>
-                            @foreach (var a in actividadReciente)
-                            {
-                                <tr>
-                                    <td>@a.CreadoAt.ToString("g")</td>
-                                    <td>@a.Accion</td>
-                                    <td>@(a.Entidad ?? "-") @(a.EntidadId != null ? $"#{a.EntidadId}" : "")</td>
-                                    <td>@(a.Detalle ?? "-")</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <p class="p-3 mb-0 text-muted">Sin actividad reciente.</p>
-                }
-            </div>
+    <div class="dashboard-section">
+        <div class="section-card activity-card">
+            <div class="section-header">Actividad reciente</div>
+            @if (actividadReciente.Any())
+            {
+                <table class="activity-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Acción</th>
+                            <th>Entidad</th>
+                            <th>Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var a in actividadReciente)
+                        {
+                            <tr>
+                                <td class="cell-date">@a.CreadoAt.ToString("g")</td>
+                                <td>@a.Accion</td>
+                                <td>@(a.Entidad ?? "-") @(a.EntidadId != null ? $"#{a.EntidadId}" : "")</td>
+                                <td>@(a.Detalle ?? "-")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="activity-empty">Sin actividad reciente.</p>
+            }
         </div>
     </div>
-</div>
 
-<div class="mt-3">
-    <a asp-area="Saas" asp-controller="Clinicas" asp-action="Index" class="btn btn-primary">Clínicas</a>
-    <a asp-area="Saas" asp-controller="Suscripciones" asp-action="Index" class="btn btn-outline-secondary">Suscripciones / Pagos</a>
-    <a asp-area="Saas" asp-controller="Planes" asp-action="Index" class="btn btn-outline-secondary">Planes</a>
+    <div class="dashboard-actions">
+        <a asp-area="Saas" asp-controller="Clinicas" asp-action="Index" class="btn-main btn-primary">Clínicas</a>
+        <a asp-area="Saas" asp-controller="Suscripciones" asp-action="Index" class="btn-main btn-outline">Suscripciones / Pagos</a>
+        <a asp-area="Saas" asp-controller="Planes" asp-action="Index" class="btn-main btn-outline">Planes</a>
+    </div>
 </div>

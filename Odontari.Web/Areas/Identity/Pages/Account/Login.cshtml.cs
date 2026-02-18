@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using Odontari.Web.Data;
 using Odontari.Web.Models;
+using Odontari.Web.Services;
 
 namespace Odontari.Web.Areas.Identity.Pages.Account
 {
@@ -23,12 +24,14 @@ namespace Odontari.Web.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IPuertaEntradaService _puertaEntrada;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IPuertaEntradaService puertaEntrada, ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _puertaEntrada = puertaEntrada;
             _logger = logger;
         }
 
@@ -119,12 +122,23 @@ namespace Odontari.Web.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    // Redirección multitenant: ir al panel correcto si vienen a la raíz
-                    var isRoot = string.IsNullOrEmpty(returnUrl) || returnUrl == "~/" || returnUrl == "/" || returnUrl == "/Index";
-                    if (isRoot)
+                    var user = await _userManager.FindByEmailAsync(Input.Email);
+                    if (user != null)
                     {
-                        var user = await _userManager.FindByEmailAsync(Input.Email);
-                        if (user != null)
+                        // Usuario de clínica: validar suscripción vigente antes de dejar entrar
+                        if (user.ClinicaId != null && !await _userManager.IsInRoleAsync(user, OdontariRoles.SuperAdmin))
+                        {
+                            var (puedeEntrar, motivoBloqueo) = await _puertaEntrada.ValidarAccesoPanelClinicaAsync(user.ClinicaId.Value);
+                            if (!puedeEntrar)
+                            {
+                                await _signInManager.SignOutAsync();
+                                ErrorMessage = motivoBloqueo ?? "Suscripción vencida (suspensión por vencimiento). Contacte al administrador para renovar.";
+                                return RedirectToPage();
+                            }
+                        }
+                        // Redirección multitenant: ir al panel correcto si vienen a la raíz
+                        var isRoot = string.IsNullOrEmpty(returnUrl) || returnUrl == "~/" || returnUrl == "/" || returnUrl == "/Index";
+                        if (isRoot)
                         {
                             if (await _userManager.IsInRoleAsync(user, OdontariRoles.SuperAdmin))
                                 return LocalRedirect("/Saas/Dashboard/Index");

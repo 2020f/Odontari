@@ -230,7 +230,7 @@ public class PersonalController : Controller
     private async Task<(bool Puede, string? Mensaje)> ValidarPuedeCrearUsuarioAsync(Models.Clinica clinica, string? rolParaNuevo = null)
     {
         var vigente = await _db.Suscripciones
-            .AnyAsync(s => s.ClinicaId == clinica.Id && s.Activa && !s.Suspendida && s.Vencimiento >= DateTime.Today);
+            .AnyAsync(s => s.ClinicaId == clinica.Id && s.Activa && !s.Suspendida && s.Vencimiento > DateTime.Today);
         if (!vigente) return (false, "La clínica no tiene suscripción vigente.");
         if (!clinica.Activa) return (false, "La clínica está inactiva.");
 

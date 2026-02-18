@@ -1,0 +1,37 @@
+@model SuscripcionEditViewModel
+@{
+    ViewData["Title"] = "Editar fechas de suscripción";
+}
+
+<div class="saas-dashboard">
+    <header class="dashboard-hero">
+        <h1>Editar fechas — @Model.ClinicaNombre</h1>
+        <p class="dashboard-subtitle">Modifique las fechas de inicio y vencimiento de la suscripción.</p>
+    </header>
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="saas-form-card">
+        <form asp-area="Saas" asp-controller="Suscripciones" asp-action="Edit" asp-route-id="@Model.Id" method="post">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ClinicaId" />
+            <input type="hidden" asp-for="ClinicaNombre" />
+            <div class="form-group">
+                <label asp-for="Inicio">Fecha de inicio</label>
+                <input asp-for="Inicio" type="date" class="form-control" />
+                <span asp-validation-for="Inicio" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Vencimiento">Fecha de vencimiento</label>
+                <input asp-for="Vencimiento" type="date" class="form-control" />
+                <span asp-validation-for="Vencimiento" class="text-danger"></span>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-main btn-primary">Guardar fechas</button>
+                <a asp-area="Saas" asp-controller="Suscripciones" asp-action="Index" class="btn-main btn-outline">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -32,12 +32,20 @@ builder.Services.ConfigureApplicationCookie(options =>
         OnRedirectToAccessDenied = ctx =>
         {
             var path = ctx.Request.Path.Value ?? "";
-            if (path.StartsWith("/Clinica", StringComparison.OrdinalIgnoreCase))
+            var user = ctx.HttpContext.User;
+            bool isClinica = path.StartsWith("/Clinica", StringComparison.OrdinalIgnoreCase);
+            bool isSaas = path.StartsWith("/Saas", StringComparison.OrdinalIgnoreCase);
+            if (isClinica && (user.IsInRole(OdontariRoles.AdminClinica) || user.IsInRole(OdontariRoles.Recepcion) || user.IsInRole(OdontariRoles.Doctor) || user.IsInRole(OdontariRoles.Finanzas)))
+            {
                 ctx.Response.Redirect("/Clinica/Home/Index?accesoDenegado=1");
-            else if (path.StartsWith("/Saas", StringComparison.OrdinalIgnoreCase))
+                return Task.CompletedTask;
+            }
+            if (isSaas && user.IsInRole(OdontariRoles.SuperAdmin))
+            {
                 ctx.Response.Redirect("/Saas/Dashboard/Index?accesoDenegado=1");
-            else
-                ctx.Response.Redirect("/Home/AccesoDenegado?ReturnUrl=" + Uri.EscapeDataString(ctx.Request.Path));
+                return Task.CompletedTask;
+            }
+            ctx.Response.Redirect("/Home/AccesoDenegado?ReturnUrl=" + Uri.EscapeDataString(path));
             return Task.CompletedTask;
         }
     };
@@ -69,28 +77,6 @@ else
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
-// Interceptar GET /Home/AccesoDenegado con ReturnUrl de área y redirigir al dashboard con overlay (antes de auth)
-app.Use(async (context, next) =>
-{
-    var path = (context.Request.Path.Value ?? "").TrimEnd('/');
-    if (path.Equals("/Home/AccesoDenegado", StringComparison.OrdinalIgnoreCase))
-    {
-        var returnUrl = context.Request.Query["ReturnUrl"].FirstOrDefault() ?? "";
-        var decoded = string.IsNullOrEmpty(returnUrl) ? "" : Uri.UnescapeDataString(returnUrl);
-        if (decoded.StartsWith("/Clinica", StringComparison.OrdinalIgnoreCase))
-        {
-            context.Response.Redirect("/Clinica/Home/Index?accesoDenegado=1");
-            return;
-        }
-        if (decoded.StartsWith("/Saas", StringComparison.OrdinalIgnoreCase))
-        {
-            context.Response.Redirect("/Saas/Dashboard/Index?accesoDenegado=1");
-            return;
-        }
-    }
-    await next();
-});
 
 app.UseAuthentication();
 app.UseAuthorization();

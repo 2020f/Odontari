@@ -3,30 +3,37 @@
     var clinicas = ViewBag.Clinicas as IEnumerable<dynamic> ?? new List<dynamic>();
 }
 
-<h1>Usuarios de Clínica (SaaS)</h1>
-<p>Desde aquí solo se crea el <strong>Administrador de clínica</strong>. Doctor, Recepción y Finanzas los crea el administrador desde el panel de su clínica.</p>
-<p>Seleccione una clínica para ver usuarios o crear el primer administrador.</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Clínica</th>
-            <th>Plan</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var c in clinicas)
-        {
-            <tr>
-                <td>@c.Nombre</td>
-                <td>@c.PlanNombre</td>
-                <td><a asp-area="Saas" asp-controller="UsuariosClinica" asp-action="Index" asp-route-clinicaId="@c.Id" class="btn btn-sm btn-primary">Ver usuarios</a></td>
-            </tr>
-        }
-    </tbody>
-</table>
-@if (!clinicas.Any())
-{
-    <p class="text-muted">No hay clínicas. Cree una clínica primero.</p>
-}
-<p><a asp-area="Saas" asp-controller="Clinicas" asp-action="Index">Volver a Clínicas</a></p>
+<div class="saas-dashboard">
+    <header class="dashboard-hero">
+        <h1>Usuarios de Clínica</h1>
+        <p class="page-subtitle">Desde aquí solo se crea el <strong>Administrador de clínica</strong>. Doctor, Recepción y Finanzas los crea el administrador desde el panel de su clínica. Seleccione una clínica para ver usuarios o crear el primer administrador.</p>
+    </header>
+    <div class="section-card" style="margin-top: 1.25rem;">
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Clínica</th>
+                    <th>Plan</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in clinicas)
+                {
+                    <tr>
+                        <td>@c.Nombre</td>
+                        <td>@c.PlanNombre</td>
+                        <td><a asp-area="Saas" asp-controller="UsuariosClinica" asp-action="Index" asp-route-clinicaId="@c.Id" class="btn-main btn-primary">Ver usuarios</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (!clinicas.Any())
+    {
+        <p class="section-empty">No hay clínicas. Cree una clínica primero.</p>
+    }
+    <div class="dashboard-actions">
+        <a asp-area="Saas" asp-controller="Clinicas" asp-action="Index" class="btn-main btn-outline">Volver a Clínicas</a>
+    </div>
+</div>

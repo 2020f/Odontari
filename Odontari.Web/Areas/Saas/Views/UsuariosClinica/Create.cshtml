@@ -3,40 +3,48 @@
     ViewData["Title"] = "Crear administrador de clínica";
 }
 
-<h1>Crear administrador de clínica — @Model.ClinicaNombre</h1>
-<p class="text-muted">Solo se crea el <strong>Administrador de clínica</strong>. Doctor, Recepción y Finanzas los crea el administrador desde el panel de la clínica.</p>
-<div asp-validation-summary="All" class="text-danger"></div>
-<form asp-area="Saas" asp-controller="UsuariosClinica" asp-action="Create" method="post">
-    <input type="hidden" asp-for="ClinicaId" />
-    <input type="hidden" asp-for="Rol" value="@Odontari.Web.Data.OdontariRoles.AdminClinica" />
-    <div class="form-group mb-2">
-        <label asp-for="NombreCompleto"></label>
-        <input asp-for="NombreCompleto" class="form-control" />
-        <span asp-validation-for="NombreCompleto" class="text-danger"></span>
+<div class="saas-dashboard">
+    <header class="dashboard-hero">
+        <h1>Crear administrador de clínica — @Model.ClinicaNombre</h1>
+        <p class="page-subtitle">Solo se crea el <strong>Administrador de clínica</strong>. Doctor, Recepción y Finanzas los crea el administrador desde el panel de la clínica.</p>
+    </header>
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="saas-form-card">
+        <form asp-area="Saas" asp-controller="UsuariosClinica" asp-action="Create" method="post">
+            <input type="hidden" asp-for="ClinicaId" />
+            <input type="hidden" asp-for="Rol" value="@Odontari.Web.Data.OdontariRoles.AdminClinica" />
+            <div class="form-group mb-2">
+                <label asp-for="NombreCompleto"></label>
+                <input asp-for="NombreCompleto" class="form-control" />
+                <span asp-validation-for="NombreCompleto" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-2">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="form-control" type="email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-2">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" class="form-control" type="password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-2">
+                <label class="form-label">Rol</label>
+                <input type="text" class="form-control" value="Administrador de clínica" readonly disabled />
+            </div>
+            <div class="form-group mb-2">
+                <div class="form-check">
+                    <input asp-for="Activo" class="form-check-input" />
+                    <label asp-for="Activo" class="form-check-label"></label>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-main btn-primary">Crear</button>
+                <a asp-area="Saas" asp-controller="UsuariosClinica" asp-action="Index" asp-route-clinicaId="@Model.ClinicaId" class="btn-main btn-outline">Cancelar</a>
+            </div>
+        </form>
     </div>
-    <div class="form-group mb-2">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" type="email" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-    <div class="form-group mb-2">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" class="form-control" type="password" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-    <div class="form-group mb-2">
-        <label class="form-label">Rol</label>
-        <input type="text" class="form-control" value="Administrador de clínica" readonly disabled />
-    </div>
-    <div class="form-group mb-2">
-        <div class="form-check">
-            <input asp-for="Activo" class="form-check-input" />
-            <label asp-for="Activo" class="form-check-label"></label>
-        </div>
-    </div>
-    <button type="submit" class="btn btn-primary">Crear</button>
-    <a asp-area="Saas" asp-controller="UsuariosClinica" asp-action="Index" asp-route-clinicaId="@Model.ClinicaId" class="btn btn-outline-secondary">Cancelar</a>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

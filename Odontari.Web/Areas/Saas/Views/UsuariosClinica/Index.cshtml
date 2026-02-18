@@ -5,43 +5,51 @@
     var clinicaNombre = ViewBag.ClinicaNombre as string ?? "";
 }
 
-<h1>Usuarios — @clinicaNombre</h1>
-<p class="text-muted">Solo se puede crear <strong>Administrador de clínica</strong>. El resto del personal (Doctor, Recepción, Finanzas) se crea desde el panel de la clínica (Doctores y Personal).</p>
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-success">@TempData["Message"]</div>
-}
-<p>
-    <a asp-area="Saas" asp-controller="UsuariosClinica" asp-action="Create" asp-route-clinicaId="@clinicaId" class="btn btn-primary">Crear usuario</a>
-    <a asp-area="Saas" asp-controller="UsuariosClinica" asp-action="Index" class="btn btn-outline-secondary">Cambiar clínica</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Activo</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var u in Model)
-        {
-            <tr>
-                <td>@u.NombreCompleto</td>
-                <td>@u.Email</td>
-                <td>@(u.Rol ?? "-")</td>
-                <td>@(u.Activo ? "Sí" : "No")</td>
-            </tr>
-        }
-    </tbody>
-</table>
-@if (!Model.Any())
-{
-    <p class="text-muted">No hay usuarios en esta clínica. Cree el primer usuario (por ejemplo AdminClinica).</p>
-}
-<p><a asp-area="Saas" asp-controller="Clinicas" asp-action="Index">Volver a Clínicas</a></p>
+<div class="saas-dashboard">
+    <header class="dashboard-hero">
+        <h1>Usuarios — @clinicaNombre</h1>
+        <p class="page-subtitle">Solo se puede crear <strong>Administrador de clínica</strong>. El resto del personal (Doctor, Recepción, Finanzas) se crea desde el panel de la clínica (Doctores y Personal).</p>
+    </header>
+    @if (TempData["Error"] != null)
+    {
+        <div class="page-alerts"><div class="alert alert-danger">@TempData["Error"]</div></div>
+    }
+    @if (TempData["Message"] != null)
+    {
+        <div class="page-alerts"><div class="alert alert-success">@TempData["Message"]</div></div>
+    }
+    <div class="dashboard-actions" style="margin-top: 0; padding-top: 0; border-top: none;">
+        <a asp-area="Saas" asp-controller="UsuariosClinica" asp-action="Create" asp-route-clinicaId="@clinicaId" class="btn-main btn-primary">Crear usuario</a>
+        <a asp-area="Saas" asp-controller="UsuariosClinica" asp-action="Index" class="btn-main btn-outline">Cambiar clínica</a>
+    </div>
+    <div class="section-card" style="margin-top: 1.25rem;">
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Activo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model)
+                {
+                    <tr>
+                        <td>@u.NombreCompleto</td>
+                        <td>@u.Email</td>
+                        <td>@(u.Rol ?? "-")</td>
+                        <td>@(u.Activo ? "Sí" : "No")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (!Model.Any())
+    {
+        <p class="section-empty">No hay usuarios en esta clínica. Cree el primer usuario (por ejemplo AdminClinica).</p>
+    }
+    <div class="dashboard-actions">
+        <a asp-area="Saas" asp-controller="Clinicas" asp-action="Index" class="btn-main btn-outline">Volver a Clínicas</a>
+    </div>
+</div>

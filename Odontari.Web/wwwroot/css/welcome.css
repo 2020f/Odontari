@@ -1,10 +1,20 @@
 /* Pantalla de bienvenida — ODONTARI */
+body.welcome-layout {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(165deg, #f0f9ff 0%, #e0f2fe 25%, #f8fafc 50%, #f1f5f9 100%);
+}
+
 .welcome-layout main {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem 0;
+  padding: 2rem 1rem;
+}
+
+.welcome-layout .container {
+  max-width: 720px;
 }
 
 .welcome-page {

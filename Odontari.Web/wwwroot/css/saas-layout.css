@@ -1,0 +1,275 @@
+/* Layout Gestor SaaS — Sidebar colapsable + contenido. Paleta slate/indigo para diferenciar del área Clínica */
+:root {
+  --saas-nav: #1e293b;
+  --saas-nav-hover: #334155;
+  --saas-nav-active: #475569;
+  --saas-accent: #6366f1;
+  --saas-accent-light: #818cf8;
+  --saas-bg-page: #f8fafc;
+  --saas-sidebar-width: 56px;
+  --saas-sidebar-expanded: 220px;
+  --saas-transition: 0.2s ease;
+}
+
+body.saas-layout {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--saas-bg-page);
+}
+
+/* Sidebar */
+.saas-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--saas-sidebar-width);
+  background: var(--saas-nav);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  z-index: 1030;
+  transition: width var(--saas-transition);
+  overflow: hidden;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+}
+
+.saas-sidebar:hover {
+  width: var(--saas-sidebar-expanded);
+}
+
+.saas-sidebar .sidebar-brand {
+  flex-shrink: 0;
+  height: 52px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.saas-sidebar .sidebar-brand-icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  opacity: 0.95;
+}
+
+.saas-sidebar .sidebar-brand-text {
+  white-space: nowrap;
+  font-weight: 600;
+  font-size: 0.95rem;
+  opacity: 0;
+  transition: opacity var(--saas-transition);
+}
+
+.saas-sidebar:hover .sidebar-brand-text {
+  opacity: 1;
+}
+
+.saas-sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 0;
+}
+
+.saas-sidebar-nav .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: background var(--saas-transition), color var(--saas-transition), border-color var(--saas-transition);
+}
+
+.saas-sidebar-nav .nav-link:hover {
+  background: var(--saas-nav-hover);
+  color: #fff;
+}
+
+.saas-sidebar-nav .nav-link.active {
+  background: var(--saas-nav-active);
+  color: #fff;
+  border-left-color: var(--saas-accent-light);
+}
+
+.saas-sidebar-nav .nav-link .nav-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.saas-sidebar-nav .nav-link .nav-text {
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity var(--saas-transition);
+}
+
+.saas-sidebar:hover .nav-link .nav-text {
+  opacity: 1;
+}
+
+.saas-sidebar-nav .nav-link[title] {
+  cursor: pointer;
+}
+
+/* Zona usuario (inferior) */
+.saas-sidebar-user {
+  flex-shrink: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+}
+
+.saas-sidebar-user .user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--saas-accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.saas-sidebar-user .user-info {
+  flex: 1;
+  min-width: 0;
+  opacity: 0;
+  transition: opacity var(--saas-transition);
+}
+
+.saas-sidebar:hover .saas-sidebar-user .user-info {
+  opacity: 1;
+}
+
+.saas-sidebar-user .user-name {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.saas-sidebar-user .user-role {
+  display: block;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.saas-sidebar-user .user-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.saas-sidebar-user .btn-logout {
+  padding: 6px 10px;
+  color: rgba(255, 255, 255, 0.9);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background var(--saas-transition), color var(--saas-transition);
+}
+
+.saas-sidebar-user .btn-logout:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.saas-sidebar:hover .saas-sidebar-user .btn-logout .btn-logout-text {
+  display: inline;
+}
+
+.saas-sidebar .btn-logout .btn-logout-text {
+  display: none;
+}
+
+/* Contenido principal */
+.saas-main {
+  flex: 1;
+  margin-left: var(--saas-sidebar-width);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left var(--saas-transition);
+}
+
+.saas-sidebar:hover ~ .saas-main {
+  margin-left: var(--saas-sidebar-expanded);
+}
+
+.saas-main-header {
+  flex-shrink: 0;
+  padding: 14px 24px;
+  background: #fff;
+  border-bottom: 1px solid rgba(30, 41, 59, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.saas-main-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--saas-nav);
+  letter-spacing: 0.01em;
+}
+
+.saas-main-content {
+  flex: 1;
+  padding: 20px 24px;
+  overflow: auto;
+}
+
+.saas-content {
+  max-width: 1400px;
+}
+
+/* Cards y botones dentro del área SaaS */
+.saas-main-content .card {
+  border: 1px solid rgba(30, 41, 59, 0.08);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.saas-main-content .btn-primary {
+  background: var(--saas-accent);
+  border-color: var(--saas-accent);
+}
+
+.saas-main-content .btn-primary:hover {
+  background: var(--saas-accent-light);
+  border-color: var(--saas-accent-light);
+}
+
+.saas-main-content .table {
+  --bs-table-border-color: rgba(30, 41, 59, 0.08);
+}
+
+.saas-main-content .card-link {
+  color: var(--saas-accent);
+}
+
+.saas-main-content .card-link:hover {
+  color: var(--saas-accent-light);
+}

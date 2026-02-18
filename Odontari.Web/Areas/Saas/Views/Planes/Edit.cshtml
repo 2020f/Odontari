@@ -3,40 +3,49 @@
     ViewData["Title"] = "Editar plan";
 }
 
-<h1>Editar plan</h1>
-<form asp-action="Edit" asp-route-id="@Model.Id" method="post">
-    <input type="hidden" asp-for="Id" />
-    <div class="form-group">
-        <label asp-for="Nombre"></label>
-        <input asp-for="Nombre" class="form-control" />
-        <span asp-validation-for="Nombre"></span>
+<div class="saas-dashboard">
+    <header class="dashboard-hero">
+        <h1>Editar plan</h1>
+        <p class="dashboard-subtitle">Modificar plan de suscripción.</p>
+    </header>
+    <div class="saas-form-card">
+        <form asp-area="Saas" asp-controller="Planes" asp-action="Edit" asp-route-id="@Model.Id" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Nombre"></label>
+                <input asp-for="Nombre" class="form-control" />
+                <span asp-validation-for="Nombre"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PrecioMensual"></label>
+                <input asp-for="PrecioMensual" type="number" step="0.01" class="form-control" />
+                <span asp-validation-for="PrecioMensual"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MaxUsuarios"></label>
+                <input asp-for="MaxUsuarios" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="MaxDoctores"></label>
+                <input asp-for="MaxDoctores" class="form-control" />
+            </div>
+            <div class="form-check">
+                <input asp-for="PermiteFacturacion" class="form-check-input" />
+                <label asp-for="PermiteFacturacion" class="form-check-label"></label>
+            </div>
+            <div class="form-check">
+                <input asp-for="PermiteOdontograma" class="form-check-input" />
+                <label asp-for="PermiteOdontograma" class="form-check-label"></label>
+            </div>
+            <div class="form-check">
+                <input asp-for="Activo" class="form-check-input" />
+                <label asp-for="Activo" class="form-check-label"></label>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-main btn-primary">Guardar</button>
+                <a asp-area="Saas" asp-controller="Planes" asp-action="Index" class="btn-main btn-outline">Cancelar</a>
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-        <label asp-for="PrecioMensual"></label>
-        <input asp-for="PrecioMensual" type="number" step="0.01" class="form-control" />
-        <span asp-validation-for="PrecioMensual"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="MaxUsuarios"></label>
-        <input asp-for="MaxUsuarios" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="MaxDoctores"></label>
-        <input asp-for="MaxDoctores" class="form-control" />
-    </div>
-    <div class="form-check">
-        <input asp-for="PermiteFacturacion" class="form-check-input" />
-        <label asp-for="PermiteFacturacion" class="form-check-label"></label>
-    </div>
-    <div class="form-check">
-        <input asp-for="PermiteOdontograma" class="form-check-input" />
-        <label asp-for="PermiteOdontograma" class="form-check-label"></label>
-    </div>
-    <div class="form-check">
-        <input asp-for="Activo" class="form-check-input" />
-        <label asp-for="Activo" class="form-check-label"></label>
-    </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-</form>
+</div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

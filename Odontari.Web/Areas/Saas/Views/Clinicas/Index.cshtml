@@ -3,32 +3,46 @@
     ViewData["Title"] = "Clínicas";
 }
 
-<h1>Clínicas</h1>
-<p><a asp-area="Saas" asp-controller="Clinicas" asp-action="Create" class="btn btn-primary">Crear clínica</a></p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Teléfono</th>
-            <th>Plan</th>
-            <th>Activa</th><th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var c in Model)
-        {
-            <tr>
-                <td>@c.Nombre</td>
-                <td>@c.Email</td>
-                <td>@c.Telefono</td>
-                <td>@c.PlanNombre</td>
-                <td>@(c.Activa ? "Sí" : "No")</td>
-                <td>
-                    <a asp-area="Saas" asp-action="Edit" asp-route-id="@c.Id">Editar</a>
-                    | <a asp-area="Saas" asp-controller="UsuariosClinica" asp-action="Index" asp-route-clinicaId="@c.Id">Usuarios</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="saas-dashboard">
+    <header class="dashboard-hero">
+        <h1>Clínicas</h1>
+        <p class="dashboard-subtitle">Gestión de clínicas del tenant.</p>
+    </header>
+    <div class="dashboard-actions" style="margin-top: 0; padding-top: 0; border-top: none;">
+        <a asp-area="Saas" asp-controller="Clinicas" asp-action="Create" class="btn-main btn-primary">Crear clínica</a>
+    </div>
+    <div class="section-card" style="margin-top: 1.25rem;">
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Plan</th>
+                    <th>Activa</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model)
+                {
+                    <tr>
+                        <td>@c.Nombre</td>
+                        <td>@c.Email</td>
+                        <td>@c.Telefono</td>
+                        <td>@c.PlanNombre</td>
+                        <td>@(c.Activa ? "Sí" : "No")</td>
+                        <td class="table-actions">
+                            <a asp-area="Saas" asp-controller="Clinicas" asp-action="Edit" asp-route-id="@c.Id" class="table-link">Editar</a>
+                            <a asp-area="Saas" asp-controller="UsuariosClinica" asp-action="Index" asp-route-clinicaId="@c.Id" class="table-link">Usuarios</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (!Model.Any())
+    {
+        <p class="section-empty">No hay clínicas. Cree la primera.</p>
+    }
+</div>

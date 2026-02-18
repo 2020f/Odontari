@@ -17,15 +17,15 @@ public class DashboardController : Controller
 
     public async Task<IActionResult> Index()
     {
-        // Suscripción vigente: Activa, no suspendida, no vencida
+        // Suscripción vigente: Activa, no suspendida, vencimiento estrictamente después de hoy (el día de vencimiento ya está vencida)
         var vigente = await _db.Suscripciones
-            .Where(s => s.Activa && !s.Suspendida && s.Vencimiento >= Hoy)
+            .Where(s => s.Activa && !s.Suspendida && s.Vencimiento > Hoy)
             .Select(s => s.ClinicaId)
             .Distinct()
             .ToListAsync();
         var clinicasActivas = vigente.Count;
         var clinicasVencidas = await _db.Clinicas
-            .Where(c => !vigente.Contains(c.Id) && c.Suscripciones.Any(s => s.Vencimiento < Hoy))
+            .Where(c => !vigente.Contains(c.Id) && c.Suscripciones.Any(s => s.Vencimiento <= Hoy))
             .CountAsync();
         var clinicasSuspendidas = await _db.Suscripciones
             .Where(s => s.Suspendida)
@@ -39,9 +39,9 @@ public class DashboardController : Controller
             .Include(c => c.Plan)
             .SumAsync(c => c.Plan.PrecioMensual);
 
-        // Renovaciones próximas (próximos 30 días)
+        // Renovaciones próximas (próximos 30 días; vigente = Vencimiento > Hoy)
         var renovacionesProximas = await _db.Suscripciones
-            .Where(s => s.Activa && !s.Suspendida && s.Vencimiento >= Hoy && s.Vencimiento <= Hoy.AddDays(30))
+            .Where(s => s.Activa && !s.Suspendida && s.Vencimiento > Hoy && s.Vencimiento <= Hoy.AddDays(30))
             .Include(s => s.Clinica)
             .OrderBy(s => s.Vencimiento)
             .Take(15)
