@@ -22,6 +22,7 @@ public class Paciente
 
     // Expediente clínico (Fase 5)
     public ICollection<Odontograma> Odontogramas { get; set; } = new List<Odontograma>();
+    public ICollection<Periodontograma> Periodontogramas { get; set; } = new List<Periodontograma>();
     public ICollection<HistorialClinico> HistorialClinico { get; set; } = new List<HistorialClinico>();
     public HistoriaClinicaSistematica? HistoriaClinicaSistematica { get; set; }
 }

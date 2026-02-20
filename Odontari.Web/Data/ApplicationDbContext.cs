@@ -22,6 +22,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Pago> Pagos => Set<Pago>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<Odontograma> Odontogramas => Set<Odontograma>();
+    public DbSet<Periodontograma> Periodontogramas => Set<Periodontograma>();
     public DbSet<HistorialClinico> HistorialClinico => Set<HistorialClinico>();
     public DbSet<HistoriaClinicaSistematica> HistoriasClinicasSistematicas => Set<HistoriaClinicaSistematica>();
     public DbSet<UsuarioVistaPermiso> UsuarioVistaPermisos => Set<UsuarioVistaPermiso>();
@@ -102,6 +103,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         {
             b.HasOne(o => o.Paciente).WithMany(p => p.Odontogramas).HasForeignKey(o => o.PacienteId).OnDelete(DeleteBehavior.Restrict);
             b.HasOne(o => o.Clinica).WithMany(c => c.Odontogramas).HasForeignKey(o => o.ClinicaId).OnDelete(DeleteBehavior.Restrict);
+        });
+        builder.Entity<Periodontograma>(b =>
+        {
+            b.HasOne(p => p.Paciente).WithMany(p => p.Periodontogramas).HasForeignKey(p => p.PacienteId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(p => p.Clinica).WithMany(c => c.Periodontogramas).HasForeignKey(p => p.ClinicaId).OnDelete(DeleteBehavior.Restrict);
         });
         builder.Entity<HistorialClinico>(b =>
         {

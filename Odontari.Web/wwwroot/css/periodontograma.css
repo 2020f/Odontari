@@ -1,0 +1,443 @@
+/* Periodontograma - Estilos según proyecto referencia (Desktop/periodontograma) */
+
+:root {
+  --periodonto-border: #b0b0b0;
+  --periodonto-border-light: #e0e0e0;
+  --periodonto-bg-disabled: #e8e8e8;
+  --periodonto-text-muted: #555;
+  --periodonto-alert-yellow: #fff3cd;
+  --periodonto-alert-red: #f8d7da;
+  --periodonto-margin-negative: #e3f2fd;
+  --periodonto-cell-min-w: 44px;
+}
+
+.periodontogram-app {
+  max-width: 100%;
+  margin-bottom: 2rem;
+}
+
+.periodontogram-header {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--periodonto-border-light);
+}
+
+.periodontogram-header-top {
+  margin-bottom: 10px;
+}
+
+.periodontogram-legend-mini {
+  font-size: 11px;
+  color: var(--periodonto-text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: center;
+  padding: 6px 10px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.periodontogram-legend-mini .legend-colors {
+  margin-left: 4px;
+  padding-left: 10px;
+  border-left: 1px solid var(--periodonto-border-light);
+}
+
+.periodontogram-summary-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px 24px;
+  padding: 14px 20px;
+  background: linear-gradient(180deg, #f5f5f5 0%, #f0f0f0 100%);
+  border: 1px solid var(--periodonto-border-light);
+  border-radius: 8px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.periodontogram-summary-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-right: 8px;
+}
+
+.periodontogram-summary-item {
+  font-size: 13px;
+  color: var(--periodonto-text-muted);
+}
+
+.periodontogram-summary-item strong {
+  color: #222;
+  font-weight: 700;
+}
+
+.periodontogram-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-periodonto {
+  padding: 10px 20px;
+  font-size: 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--periodonto-border);
+  background: #fff;
+  color: #333;
+}
+
+.btn-periodonto:hover {
+  background: #f0f0f0;
+}
+
+.btn-periodonto.btn-save { background: #e8f5e9; border-color: #81c784; }
+.btn-periodonto.btn-save:hover { background: #c8e6c9; }
+
+.btn-periodonto.btn-clear { background: #ffebee; border-color: #e57373; }
+.btn-periodonto.btn-clear:hover { background: #ffcdd2; }
+
+.btn-periodonto.btn-export { background: #e3f2fd; border-color: #64b5f6; }
+.btn-periodonto.btn-export:hover { background: #bbdefb; }
+
+.btn-periodonto.btn-import { background: #fff3e0; border-color: #ffb74d; }
+.btn-periodonto.btn-import:hover { background: #ffe0b2; }
+
+/* Wrapper y scroll */
+.periodontogram-wrapper {
+  overflow: auto;
+}
+
+.periodontogram-scroll-container {
+  min-width: min-content;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.periodontogram-arcade-section {
+  border: 1px solid var(--periodonto-border);
+  border-radius: 8px;
+  padding: 18px;
+  background: #fff;
+}
+
+.periodontogram-arcade-header {
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.periodontogram-arcade-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: #222;
+  letter-spacing: 0.05em;
+}
+
+.periodontogram-arcade-subtitle {
+  font-size: 0.95rem;
+  color: var(--periodonto-text-muted);
+  margin: 0;
+  font-weight: 500;
+}
+
+.periodontogram-table-container {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.periodontogram-label-side {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--periodonto-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  padding: 6px;
+}
+
+/* Tabla */
+.periodontogram-table {
+  flex: 1;
+  overflow-x: auto;
+  border: 1px solid var(--periodonto-border-light);
+  border-radius: 4px;
+  min-width: 400px;
+}
+
+.periodontogram-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  table-layout: fixed;
+}
+
+.periodontogram-table th,
+.periodontogram-table td {
+  border: 1px solid var(--periodonto-border-light);
+  padding: 4px 6px;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.periodontogram-table th.tooth-col,
+.periodontogram-table td.tooth-col {
+  width: 90px;
+  min-width: 90px;
+  max-width: 90px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.periodontogram-table tbody tr:nth-child(even):not(.face-label-row) { background: #f8f8f8; }
+.periodontogram-table tbody tr:nth-child(odd):not(.face-label-row) { background: #fff; }
+
+.periodontogram-table tbody tr.row-group-end {
+  border-bottom: 2px solid #d8d8d8;
+}
+
+.periodontogram-table tbody tr.face-label-row {
+  background: #e5e5e5 !important;
+}
+
+.periodontogram-table tbody tr.face-label-row td,
+.periodontogram-table tbody tr.face-label-row th {
+  background: #e5e5e5 !important;
+}
+
+.periodontogram-table thead tr {
+  background: #f0f0f0 !important;
+}
+
+.periodontogram-table th.param-cell {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: #f0f0f0 !important;
+  box-shadow: 4px 0 8px rgba(0,0,0,0.08);
+  text-align: left;
+  padding: 4px 16px 4px 10px;
+  font-size: 11px;
+  color: #666;
+  white-space: nowrap;
+  width: 190px;
+  min-width: 190px;
+  max-width: 190px;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.periodontogram-table tbody tr:nth-child(even) th.param-cell { background: #f0f0f0 !important; }
+.periodontogram-table tbody tr:nth-child(odd) th.param-cell { background: #ebebeb !important; }
+.periodontogram-table tbody tr.face-label-row th.param-cell { background: #e0e0e0 !important; }
+.periodontogram-table thead th.param-cell { background: #e8e8e8 !important; }
+
+.periodontogram-table tr.face-label-row th {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--periodonto-text-muted);
+  padding: 4px 8px;
+  background: #e8e8e8 !important;
+}
+
+.periodontogram-table tr.face-label-row td {
+  background: #e8e8e8 !important;
+  padding: 4px;
+}
+
+.periodontogram-table thead th.tooth-col {
+  font-size: 16px;
+  font-weight: 700;
+  color: #222;
+  padding: 10px 8px;
+}
+
+.periodontogram-table th.hemi-sep,
+.periodontogram-table td.hemi-sep {
+  border-left: 2px solid #333;
+  min-width: 6px;
+  width: 6px;
+  padding: 0;
+}
+
+.periodontogram-table thead th.hemi-sep { background: #f0f0f0 !important; }
+.periodontogram-table tbody td.hemi-sep { background: transparent !important; }
+.periodontogram-table tbody tr.face-label-row td.hemi-sep { background: #e5e5e5 !important; }
+
+.periodontogram-table td.tooth-col { border-right: 1px solid #d8d8d8; }
+.periodontogram-table th.tooth-col { border-right: 1px solid #d8d8d8; }
+
+/* Celda contenido por diente */
+.periodontogram-table .celda-diente {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  min-height: var(--periodonto-cell-min-w);
+  box-sizing: border-box;
+}
+
+.periodontogram-table td.td-mcd .celda-diente {
+  background: #f8f8f8;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 4px 6px 6px;
+  gap: 3px;
+}
+
+.celda-diente-label {
+  font-size: 9px;
+  color: var(--periodonto-text-muted);
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.periodontogram-table td.td-mcd.first-tooth-col { padding-left: 22px; }
+.periodontogram-table td.td-mcd { padding-left: 9px; padding-right: 9px; }
+
+.mcd {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  align-items: center;
+}
+
+.periodontogram-table .mcd-input {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 24px;
+  border: 1px solid #bdbdbd;
+  border-radius: 5px;
+  box-sizing: border-box;
+  background: #fff;
+  appearance: none;
+  -moz-appearance: textfield;
+}
+
+.periodontogram-table input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+  -webkit-appearance: none;
+}
+
+.periodontogram-table input[type="number"]::-webkit-outer-spin-button,
+.periodontogram-table input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.tooth-col.disabled-by-absence {
+  background: var(--periodonto-bg-disabled) !important;
+  pointer-events: none;
+}
+
+.tooth-col.disabled-by-absence input,
+.tooth-col.disabled-by-absence select,
+.tooth-col.disabled-by-absence .mini-cell {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.periodontogram-table .celda-diente input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.periodontogram-table .celda-diente select {
+  width: 100%;
+  max-width: 58px;
+  padding: 2px 4px;
+  font-size: 11px;
+  border: 1px solid var(--periodonto-border);
+  border-radius: 3px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.periodontogram-table .celda-diente > input[type="number"] {
+  width: 28px;
+  max-width: 28px;
+  padding: 2px;
+  font-size: 11px;
+  border: 1px solid var(--periodonto-border);
+  border-radius: 3px;
+  text-align: center;
+}
+
+.mini-cell {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.mini-cell:hover {
+  background: #f0f0f0;
+  border-color: #888;
+}
+
+.mini-cell.active {
+  background: #2c2c2c;
+  color: #fff;
+  border-color: #1a1a1a;
+}
+
+.cell-depth-warning { background: var(--periodonto-alert-yellow) !important; }
+.cell-depth-danger { background: var(--periodonto-alert-red) !important; }
+.cell-margin-negative { border-color: #1976d2; background: var(--periodonto-margin-negative); }
+
+.row-teeth-draw { background: #f0f0f0; padding: 4px 8px !important; }
+.tooth-svg-wrap { display: flex; justify-content: center; align-items: center; padding: 4px 0; }
+.tooth-svg { width: 32px; height: 36px; }
+.tooth-svg.implant-mark { filter: drop-shadow(0 0 1px #1976d2); }
+
+.periodontogram-table input:focus,
+.periodontogram-table select:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.35);
+}
+
+.periodontogram-table .mini-cell:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.5);
+}
+
+@media (max-width: 900px) {
+  .periodontogram-table { max-width: 100%; }
+  .periodontogram-table th.param-cell {
+    min-width: 172px;
+    max-width: 190px;
+    width: 188px;
+  }
+}

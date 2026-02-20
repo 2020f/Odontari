@@ -31,3 +31,12 @@ public class GuardarOdontogramaRequest
     /// <summary>Si está en contexto de cita (Atención/Expediente), se sincronizan hallazgos a procedimientos para cobro.</summary>
     public int? CitaId { get; set; }
 }
+
+/// <summary>Request para guardar periodontograma vía API. Solo se guarda en historial (no se agrega a procedimientos para cobro).</summary>
+public class GuardarPeriodontogramaRequest
+{
+    public int PacienteId { get; set; }
+    public string? EstadoJson { get; set; }
+    /// <summary>Opcional: si está en contexto de cita, se asocia el evento del historial a la cita.</summary>
+    public int? CitaId { get; set; }
+}

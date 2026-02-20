@@ -1,0 +1,92 @@
+@{
+    var paciente = ViewBag.Paciente as Odontari.Web.Models.Paciente;
+    var estadoJson = ViewBag.EstadoJson as string ?? "{}";
+    var pacienteId = paciente?.Id ?? 0;
+    var citaId = ViewBag.CitaId as int?;
+    ViewData["Title"] = "Periodontograma - " + (paciente?.Nombre ?? "");
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/periodontograma.css" asp-append-version="true" />
+}
+
+<div class="atencion-section">
+    @await Html.PartialAsync("_ExpedienteMenu")
+
+    <div class="expediente-header mb-3">
+        <h1 class="expediente-title">Periodontograma — @paciente?.Nombre @paciente?.Apellidos</h1>
+        <div class="expediente-sub">Registro clínico periodontal. M = Mesial, C = Centro, D = Distal. Prof. ≥4 mm aviso, ≥6 mm riesgo.</div>
+    </div>
+
+    <!-- Estructura como referencia: header con leyenda, panel RESUMEN y toolbar -->
+    <div class="periodontogram-app">
+        <header class="periodontogram-header">
+            <div class="periodontogram-header-top">
+                <div class="periodontogram-legend-mini" aria-label="Leyenda sitios">
+                    <span>M = Mesial</span>
+                    <span>C = Central</span>
+                    <span>D = Distal</span>
+                    <span class="legend-colors">Prof. ≥4: amarillo · ≥6: rojo</span>
+                </div>
+            </div>
+            <div class="periodontogram-summary-panel" id="summaryPanel">
+                <span class="periodontogram-summary-title">RESUMEN</span>
+                <span class="periodontogram-summary-item" data-metric="sangrado">Sitios con sangrado: <strong>0</strong></span>
+                <span class="periodontogram-summary-item" data-metric="placa">Sitios con placa: <strong>0</strong></span>
+                <span class="periodontogram-summary-item" data-metric="bolsillos4">Bolsas ≥4: <strong>0</strong></span>
+                <span class="periodontogram-summary-item" data-metric="bolsillos6">Bolsas ≥6: <strong>0</strong></span>
+                <span class="periodontogram-summary-item" data-metric="ausentes">Ausencias: <strong>0</strong></span>
+                <span class="periodontogram-summary-item" data-metric="implantes">Implantes: <strong>0</strong></span>
+            </div>
+            <div class="periodontogram-toolbar">
+                <button type="button" class="btn btn-periodonto btn-save" id="btnSave">Guardar</button>
+                <button type="button" class="btn btn-periodonto btn-clear" id="btnClear">Limpiar</button>
+                <button type="button" class="btn btn-periodonto btn-export" id="btnExport">Exportar JSON</button>
+                <label class="btn btn-periodonto btn-import mb-0" for="inputImport">Importar JSON</label>
+                <input type="file" id="inputImport" accept=".json" class="d-none" />
+                <span id="guardarMsg" class="ms-2 text-muted small"></span>
+            </div>
+        </header>
+
+        <main class="periodontogram-wrapper">
+            <div class="periodontogram-scroll-container">
+                <!-- Sección SUPERIOR: 18–11 | 21–28 -->
+                <section class="periodontogram-arcade-section" id="sectionSuperior">
+                    <div class="periodontogram-arcade-header">
+                        <h2 class="periodontogram-arcade-title">SUPERIOR</h2>
+                        <p class="periodontogram-arcade-subtitle">18–11 | 21–28</p>
+                    </div>
+                    <div class="periodontogram-table-container">
+                        <div class="periodontogram-label-side label-vestibular">VESTIBULAR</div>
+                        <div id="tableSuperior" class="periodontogram-table" data-arcade="superior"><p class="py-3 text-muted text-center" id="periodontograma-loading">Cargando tablas…</p></div>
+                        <div class="periodontogram-label-side label-palatal">PALATINO</div>
+                    </div>
+                </section>
+
+                <!-- Sección INFERIOR: 48–41 | 31–38 -->
+                <section class="periodontogram-arcade-section" id="sectionInferior">
+                    <div class="periodontogram-arcade-header">
+                        <h2 class="periodontogram-arcade-title">INFERIOR</h2>
+                        <p class="periodontogram-arcade-subtitle">48–41 | 31–38</p>
+                    </div>
+                    <div class="periodontogram-table-container">
+                        <div class="periodontogram-label-side label-vestibular">VESTIBULAR</div>
+                        <div id="tableInferior" class="periodontogram-table" data-arcade="inferior"></div>
+                        <div class="periodontogram-label-side label-palatal">LINGUAL</div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+
+<input type="hidden" id="pacienteIdPeriodonto" value="@pacienteId" />
+@if (citaId.HasValue)
+{
+    <input type="hidden" id="citaIdPeriodonto" value="@citaId.Value" />
+}
+
+<script id="periodontograma-data" type="application/json">@Html.Raw((estadoJson ?? "{}").Replace("</script>", "<\\/script>"))</script>
+
+@section Scripts {
+    <script src="~/js/periodontograma.js" asp-append-version="true"></script>
+}

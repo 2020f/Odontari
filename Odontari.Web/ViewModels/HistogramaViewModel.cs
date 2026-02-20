@@ -15,10 +15,12 @@ public class HistogramaViewModel
     public string? Alergias { get; set; }
     public string? NotasClinicas { get; set; }
 
-    // --- Resumen rápido ---
+    // --- Resumen rápido / Resumen periodontograma ---
     public string? UltimaVisita { get; set; }
     public string? UltimoDiagnostico { get; set; }
     public string? ProximoPaso { get; set; }
+    /// <summary>Si true, el bloque de último diagnóstico muestra "Resumen del periodontograma" en lugar de "Resumen rápido".</summary>
+    public bool UltimoDiagnosticoEsPeriodontograma { get; set; }
 
     // --- Timeline (histórico por fecha) ---
     public List<HistorialEventoViewModel> Timeline { get; set; } = new();

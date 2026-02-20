@@ -21,6 +21,7 @@
         <li class="nav-item"><a class="nav-link @(activa == "histograma" ? "active" : "")" asp-action="Histograma" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Histograma</a></li>
         <li class="nav-item"><a class="nav-link @(activa == "historial" ? "active" : "")" asp-action="Index" asp-route-id="@pacienteId" asp-route-tab="historial" asp-route-citaId="@citaId">Historial</a></li>
         <li class="nav-item"><a class="nav-link @(activa == "odontograma" ? "active" : "")" asp-action="Odontograma" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Odontograma</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "periodontograma" ? "active" : "")" asp-action="Periodontograma" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Periodontograma</a></li>
         <li class="nav-item"><a class="nav-link @(activa == "hcs" ? "active" : "")" asp-action="HistoriaClinicaSistematica" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Historia Clínica Sistemática</a></li>
     </ul>
 </nav>

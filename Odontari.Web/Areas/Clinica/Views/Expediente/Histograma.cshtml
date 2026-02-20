@@ -38,28 +38,7 @@
 
 <h2 class="expediente-section-title mt-2 mb-2">Histograma (Historial / Resumen clínico)</h2>
 
-<!-- Resumen rápido -->
-<section class="card mb-4">
-    <div class="card-header"><h5 class="mb-0">Resumen rápido</h5></div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-4">
-                <h6 class="text-muted">Última visita</h6>
-                <p class="mb-0">@(Model.UltimaVisita ?? "Sin registros")</p>
-            </div>
-            <div class="col-md-4">
-                <h6 class="text-muted">Último diagnóstico / procedimiento</h6>
-                <p class="mb-0">@(Model.UltimoDiagnostico ?? "—")</p>
-            </div>
-            <div class="col-md-4">
-                <h6 class="text-muted">Próximo paso</h6>
-                <p class="mb-0">@(Model.ProximoPaso ?? "Ninguno programado")</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Datos del paciente -->
+<!-- Datos del paciente (siempre primero) -->
 <section class="card mb-4">
     <div class="card-header"><h5 class="mb-0">Datos del paciente</h5></div>
     <div class="card-body">
@@ -126,53 +105,7 @@
     </div>
 </section>
 
-<!-- Timeline -->
-<section class="card mb-4">
-    <div class="card-header"><h5 class="mb-0">Timeline (histórico)</h5></div>
-    <div class="card-body p-0">
-        @if (Model.Timeline.Any())
-        {
-            <div class="table-responsive">
-                <table class="table table-sm table-striped mb-0">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Tipo de evento</th>
-                            <th>Descripción</th>
-                            <th class="text-end">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var h in Model.Timeline)
-                        {
-                            <tr>
-                                <td>@h.FechaEvento.ToString("dd/MM/yyyy HH:mm")</td>
-                                <td>@h.TipoEvento</td>
-                                <td>@(h.Descripcion ?? "—")</td>
-                                <td class="text-end">
-                                    @if (h.CitaId.HasValue)
-                                    {
-                                        <a asp-controller="Atencion" asp-action="Expediente" asp-route-id="@h.CitaId.Value" class="btn btn-sm btn-outline-primary">Ver</a>
-                                    }
-                                    else
-                                    {
-                                        <a asp-action="VerEvento" asp-route-id="@h.Id" asp-route-pacienteId="@Model.PacienteId" class="btn btn-sm btn-outline-secondary">Ver</a>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-        else
-        {
-            <p class="p-3 mb-0 text-muted">No hay eventos en el historial.</p>
-        }
-    </div>
-</section>
-
-<!-- Resumen odontograma -->
+<!-- Resumen odontograma (después de datos del paciente) -->
 <section class="card mb-4">
     <div class="card-header"><h5 class="mb-0">Resumen odontograma</h5></div>
     <div class="card-body">
@@ -210,3 +143,110 @@
     </div>
 </section>
 
+<!-- Resumen rápido o Resumen / Hallazgos del periodontograma (según último evento) -->
+<section class="card mb-4">
+    <div class="card-header"><h5 class="mb-0">@(Model.UltimoDiagnosticoEsPeriodontograma ? "Resumen del periodontograma" : "Resumen rápido")</h5></div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <h6 class="text-muted">Última visita</h6>
+                <p class="mb-0">@(Model.UltimaVisita ?? "Sin registros")</p>
+            </div>
+            <div class="col-md-4">
+                <h6 class="text-muted">@(Model.UltimoDiagnosticoEsPeriodontograma ? "Hallazgos del periodontograma" : "Último diagnóstico / procedimiento")</h6>
+                <div class="ultimo-diagnostico-block small @(string.IsNullOrEmpty(Model.UltimoDiagnostico) ? "" : "border rounded p-2 bg-light")" style="max-height: 200px; overflow-y: auto;">
+                    @if (!string.IsNullOrEmpty(Model.UltimoDiagnostico))
+                    {
+                        @Html.Raw(System.Net.WebUtility.HtmlEncode(Model.UltimoDiagnostico).Replace("\n", "<br/>"))
+                    }
+                    else
+                    {
+                        <span class="text-muted">—</span>
+                    }
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h6 class="text-muted">Próximo paso</h6>
+                <p class="mb-0">@(Model.ProximoPaso ?? "Ninguno programado")</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Timeline -->
+<section class="card mb-4">
+    <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <h5 class="mb-0">Timeline (histórico)</h5>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <form asp-action="Histograma" method="get" class="d-flex flex-wrap align-items-center gap-2 histograma-filtro-fechas">
+                <input type="hidden" name="id" value="@Model.PacienteId" />
+                @if (ViewBag.CitaId != null) { <input type="hidden" name="citaId" value="@ViewBag.CitaId" /> }
+                <label class="mb-0 small text-muted">Desde</label>
+                <input type="date" name="fechaInicio" value="@(ViewBag.FechaInicio != null ? ((DateTime)ViewBag.FechaInicio).ToString("yyyy-MM-dd") : "")" class="form-control form-control-sm" style="width: auto;" />
+                <label class="mb-0 small text-muted">Hasta</label>
+                <input type="date" name="fechaFin" value="@(ViewBag.FechaFin != null ? ((DateTime)ViewBag.FechaFin).ToString("yyyy-MM-dd") : "")" class="form-control form-control-sm" style="width: auto;" />
+                <button type="submit" class="btn btn-sm btn-outline-primary">Filtrar</button>
+            </form>
+            @{
+                var fi = ViewBag.FechaInicio as DateTime?;
+                var ff = ViewBag.FechaFin as DateTime?;
+                var rutaPdf = Url.Action("ExportarHistogramaPdf", new { id = Model.PacienteId, fechaInicio = fi, fechaFin = ff });
+            }
+            <a href="@rutaPdf" class="btn btn-sm btn-outline-danger" target="_blank" rel="noopener">Exportar PDF</a>
+        </div>
+    </div>
+    @if (fi.HasValue || ff.HasValue)
+    {
+        <div class="card-body py-2 border-bottom small text-muted">
+            Mostrando eventos @(fi.HasValue ? $"desde {fi.Value:dd/MM/yyyy}" : "desde el inicio") @(ff.HasValue ? $"hasta {ff.Value:dd/MM/yyyy}" : "hasta la fecha").
+        </div>
+    }
+    <div class="card-body p-0">
+        @if (Model.Timeline.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-sm table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tipo de evento</th>
+                            <th>Descripción</th>
+                            <th class="text-end">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var h in Model.Timeline)
+                        {
+                            <tr>
+                                <td>@h.FechaEvento.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@h.TipoEvento</td>
+                                <td>@(h.Descripcion ?? "—")</td>
+                                <td class="text-end">
+                                    @{
+                                        var esActualizacionOdonto = h.TipoEvento != null && (h.TipoEvento.Contains("periodontograma", StringComparison.OrdinalIgnoreCase) || h.TipoEvento.Contains("odontograma", StringComparison.OrdinalIgnoreCase));
+                                    }
+                                    @if (esActualizacionOdonto)
+                                    {
+                                        <a asp-action="VerEvento" asp-route-id="@h.Id" asp-route-pacienteId="@Model.PacienteId" class="btn btn-sm btn-outline-primary">Ver</a>
+                                    }
+                                    else if (h.CitaId.HasValue)
+                                    {
+                                        <a asp-controller="Atencion" asp-action="Expediente" asp-route-id="@h.CitaId.Value" class="btn btn-sm btn-outline-primary">Ver</a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-action="VerEvento" asp-route-id="@h.Id" asp-route-pacienteId="@Model.PacienteId" class="btn btn-sm btn-outline-secondary">Ver</a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="p-3 mb-0 text-muted">No hay eventos en el historial.</p>
+        }
+    </div>
+</section>
