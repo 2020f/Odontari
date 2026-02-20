@@ -4,6 +4,8 @@
     var odontogramaJson = ViewBag.OdontogramaEstadoJson as string ?? "{}";
     var pacienteId = ViewBag.PacienteId as int? ?? (Model != null ? Model.PacienteId : 0);
     var historial = ViewBag.Historial as IEnumerable<Odontari.Web.ViewModels.HistorialEventoViewModel> ?? Enumerable.Empty<Odontari.Web.ViewModels.HistorialEventoViewModel>();
+    var esInfantil = ViewBag.EsInfantil as bool? ?? false;
+    var tipoOdontograma = ViewBag.TipoOdontograma as int? ?? 0;
     ViewData["Title"] = "Expediente - " + Model.Paciente?.Nombre;
 }
 @section Styles {
@@ -172,13 +174,23 @@
                 </div>
                 <div id="panelAtDiente" class="mb-2" style="display:none">
                     <div class="estados-diente">
-                        <button type="button" class="btn-estado active" data-state="NONE"><span class="swatch" style="background:#fff;border:1px solid #999"></span>Normal</button>
-                        <button type="button" class="btn-estado" data-state="AUSENTE"><span class="swatch" style="background:#78909C"></span>Ausente</button>
-                        <button type="button" class="btn-estado" data-state="EXTRAIDO"><span class="swatch" style="background:#C62828"></span>Extraído</button>
-                        <button type="button" class="btn-estado" data-state="CORONA"><span class="swatch" style="background:#F9A825"></span>Corona</button>
-                        <button type="button" class="btn-estado" data-state="ENDODONCIA"><span class="swatch" style="background:#2E7D32"></span>Endodoncia</button>
-                        <button type="button" class="btn-estado" data-state="IMPLANTE"><span class="swatch" style="background:#6A1B9A"></span>Implante</button>
-                        <button type="button" class="btn-estado" data-state="PROTESIS"><span class="swatch" style="background:#00838F"></span>Prótesis</button>
+                        @if (esInfantil)
+                        {
+                            <button type="button" class="btn-estado active" data-state="NONE"><span class="swatch" style="background:#fff;border:1px solid #999"></span>Normal</button>
+                            <button type="button" class="btn-estado" data-state="AUSENTE"><span class="swatch" style="background:#78909C"></span>Ausente</button>
+                            <button type="button" class="btn-estado" data-state="EXFOLIADO"><span class="swatch" style="background:#C62828"></span>Exfoliado</button>
+                            <button type="button" class="btn-estado" data-state="ERUPCION"><span class="swatch" style="background:#43A047"></span>Erupción</button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn-estado active" data-state="NONE"><span class="swatch" style="background:#fff;border:1px solid #999"></span>Normal</button>
+                            <button type="button" class="btn-estado" data-state="AUSENTE"><span class="swatch" style="background:#78909C"></span>Ausente</button>
+                            <button type="button" class="btn-estado" data-state="EXTRAIDO"><span class="swatch" style="background:#C62828"></span>Extraído</button>
+                            <button type="button" class="btn-estado" data-state="CORONA"><span class="swatch" style="background:#F9A825"></span>Corona</button>
+                            <button type="button" class="btn-estado" data-state="ENDODONCIA"><span class="swatch" style="background:#2E7D32"></span>Endodoncia</button>
+                            <button type="button" class="btn-estado" data-state="IMPLANTE"><span class="swatch" style="background:#6A1B9A"></span>Implante</button>
+                            <button type="button" class="btn-estado" data-state="PROTESIS"><span class="swatch" style="background:#00838F"></span>Prótesis</button>
+                        }
                     </div>
                 </div>
 
@@ -189,11 +201,19 @@
                     <div class="leyenda-item"><span class="leyenda-swatch" style="background:#26C6DA"></span>Sellante</div>
                     <div class="leyenda-item"><span class="leyenda-swatch" style="background:#FF8F00"></span>Fractura</div>
                     <div class="leyenda-item"><span class="leyenda-swatch" style="background:#78909C"></span>Ausente</div>
-                    <div class="leyenda-item"><span class="leyenda-swatch" style="background:#C62828"></span>Extraído</div>
-                    <div class="leyenda-item"><span class="leyenda-swatch" style="background:#F9A825"></span>Corona</div>
-                    <div class="leyenda-item"><span class="leyenda-swatch" style="background:#2E7D32"></span>Endodoncia</div>
-                    <div class="leyenda-item"><span class="leyenda-swatch" style="background:#6A1B9A"></span>Implante</div>
-                    <div class="leyenda-item"><span class="leyenda-swatch" style="background:#00838F"></span>Prótesis</div>
+                    @if (esInfantil)
+                    {
+                        <div class="leyenda-item"><span class="leyenda-swatch" style="background:#C62828"></span>Exfoliado</div>
+                        <div class="leyenda-item"><span class="leyenda-swatch" style="background:#43A047"></span>Erupción</div>
+                    }
+                    else
+                    {
+                        <div class="leyenda-item"><span class="leyenda-swatch" style="background:#C62828"></span>Extraído</div>
+                        <div class="leyenda-item"><span class="leyenda-swatch" style="background:#F9A825"></span>Corona</div>
+                        <div class="leyenda-item"><span class="leyenda-swatch" style="background:#2E7D32"></span>Endodoncia</div>
+                        <div class="leyenda-item"><span class="leyenda-swatch" style="background:#6A1B9A"></span>Implante</div>
+                        <div class="leyenda-item"><span class="leyenda-swatch" style="background:#00838F"></span>Prótesis</div>
+                    }
                 </div>
             </div>
 
@@ -205,7 +225,7 @@
                     </div>
                     <div class="arcada-label-top">ARCADA SUPERIOR</div>
                     <div class="odontograma-svg-wrap">
-                        <svg id="odontogramaSvgAt" class="odontograma-svg" width="800" height="420" viewBox="-60 0 860 420" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
+                        <svg id="odontogramaSvgAt" class="odontograma-svg" width="800" height="420" viewBox="-60 0 930 420" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg>
                     </div>
                     <div class="arcada-label-bottom">ARCADA INFERIOR</div>
                 </div>
@@ -235,6 +255,7 @@
         <input type="hidden" id="pacienteIdAt" value="@pacienteId" />
         <input type="hidden" id="citaIdAt" value="@Model.Id" />
         <input type="hidden" id="estadoInicialAt" value="@Html.Raw(odontogramaJson)" />
+        <input type="hidden" id="tipoOdontogramaAt" value="@tipoOdontograma" />
     </div>
 
     <div id="tabHistograma" class="tab-pane fade">
@@ -263,5 +284,12 @@
 </div>
 
 @section Scripts {
-    <script src="~/js/odontograma-atencion.js" asp-append-version="true"></script>
+    @if (esInfantil)
+    {
+        <script src="~/js/odontograma-atencion-infantil.js" asp-append-version="true"></script>
+    }
+    else
+    {
+        <script src="~/js/odontograma-atencion.js" asp-append-version="true"></script>
+    }
 }

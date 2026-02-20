@@ -26,6 +26,8 @@ public class GuardarOdontogramaRequest
 {
     public int PacienteId { get; set; }
     public string? EstadoJson { get; set; }
+    /// <summary>0 = Adulto, 1 = Infantil. Determina qué registro se actualiza.</summary>
+    public int TipoOdontograma { get; set; }
     /// <summary>Si está en contexto de cita (Atención/Expediente), se sincronizan hallazgos a procedimientos para cobro.</summary>
     public int? CitaId { get; set; }
 }

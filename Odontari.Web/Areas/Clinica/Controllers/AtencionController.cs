@@ -58,14 +58,27 @@ public class AtencionController : Controller
         if (cita == null) return NotFound();
         ViewBag.Tratamientos = await _db.Tratamientos.Where(t => t.ClinicaId == cid && t.Activo).OrderBy(t => t.Nombre).ToListAsync();
 
-        // Odontograma y Histograma del paciente
+        // Odontograma (adulto o infantil según edad del paciente; mismo criterio que ExpedienteController)
         var pacienteId = cita.PacienteId;
+        var paciente = cita.Paciente;
+        var esInfantil = false;
+        if (paciente?.FechaNacimiento is { } fn)
+        {
+            if (fn.Date <= DateTime.Today)
+            {
+                var edadAnios = (DateTime.Today - fn).TotalDays / 365.25;
+                esInfantil = edadAnios >= 0 && edadAnios < 14;
+            }
+        }
+        var tipoOdontograma = esInfantil ? Odontari.Web.Models.TipoOdontograma.Infantil : Odontari.Web.Models.TipoOdontograma.Adulto;
         var odontograma = await _db.Odontogramas
-            .Where(o => o.PacienteId == pacienteId && o.ClinicaId == cid)
+            .Where(o => o.PacienteId == pacienteId && o.ClinicaId == cid && o.TipoOdontograma == tipoOdontograma)
             .OrderByDescending(o => o.UltimaModificacion)
             .FirstOrDefaultAsync();
         ViewBag.OdontogramaEstadoJson = odontograma?.EstadoJson ?? "{}";
         ViewBag.PacienteId = pacienteId;
+        ViewBag.EsInfantil = esInfantil;
+        ViewBag.TipoOdontograma = (int)tipoOdontograma;
 
         var historial = await _db.HistorialClinico
             .Where(h => h.PacienteId == pacienteId && h.ClinicaId == cid)

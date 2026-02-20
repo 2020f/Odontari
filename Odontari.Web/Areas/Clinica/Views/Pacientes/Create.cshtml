@@ -19,6 +19,11 @@
         <input asp-for="Cedula" class="form-control" />
     </div>
     <div class="form-group">
+        <label asp-for="FechaNacimiento"></label>
+        <input asp-for="FechaNacimiento" class="form-control" type="date" />
+        <span class="form-text text-muted small">Se usa para mostrar odontograma infantil (menores de 14 años) cuando corresponda.</span>
+    </div>
+    <div class="form-group">
         <label asp-for="Telefono"></label>
         <input asp-for="Telefono" class="form-control" />
     </div>
@@ -29,6 +34,10 @@
     <div class="form-group">
         <label asp-for="Alergias"></label>
         <input asp-for="Alergias" class="form-control" />
+    </div>
+    <div class="form-check mb-2">
+        <input asp-for="Activo" class="form-check-input" />
+        <label asp-for="Activo" class="form-check-label"></label>
     </div>
     <button type="submit" class="btn btn-primary">Guardar</button>
     <a asp-action="Index" class="btn btn-secondary">Cancelar</a>

@@ -291,7 +291,8 @@
     if (obsEl) state.observations = obsEl.value;
     const payload = JSON.stringify({
       PacienteId: pacienteId,
-      EstadoJson: JSON.stringify({ teeth: state.teeth, observations: state.observations })
+      EstadoJson: JSON.stringify({ teeth: state.teeth, observations: state.observations }),
+      TipoOdontograma: 0
     });
     const msg = document.getElementById('guardarMsg');
     if (msg) msg.textContent = 'Guardando...';

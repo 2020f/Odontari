@@ -1,11 +1,11 @@
 /**
- * OdontogramaPro - Vista Atención (Expediente de cita)
- * Mismos IDs con sufijo "At" para evitar conflictos
+ * Odontograma infantil - Vista Atención (Expediente de cita)
+ * 20 dientes temporales FDI (51-55, 61-65, 71-75, 81-85). Mismos IDs con sufijo "At".
  */
 (function () {
-  const FDI_SUPERIOR = [[18,17,16,15,14,13,12,11],[21,22,23,24,25,26,27,28]];
-  const FDI_INFERIOR = [[48,47,46,45,44,43,42,41],[31,32,33,34,35,36,37,38]];
-  const SUPERFICIES = ['oclusal','vestibular','palatino','mesial','distal'];
+  const FDI_SUPERIOR = [[55, 54, 53, 52, 51], [61, 62, 63, 64, 65]];
+  const FDI_INFERIOR = [[85, 84, 83, 82, 81], [71, 72, 73, 74, 75]];
+  const SUPERFICIES = ['oclusal', 'vestibular', 'palatino', 'mesial', 'distal'];
 
   function toothDefault() {
     const surfaces = {};
@@ -58,13 +58,13 @@
     r.setAttribute('stroke', '#94a3b8'); r.setAttribute('stroke-width', '0.5');
     r.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (toothData.status === 'AUSENTE' || toothData.status === 'EXTRAIDO') return;
+      if (toothData.status === 'AUSENTE' || toothData.status === 'EXFOLIADO') return;
       if (modoSuperficie) {
         if (!toothData.surfaces) toothData.surfaces = toothDefault().surfaces;
         toothData.surfaces[surfName] = estadoSuperficie;
       } else {
         toothData.status = estadoDiente;
-        if (estadoDiente === 'AUSENTE' || estadoDiente === 'EXTRAIDO') toothData.surfaces = toothDefault().surfaces;
+        if (estadoDiente === 'AUSENTE' || estadoDiente === 'EXFOLIADO') toothData.surfaces = toothDefault().surfaces;
       }
       render();
     });
@@ -72,7 +72,7 @@
   }
 
   function renderTooth(g, toothNum, toothData, cx, cy) {
-    const blocked = toothData.status === 'AUSENTE' || toothData.status === 'EXTRAIDO';
+    const blocked = toothData.status === 'AUSENTE' || toothData.status === 'EXFOLIADO';
     const tg = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     tg.setAttribute('class', 'odontograma-tooth' + (blocked ? ' surface-edit-disabled' : ''));
     tg.setAttribute('data-tooth', toothNum);
@@ -110,7 +110,7 @@
       line.setAttribute('x1', cx - TW / 3); line.setAttribute('y1', cy); line.setAttribute('x2', cx + TW / 3); line.setAttribute('y2', cy);
       line.setAttribute('stroke', '#334155'); line.setAttribute('stroke-width', '1');
       tg.appendChild(line);
-      if (toothData.status === 'EXTRAIDO') {
+      if (toothData.status === 'EXFOLIADO') {
         const l2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         l2.setAttribute('x1', cx - TW / 4); l2.setAttribute('y1', cy - TH / 4); l2.setAttribute('x2', cx + TW / 4); l2.setAttribute('y2', cy + TH / 4);
         l2.setAttribute('stroke', '#B71C1C'); l2.setAttribute('stroke-width', '1.5');
@@ -132,17 +132,6 @@
     g.appendChild(tg);
   }
 
-  function renderRow(g, row, cy) {
-    const totalW = row.length * (TW + GAP) - GAP;
-    let sx = 400 - totalW / 2;
-    row.forEach(num => {
-      const toothData = state.teeth[String(num)] || toothDefault();
-      state.teeth[String(num)] = toothData;
-      renderTooth(g, num, toothData, sx + TW / 2, cy);
-      sx += TW + GAP;
-    });
-  }
-
   function renderHalfRow(g, row, startX, cy) {
     row.forEach((num, i) => {
       const cx = startX + TW / 2 + i * (TW + GAP);
@@ -162,7 +151,7 @@
     const cySuperior = 108;
     const cyInferior = 320;
     const gapMidline = 8;
-    const halfWidth = 8 * (TW + GAP) - GAP;
+    const halfWidth = 5 * (TW + GAP) - GAP;
     const leftEnd = 400 - gapMidline / 2;
     const rightStart = 400 + gapMidline / 2;
     const startLeft = leftEnd - halfWidth;
@@ -172,11 +161,11 @@
     renderHalfRow(g, FDI_INFERIOR[1], rightStart, cyInferior);
     const ls = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     ls.setAttribute('x', 50); ls.setAttribute('y', cySuperior - TH / 2 - 14); ls.setAttribute('font-size', '12'); ls.setAttribute('fill', '#64748b');
-    ls.textContent = 'Arcada superior';
+    ls.textContent = 'Arcada superior (temporal)';
     g.appendChild(ls);
     const li = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     li.setAttribute('x', 50); li.setAttribute('y', cyInferior - TH / 2 - 14); li.setAttribute('font-size', '12'); li.setAttribute('fill', '#64748b');
-    li.textContent = 'Arcada inferior';
+    li.textContent = 'Arcada inferior (temporal)';
     g.appendChild(li);
     svgEl.appendChild(g);
     if (typeof updateHallazgosYStats === 'function') updateHallazgosYStats();
@@ -279,10 +268,12 @@
       if (obsEl) state.observations = obsEl.value;
       const citaIdEl = document.getElementById('citaIdAt');
       const citaId = citaIdEl ? parseInt(citaIdEl.value, 10) : 0;
+      const tipoEl = document.getElementById('tipoOdontogramaAt');
+      const tipoOdontograma = tipoEl ? parseInt(tipoEl.value, 10) : 1;
       const payload = JSON.stringify({
         PacienteId: pacienteId,
         EstadoJson: JSON.stringify({ teeth: state.teeth, observations: state.observations }),
-        TipoOdontograma: 0,
+        TipoOdontograma: tipoOdontograma,
         CitaId: citaId || null
       });
       const msg = document.getElementById('guardarMsgAt');
@@ -293,7 +284,7 @@
         body: payload
       })
         .then(r => {
-          if (msg) msg.textContent = r.ok ? 'Guardado.' : 'Error al guardar.';
+          if (msg) msg.textContent = r.ok ? 'Guardado.' : (r.status === 400 ? 'Paciente no infantil.' : 'Error al guardar.');
           if (r.ok && citaId) window.location.reload();
         })
         .catch(() => { if (msg) msg.textContent = 'Error de conexión.'; })

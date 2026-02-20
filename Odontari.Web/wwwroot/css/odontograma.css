@@ -492,6 +492,8 @@
 .tooth-NONE { fill: #FFFFFF !important; stroke: #94a3b8 !important; }
 .tooth-AUSENTE { fill: #78909C !important; stroke: #546E7A !important; }
 .tooth-EXTRAIDO { fill: #C62828 !important; stroke: #B71C1C !important; }
+.tooth-EXFOLIADO { fill: #C62828 !important; stroke: #B71C1C !important; }
+.tooth-ERUPCION { fill: #43A047 !important; stroke: #2E7D32 !important; }
 .tooth-CORONA { fill: #F9A825 !important; stroke: #F57F17 !important; }
 .tooth-ENDODONCIA { fill: #2E7D32 !important; stroke: #1B5E20 !important; }
 .tooth-IMPLANTE { fill: #6A1B9A !important; stroke: #4A148C !important; }

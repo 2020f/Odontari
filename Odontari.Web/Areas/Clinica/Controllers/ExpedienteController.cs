@@ -166,9 +166,11 @@ public class ExpedienteController : Controller
         if (historial.Any())
             vm.UltimoDiagnostico = historial.FirstOrDefault(h => h.TipoEvento?.Contains("odontograma", StringComparison.OrdinalIgnoreCase) == true || h.TipoEvento?.Contains("Procedimiento") == true)?.Descripcion ?? historial[0].Descripcion;
 
-        // Resumen odontograma (último EstadoJson)
+        // Resumen odontograma (según tipo: infantil si edad < 14 años)
+        var esInfantil = EsPacienteInfantil(paciente);
+        var tipoOdontograma = esInfantil ? TipoOdontograma.Infantil : TipoOdontograma.Adulto;
         var odontograma = await _db.Odontogramas
-            .Where(o => o.PacienteId == id && o.ClinicaId == cid)
+            .Where(o => o.PacienteId == id && o.ClinicaId == cid && o.TipoOdontograma == tipoOdontograma)
             .OrderByDescending(o => o.UltimaModificacion)
             .FirstOrDefaultAsync();
         if (odontograma != null)
@@ -234,7 +236,7 @@ public class ExpedienteController : Controller
                 dientesConHallazgo.Add(num);
                 if (estadoPrincipal == "CARIES") resumen.Caries++;
                 else if (estadoPrincipal == "RESTAURACION" || estadoPrincipal == "OBTURACION") resumen.Restauraciones++;
-                else if (estadoPrincipal == "AUSENTE" || estadoPrincipal == "EXTRAIDO") resumen.Ausentes++;
+                else if (estadoPrincipal == "AUSENTE" || estadoPrincipal == "EXTRAIDO" || estadoPrincipal == "EXFOLIADO") resumen.Ausentes++;
                 else if (estadoPrincipal == "ENDODONCIA") resumen.Endodoncia++;
                 else resumen.Otros++;
             }
@@ -245,7 +247,17 @@ public class ExpedienteController : Controller
         return resumen;
     }
 
-    /// <summary>Odontograma del paciente.</summary>
+    /// <summary>Determina si el paciente se considera infantil para odontograma (edad &lt; 14 años).</summary>
+    private static bool EsPacienteInfantil(Paciente? paciente)
+    {
+        if (paciente?.FechaNacimiento == null) return false;
+        var fn = paciente.FechaNacimiento.Value;
+        if (fn.Date > DateTime.Today) return false; // Fecha futura = dato inválido, tratar como adulto
+        var edadAnios = (DateTime.Today - fn).TotalDays / 365.25;
+        return edadAnios >= 0 && edadAnios < 14;
+    }
+
+    /// <summary>Odontograma del paciente (adulto 32 dientes o infantil 20 dientes según edad).</summary>
     [HttpGet]
     public async Task<IActionResult> Odontograma(int id, int? citaId)
     {
@@ -254,8 +266,10 @@ public class ExpedienteController : Controller
         var paciente = await _db.Pacientes.FirstOrDefaultAsync(p => p.ClinicaId == cid && p.Id == id);
         if (paciente == null) return NotFound();
 
+        var esInfantil = EsPacienteInfantil(paciente);
+        var tipoOdontograma = esInfantil ? TipoOdontograma.Infantil : TipoOdontograma.Adulto;
         var odontograma = await _db.Odontogramas
-            .Where(o => o.PacienteId == id && o.ClinicaId == cid)
+            .Where(o => o.PacienteId == id && o.ClinicaId == cid && o.TipoOdontograma == tipoOdontograma)
             .OrderByDescending(o => o.UltimaModificacion)
             .FirstOrDefaultAsync();
 
@@ -265,17 +279,25 @@ public class ExpedienteController : Controller
         ViewBag.PacienteIdExpediente = id;
         ViewBag.SeccionActivaExpediente = "odontograma";
         ViewBag.CitaId = citaId;
+        ViewBag.EsInfantil = esInfantil;
+        ViewBag.TipoOdontograma = (int)tipoOdontograma;
         return View();
     }
 
-    /// <summary>API: Obtener JSON del odontograma.</summary>
+    /// <summary>API: Obtener JSON del odontograma (tipo 0=adulto, 1=infantil; si no se envía o es inválido se infiere por edad del paciente).</summary>
     [HttpGet]
-    public async Task<IActionResult> GetOdontogramaJson(int pacienteId)
+    public async Task<IActionResult> GetOdontogramaJson(int pacienteId, int? tipo)
     {
         var cid = ClinicaId;
         if (cid == null) return Unauthorized();
+        if (pacienteId <= 0) return BadRequest();
+        var paciente = await _db.Pacientes.FirstOrDefaultAsync(p => p.ClinicaId == cid && p.Id == pacienteId);
+        if (paciente == null) return NotFound();
+        var tipoOdontograma = (tipo.HasValue && (tipo.Value == 0 || tipo.Value == 1))
+            ? (TipoOdontograma)tipo.Value
+            : (EsPacienteInfantil(paciente) ? TipoOdontograma.Infantil : TipoOdontograma.Adulto);
         var odontograma = await _db.Odontogramas
-            .Where(o => o.PacienteId == pacienteId && o.ClinicaId == cid)
+            .Where(o => o.PacienteId == pacienteId && o.ClinicaId == cid && o.TipoOdontograma == tipoOdontograma)
             .OrderByDescending(o => o.UltimaModificacion)
             .FirstOrDefaultAsync();
 
@@ -293,13 +315,25 @@ public class ExpedienteController : Controller
         if (request == null) return BadRequest();
 
         var pacienteId = request.PacienteId;
+        if (pacienteId <= 0) return BadRequest();
+
         var estadoJson = request.EstadoJson ?? "{}";
+        const int maxEstadoJsonLength = 200_000;
+        if (estadoJson.Length > maxEstadoJsonLength) return BadRequest("Estado del odontograma demasiado grande.");
+
+        var tipoOdontograma = request.TipoOdontograma == 1 ? TipoOdontograma.Infantil : TipoOdontograma.Adulto;
 
         var paciente = await _db.Pacientes.FirstOrDefaultAsync(p => p.ClinicaId == cid && p.Id == pacienteId);
         if (paciente == null) return NotFound();
 
+        var esInfantil = EsPacienteInfantil(paciente);
+        if (tipoOdontograma == TipoOdontograma.Infantil && !esInfantil)
+            return BadRequest("El paciente no se considera infantil para odontograma temporal.");
+        if (tipoOdontograma == TipoOdontograma.Adulto && esInfantil)
+            return BadRequest("Para pacientes menores de 14 años use el odontograma infantil.");
+
         var existente = await _db.Odontogramas
-            .Where(o => o.PacienteId == pacienteId && o.ClinicaId == cid)
+            .Where(o => o.PacienteId == pacienteId && o.ClinicaId == cid && o.TipoOdontograma == tipoOdontograma)
             .OrderByDescending(o => o.UltimaModificacion)
             .FirstOrDefaultAsync();
 
@@ -315,6 +349,7 @@ public class ExpedienteController : Controller
             {
                 PacienteId = pacienteId,
                 ClinicaId = cid.Value,
+                TipoOdontograma = tipoOdontograma,
                 EstadoJson = estadoJson,
                 FechaRegistro = DateTime.UtcNow,
                 UltimaModificacion = DateTime.UtcNow,
@@ -326,9 +361,10 @@ public class ExpedienteController : Controller
 
         // Registrar evento en historial con la lista de hallazgos (cambios realizados) para poder ver "lo que se hizo"
         var listaHallazgos = GetListaHallazgosFromEstadoJson(estadoJson);
+        var tituloOdonto = tipoOdontograma == TipoOdontograma.Infantil ? "Odontograma infantil" : "Odontograma";
         var descripcion = listaHallazgos.Count > 0
-            ? "Odontograma actualizado" + "\n" + string.Join("\n", listaHallazgos)
-            : "Odontograma actualizado";
+            ? tituloOdonto + " actualizado" + "\n" + string.Join("\n", listaHallazgos)
+            : tituloOdonto + " actualizado";
         var citaIdParaHistorial = request.CitaId;
         _db.HistorialClinico.Add(new HistorialClinico
         {
@@ -336,7 +372,7 @@ public class ExpedienteController : Controller
             ClinicaId = cid.Value,
             CitaId = citaIdParaHistorial,
             FechaEvento = DateTime.UtcNow,
-            TipoEvento = "Actualización odontograma",
+            TipoEvento = tipoOdontograma == TipoOdontograma.Infantil ? "Actualización odontograma infantil" : "Actualización odontograma",
             Descripcion = descripcion,
             UsuarioId = UserId
         });
