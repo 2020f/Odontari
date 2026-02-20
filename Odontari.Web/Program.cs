@@ -53,6 +53,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddControllersWithViews(o =>
 {
+    // Autorización: bloqueo de vistas por usuario (Reportes, Caja, etc.) — se ejecuta antes que el action filter
+    o.Filters.Add<Odontari.Web.Filters.ValidarVistaPermisoAuthorizationFilter>();
     o.Filters.Add<Odontari.Web.Filters.ValidarAccesoClinicaFilter>();
 });
 builder.Services.AddHttpContextAccessor();
@@ -61,6 +63,8 @@ builder.Services.AddScoped<Odontari.Web.Services.IPuertaEntradaService, Odontari
 builder.Services.AddScoped<Odontari.Web.Services.IAuditService, Odontari.Web.Services.AuditService>();
 builder.Services.AddScoped<Odontari.Web.Services.ReporteFinancieroExportService>();
 builder.Services.AddScoped<Odontari.Web.Services.IUsuarioVistasPermisoService, Odontari.Web.Services.UsuarioVistasPermisoService>();
+builder.Services.AddScoped<Odontari.Web.Services.IBloqueoVistaClinicaService, Odontari.Web.Services.BloqueoVistaClinicaService>();
+builder.Services.AddScoped<Odontari.Web.Filters.ValidarVistaPermisoAuthorizationFilter>();
 builder.Services.AddScoped<Odontari.Web.Filters.ValidarAccesoClinicaFilter>();
 var app = builder.Build();
 

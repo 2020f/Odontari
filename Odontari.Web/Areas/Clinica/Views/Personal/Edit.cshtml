@@ -54,8 +54,8 @@
     </div>
 
     <hr class="my-4" />
-    <h2 class="h5 mb-2">Permisos de vistas</h2>
-    <p class="text-muted small mb-4">Activa o desactiva las secciones que este usuario puede ver. Si todas están activas, no hay límite. Puede desactivar, por ejemplo: <strong>Reportes</strong>, <strong>Cobros / Caja</strong>, <strong>Tratamientos</strong> o <strong>Expediente clínico</strong>.</p>
+    <h2 class="h5 mb-2">Permisos de vistas (bloqueo por usuario)</h2>
+    <p class="text-muted small mb-4">Cada switch permite o bloquea una vista para este usuario. <strong>ON (azul)</strong> = puede ver la vista. <strong>OFF (gris)</strong> = bloqueada. Si todas están ON, no hay límite.</p>
 
     <div class="permisos-vistas-grupo">
         <h3 class="permisos-vistas-subtitulo">Navegación principal</h3>
@@ -65,13 +65,14 @@
                 for (var i = 0; i < Model.PermisosVistas.Count && i < 5; i++)
                 {
                     var p = Model.PermisosVistas[i];
+                    var nombreVista = p.Nombre ?? p.VistaKey ?? "Vista";
                     <div class="permiso-vista-item">
                         <input type="hidden" asp-for="PermisosVistas[i].VistaKey" />
                         <input type="hidden" asp-for="PermisosVistas[i].Nombre" />
                         <label class="toggle-label">
-                            <span class="toggle-name">@p.Nombre</span>
+                            <span class="toggle-name" title="Permite o bloquea: @nombreVista"><strong>@nombreVista</strong></span>
                             <span class="toggle-wrap">
-                                <input type="checkbox" asp-for="PermisosVistas[i].Permitido" class="toggle-input" />
+                                <input type="checkbox" asp-for="PermisosVistas[i].Permitido" class="toggle-input" value="true" />
                                 <span class="toggle-slider"></span>
                             </span>
                         </label>
@@ -89,13 +90,14 @@
                 for (var i = 5; i < Model.PermisosVistas.Count; i++)
                 {
                     var p = Model.PermisosVistas[i];
+                    var nombreVista = p.Nombre ?? p.VistaKey ?? "Vista";
                     <div class="permiso-vista-item">
                         <input type="hidden" asp-for="PermisosVistas[i].VistaKey" />
                         <input type="hidden" asp-for="PermisosVistas[i].Nombre" />
                         <label class="toggle-label">
-                            <span class="toggle-name">@p.Nombre</span>
+                            <span class="toggle-name" title="Permite o bloquea: @nombreVista"><strong>@nombreVista</strong></span>
                             <span class="toggle-wrap">
-                                <input type="checkbox" asp-for="PermisosVistas[i].Permitido" class="toggle-input" />
+                                <input type="checkbox" asp-for="PermisosVistas[i].Permitido" class="toggle-input" value="true" />
                                 <span class="toggle-slider"></span>
                             </span>
                         </label>
@@ -113,10 +115,10 @@
 <style>
 .permisos-vistas-grupo { margin-bottom: 1.5rem; }
 .permisos-vistas-subtitulo { font-size: 0.95rem; font-weight: 600; color: #475569; margin-bottom: 0.75rem; padding-bottom: 0.25rem; border-bottom: 1px solid #e2e8f0; }
-.permisos-vistas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.75rem 1.5rem; }
-.permiso-vista-item { margin: 0; }
-.toggle-label { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.5rem 0; cursor: pointer; }
-.toggle-name { font-weight: 500; }
+.permisos-vistas-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 280px)); gap: 0.5rem; }
+.permiso-vista-item { margin: 0; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem 0.75rem; background: #fafafa; }
+.toggle-label { display: flex; align-items: center; justify-content: flex-start; gap: 0.75rem; padding: 0; margin: 0; cursor: pointer; }
+.toggle-name { font-weight: 600; color: #1e293b; flex: 0 1 auto; }
 .toggle-wrap { position: relative; display: inline-block; width: 48px; height: 26px; flex-shrink: 0; }
 .toggle-input { opacity: 0; width: 0; height: 0; }
 .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; border-radius: 26px; transition: 0.3s; }

@@ -25,6 +25,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<HistorialClinico> HistorialClinico => Set<HistorialClinico>();
     public DbSet<HistoriaClinicaSistematica> HistoriasClinicasSistematicas => Set<HistoriaClinicaSistematica>();
     public DbSet<UsuarioVistaPermiso> UsuarioVistaPermisos => Set<UsuarioVistaPermiso>();
+    public DbSet<BloqueoVistaClinicaDinamica> BloqueoVistaClinicaDinamicas => Set<BloqueoVistaClinicaDinamica>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -119,6 +120,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             b.HasKey(p => new { p.UserId, p.VistaKey });
             b.Property(p => p.VistaKey).HasMaxLength(50);
             b.HasOne(p => p.User).WithMany().HasForeignKey(p => p.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<BloqueoVistaClinicaDinamica>(b =>
+        {
+            b.HasKey(x => new { x.ClinicaId, x.VistaKey });
+            b.Property(x => x.VistaKey).HasMaxLength(50);
+            b.HasOne(x => x.Clinica).WithMany().HasForeignKey(x => x.ClinicaId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

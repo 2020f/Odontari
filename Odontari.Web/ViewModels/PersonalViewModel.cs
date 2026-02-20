@@ -75,3 +75,12 @@ public class VistaPermisoItem
     public string Nombre { get; set; } = null!;
     public bool Permitido { get; set; }
 }
+
+/// <summary>Una vista del área Clinica. Visible = true significa vista desbloqueada (switch ON); Visible = false significa bloqueada (switch OFF).</summary>
+public class BloqueoVistaClinicaItem
+{
+    public string VistaKey { get; set; } = null!;
+    public string Nombre { get; set; } = null!;
+    /// <summary>True = vista visible para la clínica (switch ON). False = vista bloqueada (switch OFF).</summary>
+    public bool Visible { get; set; }
+}

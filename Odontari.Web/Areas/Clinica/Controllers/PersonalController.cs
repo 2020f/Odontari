@@ -20,19 +20,22 @@ public class PersonalController : Controller
     private readonly IClinicaActualService _clinicaActual;
     private readonly IAuditService _audit;
     private readonly IUsuarioVistasPermisoService _vistasPermiso;
+    private readonly IBloqueoVistaClinicaService _bloqueoVistas;
 
     public PersonalController(
         ApplicationDbContext db,
         UserManager<ApplicationUser> userManager,
         IClinicaActualService clinicaActual,
         IAuditService audit,
-        IUsuarioVistasPermisoService vistasPermiso)
+        IUsuarioVistasPermisoService vistasPermiso,
+        IBloqueoVistaClinicaService bloqueoVistas)
     {
         _db = db;
         _userManager = userManager;
         _clinicaActual = clinicaActual;
         _audit = audit;
         _vistasPermiso = vistasPermiso;
+        _bloqueoVistas = bloqueoVistas;
     }
 
     public async Task<IActionResult> Index()
@@ -214,11 +217,9 @@ public class PersonalController : Controller
             await _userManager.RemoveFromRolesAsync(user, currentRoles);
             await _userManager.AddToRoleAsync(user, vm.Rol);
 
-            if (vm.PermisosVistas != null)
-            {
-                var permitidas = vm.PermisosVistas.Where(p => p.Permitido).Select(p => p.VistaKey).ToList();
-                await _vistasPermiso.GuardarPermisosAsync(user.Id, permitidas);
-            }
+            // Permisos de vistas: reconstruir lista completa por si el binding viene incompleto
+            var permitidas = ObtenerVistasPermitidasDesdeViewModel(vm);
+            await _vistasPermiso.GuardarPermisosAsync(user.Id, permitidas);
 
             await _audit.RegistrarAsync(cid, User.Identity?.Name, "Personal_Editado", "Usuario", user.Id, vm.Email);
             TempData["Message"] = "Usuario actualizado.";
@@ -238,6 +239,18 @@ public class PersonalController : Controller
         return View(vm);
     }
 
+    /// <summary>Extrae la lista de claves de vistas permitidas del view model (solo las que tienen Permitido = true).</summary>
+    private static List<string> ObtenerVistasPermitidasDesdeViewModel(PersonalEditViewModel vm)
+    {
+        if (vm.PermisosVistas == null || vm.PermisosVistas.Count == 0)
+            return new List<string>();
+        return vm.PermisosVistas
+            .Where(p => p != null && p.Permitido && !string.IsNullOrWhiteSpace(p.VistaKey))
+            .Select(p => p.VistaKey!.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ToggleActivo(string id)
@@ -253,6 +266,42 @@ public class PersonalController : Controller
         await _audit.RegistrarAsync(cid, User.Identity?.Name, user.Activo ? "Personal_Activado" : "Personal_Desactivado", "Usuario", user.Id, user.Email);
         TempData["Message"] = user.Activo ? "Usuario activado." : "Usuario desactivado.";
         return RedirectToAction(nameof(Index));
+    }
+
+    /// <summary>Configuración de bloqueo de vistas por clínica. Solo AdminClinica. Recepcion/Doctor/Finanzas quedan bloqueados según lo configurado.</summary>
+    public async Task<IActionResult> BloqueoVistas()
+    {
+        var cid = await _clinicaActual.GetClinicaIdActualAsync();
+        if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
+
+        var bloqueadas = await _bloqueoVistas.GetVistasBloqueadasAsync(cid.Value);
+        var vm = VistasClinica.Todas.Select(t => new BloqueoVistaClinicaItem
+        {
+            VistaKey = t.Key,
+            Nombre = t.Nombre,
+            Visible = !bloqueadas.Contains(t.Key, StringComparer.OrdinalIgnoreCase)
+        }).ToList();
+
+        return View("VistasClinica", vm);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> BloqueoVistas(List<BloqueoVistaClinicaItem> modelo)
+    {
+        var cid = await _clinicaActual.GetClinicaIdActualAsync();
+        if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
+
+        var vistasBloqueadas = modelo?
+            .Where(x => !x.Visible)
+            .Select(x => x.VistaKey)
+            .Where(k => !string.IsNullOrWhiteSpace(k))
+            .ToList() ?? new List<string>();
+
+        await _bloqueoVistas.GuardarBloqueosAsync(cid.Value, vistasBloqueadas);
+        await _audit.RegistrarAsync(cid, User.Identity?.Name, "BloqueoVistas_Actualizado", "Clinica", cid.ToString(), string.Join(",", vistasBloqueadas));
+        TempData["Message"] = "Bloqueo de vistas actualizado. Recepción, Doctores y Finanzas no podrán acceder a las vistas bloqueadas.";
+        return RedirectToAction(nameof(BloqueoVistas));
     }
 
     private async Task<(bool Puede, string? Mensaje)> ValidarPuedeCrearUsuarioAsync(Models.Clinica clinica, string? rolParaNuevo = null)

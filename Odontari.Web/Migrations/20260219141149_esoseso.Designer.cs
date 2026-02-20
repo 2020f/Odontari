@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Odontari.Web.Data;
 
@@ -11,9 +12,11 @@ using Odontari.Web.Data;
 namespace Odontari.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260219141149_esoseso")]
+    partial class esoseso
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -272,23 +275,6 @@ namespace Odontari.Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AuditLogs");
-                });
-
-            modelBuilder.Entity("Odontari.Web.Models.BloqueoVistaClinicaDinamica", b =>
-                {
-                    b.Property<int>("ClinicaId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("VistaKey")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<bool>("Bloqueada")
-                        .HasColumnType("bit");
-
-                    b.HasKey("ClinicaId", "VistaKey");
-
-                    b.ToTable("BloqueoVistaClinicaDinamicas");
                 });
 
             modelBuilder.Entity("Odontari.Web.Models.Cita", b =>
@@ -892,17 +878,6 @@ namespace Odontari.Web.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Odontari.Web.Models.BloqueoVistaClinicaDinamica", b =>
-                {
-                    b.HasOne("Odontari.Web.Models.Clinica", "Clinica")
-                        .WithMany()
-                        .HasForeignKey("ClinicaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Clinica");
                 });
 
             modelBuilder.Entity("Odontari.Web.Models.Cita", b =>

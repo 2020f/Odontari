@@ -24,15 +24,20 @@ public class UsuarioVistasPermisoService : IUsuarioVistasPermisoService
         return list.ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    /// Indica si el usuario puede acceder al controlador (vista). Claves deben coincidir con VistasClinica (Home, Agenda, Pacientes, Expediente, Atencion, Tratamientos, Caja, Reportes, Personal).
+    /// </summary>
     public async Task<bool> PuedeAccederAsync(string userId, string controllerName, CancellationToken ct = default)
     {
+        if (string.IsNullOrWhiteSpace(controllerName)) return true;
         var permitidas = await GetVistasPermitidasAsync(userId, ct);
         if (permitidas == null)
+            return true; // Sin filas = todas las vistas permitidas (acceso total)
+        var key = controllerName.Trim();
+        if (permitidas.Contains(key, StringComparer.OrdinalIgnoreCase))
             return true;
-        if (permitidas.Contains(controllerName, StringComparer.OrdinalIgnoreCase))
-            return true;
-        // El ítem "Expediente Clínico" del menú apunta a Pacientes; permitir si tiene Expediente.
-        if (string.Equals(controllerName, "Pacientes", StringComparison.OrdinalIgnoreCase) && permitidas.Contains("Expediente", StringComparer.OrdinalIgnoreCase))
+        // El ítem "Expediente clínico" del menú apunta a Pacientes; permitir si tiene Expediente.
+        if (string.Equals(key, "Pacientes", StringComparison.OrdinalIgnoreCase) && permitidas.Contains("Expediente", StringComparer.OrdinalIgnoreCase))
             return true;
         return false;
     }

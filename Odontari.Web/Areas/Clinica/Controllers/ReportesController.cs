@@ -11,7 +11,7 @@ using Odontari.Web.ViewModels;
 
 namespace Odontari.Web.Areas.Clinica.Controllers;
 
-/// <summary>Reportes de clínica: financieros, operativos y cuentas por cobrar. Multitenant por ClinicaId.</summary>
+/// <summary>Reportes de clínica: financieros, operativos y cuentas por cobrar. Multitenant por ClinicaId. Bloqueo por BloqueoVistaClinicaDinamica (filtro global).</summary>
 [Authorize(Roles = OdontariRoles.AdminClinica + "," + OdontariRoles.Recepcion + "," + OdontariRoles.Finanzas)]
 [Area("Clinica")]
 public class ReportesController : Controller
