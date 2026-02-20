@@ -235,7 +235,8 @@ public class ExpedienteController : Controller
             fechaFin,
             eventos);
 
-        var nombreSeguro = string.Join("_", (paciente.Nombre + " " + (paciente.Apellidos ?? "")).Trim().Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries));
+        var nombreSeguro = string.Join("_", ((paciente.Nombre ?? "") + " " + (paciente.Apellidos ?? "")).Trim().Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries));
+        if (string.IsNullOrWhiteSpace(nombreSeguro)) nombreSeguro = "Paciente";
         var rango = fechaInicio.HasValue && fechaFin.HasValue
             ? $"{fechaInicio.Value:yyyy-MM-dd}_{fechaFin.Value:yyyy-MM-dd}"
             : fechaInicio.HasValue ? $"{fechaInicio.Value:yyyy-MM-dd}" : fechaFin.HasValue ? $"hasta_{fechaFin.Value:yyyy-MM-dd}" : "completo";
