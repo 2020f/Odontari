@@ -1,0 +1,59 @@
+@model Odontari.Web.ViewModels.NCFRangoEditViewModel
+@{
+    ViewData["Title"] = "Crear rango NCF";
+    var tiposNCF = ViewBag.TiposNCF as List<Odontari.Web.Models.NCFTipo> ?? new List<Odontari.Web.Models.NCFTipo>();
+}
+<div class="content-card">
+    <h1 class="mb-3">Crear rango NCF</h1>
+    <p class="text-muted">Configure el rango autorizado por DGII. El sistema consumirá secuencialmente desde "Desde" hasta "Hasta".</p>
+
+    <div asp-validation-summary="All" class="text-danger mb-2"></div>
+
+    <form asp-action="CrearRango" method="post">
+        @Html.AntiForgeryToken()
+        <div class="mb-3">
+            <label asp-for="NCFTipoId" class="form-label">Tipo de comprobante</label>
+            <select asp-for="NCFTipoId" class="form-select" required>
+                <option value="">— Seleccione —</option>
+                @foreach (var t in tiposNCF)
+                {
+                    <option value="@t.Id">@t.Codigo — @t.Nombre</option>
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label asp-for="SeriePrefijo" class="form-label">Serie / Prefijo (opcional)</label>
+            <input asp-for="SeriePrefijo" class="form-control" maxlength="20" />
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="Desde" class="form-label">Desde (inicio del rango)</label>
+                <input asp-for="Desde" class="form-control" required placeholder="Ej: 1000001" />
+                <span asp-validation-for="Desde" class="text-danger"></span>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="Hasta" class="form-label">Hasta (fin del rango)</label>
+                <input asp-for="Hasta" class="form-control" required placeholder="Ej: 1001000" />
+                <span asp-validation-for="Hasta" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="FechaAutorizacion" class="form-label">Fecha autorización (opcional)</label>
+                <input asp-for="FechaAutorizacion" class="form-control" type="date" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="FechaVencimiento" class="form-label">Fecha vencimiento (opcional)</label>
+                <input asp-for="FechaVencimiento" class="form-control" type="date" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Nota" class="form-label">Nota / Observación</label>
+            <textarea asp-for="Nota" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Crear rango</button>
+            <a asp-action="NCFRangos" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>

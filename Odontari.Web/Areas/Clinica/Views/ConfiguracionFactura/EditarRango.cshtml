@@ -1,0 +1,58 @@
+@model Odontari.Web.ViewModels.NCFRangoEditViewModel
+@{
+    ViewData["Title"] = "Editar rango NCF";
+    var tiposNCF = ViewBag.TiposNCF as List<Odontari.Web.Models.NCFTipo> ?? new List<Odontari.Web.Models.NCFTipo>();
+    var proximoActual = ViewBag.ProximoActual as long?;
+}
+<div class="content-card">
+    <h1 class="mb-3">Editar rango NCF</h1>
+    <p class="text-muted">Solo se pueden editar serie, fechas y nota. Desde / Hasta / Próximo no se modifican para no afectar la secuencia.</p>
+
+    <div asp-validation-summary="All" class="text-danger mb-2"></div>
+
+    <form asp-action="EditarRango" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="NCFTipoId" />
+        <input type="hidden" asp-for="Desde" />
+        <input type="hidden" asp-for="Hasta" />
+
+        <div class="mb-3">
+            <label class="form-label">Tipo de comprobante</label>
+            <input type="text" class="form-control" value="@(tiposNCF.FirstOrDefault(t => t.Id == Model.NCFTipoId)?.Codigo)" readonly disabled />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Rango (desde – hasta)</label>
+            <input type="text" class="form-control" value="@Model.Desde – @Model.Hasta" readonly disabled />
+        </div>
+        @if (proximoActual.HasValue)
+        {
+            <div class="mb-3">
+                <label class="form-label">Próximo NCF a usar</label>
+                <input type="text" class="form-control" value="@proximoActual" readonly disabled />
+            </div>
+        }
+        <div class="mb-3">
+            <label asp-for="SeriePrefijo" class="form-label">Serie / Prefijo (opcional)</label>
+            <input asp-for="SeriePrefijo" class="form-control" maxlength="20" />
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="FechaAutorizacion" class="form-label">Fecha autorización</label>
+                <input asp-for="FechaAutorizacion" class="form-control" type="date" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="FechaVencimiento" class="form-label">Fecha vencimiento</label>
+                <input asp-for="FechaVencimiento" class="form-control" type="date" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Nota" class="form-label">Nota / Observación</label>
+            <textarea asp-for="Nota" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a asp-action="NCFRangos" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>

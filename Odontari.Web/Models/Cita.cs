@@ -23,4 +23,5 @@ public class Cita
 
     public ICollection<ProcedimientoRealizado> ProcedimientosRealizados { get; set; } = new List<ProcedimientoRealizado>();
     public ICollection<OrdenCobro> OrdenesCobro { get; set; } = new List<OrdenCobro>();
+    public ICollection<Factura> Facturas { get; set; } = new List<Factura>();
 }

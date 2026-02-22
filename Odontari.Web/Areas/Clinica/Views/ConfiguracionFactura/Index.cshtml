@@ -1,0 +1,71 @@
+@{
+    ViewData["Title"] = "Facturación y NCF";
+    var tabActivo = ViewBag.TabActivo as string ?? "fiscales";
+    var clinica = ViewBag.Clinica as Odontari.Web.Models.Clinica;
+}
+<div class="content-card">
+    <h1 class="mb-4">Facturación y NCF</h1>
+    <p class="text-muted">Configure los datos fiscales, rangos NCF y modo de facturación. Solo el administrador de la clínica puede acceder a esta sección.</p>
+
+    @if (TempData["ConfigFacturaMsg"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["ConfigFacturaMsg"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+    }
+
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link @(tabActivo == "fiscales" ? "active" : "")" asp-action="DatosFiscales">Datos fiscales de la clínica</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(tabActivo == "ncf" ? "active" : "")" asp-action="NCFRangos">NCF / Rangos</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(tabActivo == "modo" ? "active" : "")" asp-action="ModoFacturacion">Modo de facturación</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-action="Bitacora">Bitácora NCF</a>
+        </li>
+    </ul>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Datos fiscales (emisor)</h5>
+                    <p class="card-text small text-muted">Razón social, RNC, dirección fiscal, teléfono y correo que aparecerán en cada factura.</p>
+                    <a asp-action="DatosFiscales" class="btn btn-outline-primary btn-sm">Configurar</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">NCF / Rangos DGII</h5>
+                    <p class="card-text small text-muted">Rangos autorizados (B01, B02, B14, E31). Sin NCF válido la factura no tiene valor fiscal.</p>
+                    <a asp-action="NCFRangos" class="btn btn-outline-primary btn-sm">Ver rangos</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Modo de facturación</h5>
+                    <p class="card-text small text-muted">Interna (sin NCF) o Fiscal (con NCF). ITBIS, formato de factura y formas de pago.</p>
+                    <a asp-action="ModoFacturacion" class="btn btn-outline-primary btn-sm">Configurar</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Bitácora NCF</h5>
+                    <p class="card-text small text-muted">Auditoría de NCF usados: quién, cuándo, en qué factura.</p>
+                    <a asp-action="Bitacora" class="btn btn-outline-primary btn-sm">Ver bitácora</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

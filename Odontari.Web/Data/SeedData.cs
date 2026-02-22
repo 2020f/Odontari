@@ -55,6 +55,28 @@ public static class SeedData
         await db.SaveChangesAsync();
     }
 
+    public static async Task SeedNCFTiposAsync(ApplicationDbContext db)
+    {
+        if (await db.NCFTipos.AnyAsync()) return;
+        foreach (var (codigo, nombre, descripcion, requiereRnc) in new[] {
+            ("B01", "Crédito Fiscal", "Comprobante para crédito fiscal", true),
+            ("B02", "Consumo", "Comprobante de consumo", false),
+            ("B14", "Gubernamental", "Comprobante gubernamental", false),
+            ("E31", "Electrónico", "Comprobante electrónico (e-CF)", true)
+        })
+        {
+            db.NCFTipos.Add(new NCFTipo
+            {
+                Codigo = codigo,
+                Nombre = nombre,
+                Descripcion = descripcion,
+                RequiereRNCCliente = requiereRnc,
+                Activo = true
+            });
+        }
+        await db.SaveChangesAsync();
+    }
+
     public static async Task SeedClinicaDemoAsync(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
     {
         if (await db.Clinicas.AnyAsync()) return;
@@ -101,6 +123,7 @@ public static class SeedData
         await SeedRolesAsync(roleManager);
         await SeedSuperAdminAsync(userManager);
         await SeedPlanBasicoAsync(db);
+        await SeedNCFTiposAsync(db);
         await SeedClinicaDemoAsync(db, userManager);
     }
 }

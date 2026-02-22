@@ -1,0 +1,105 @@
+@{
+    ViewData["Title"] = "Modo de facturación";
+    var modo = ViewBag.Modo as Odontari.Web.ViewModels.ModoFacturacionViewModel;
+    var impuestos = ViewBag.ImpuestosFormato as Odontari.Web.ViewModels.ConfiguracionImpuestosFormatoViewModel;
+    var formasPago = ViewBag.FormasPago as Odontari.Web.ViewModels.FormasPagoViewModel;
+}
+<div class="content-card">
+    <h1 class="mb-3">Modo de facturación</h1>
+    <p class="text-muted">Defina si la clínica factura en modo Interno (sin NCF) o Fiscal (con NCF). Configure ITBIS, formato y formas de pago.</p>
+
+    @if (TempData["ConfigFacturaMsg"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["ConfigFacturaMsg"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+    }
+
+    <form asp-action="ModoFacturacion" method="post">
+        @Html.AntiForgeryToken()
+
+        <h5 class="mt-4 mb-2">Modo</h5>
+        <div class="mb-3">
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="modo.ModoFacturacion" id="modoInterna" value="0" @(modo?.ModoFacturacion == Odontari.Web.Models.Enums.ModoFacturacion.Interna ? "checked" : "") />
+                <label class="form-check-label" for="modoInterna">Interna (sin NCF) — Documento no válido para crédito fiscal</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="modo.ModoFacturacion" id="modoFiscal" value="1" @(modo?.ModoFacturacion == Odontari.Web.Models.Enums.ModoFacturacion.Fiscal ? "checked" : "") />
+                <label class="form-check-label" for="modoFiscal">Fiscal (con NCF) — Requiere rangos NCF activos</label>
+            </div>
+        </div>
+        <div class="mb-3 form-check">
+            <input class="form-check-input" type="checkbox" name="modo.PermitirInternaConFiscal" value="true" id="permitirInterna" @(modo?.PermitirInternaConFiscal == true ? "checked" : "") />
+            <label class="form-check-label" for="permitirInterna">Permitir emitir factura interna aunque esté en modo fiscal</label>
+        </div>
+
+        <h5 class="mt-4 mb-2">ITBIS</h5>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Tasa ITBIS (%)</label>
+                <input type="number" name="impuestos.ItbisTasa" class="form-control" value="@(impuestos?.ItbisTasa ?? 18)" min="0" max="100" step="0.01" />
+            </div>
+            <div class="col-md-8 mb-3 d-flex align-items-end">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="impuestos.ItbisAplicarPorDefecto" value="true" id="itbisAplicar" @(impuestos?.ItbisAplicarPorDefecto == true ? "checked" : "") />
+                    <label class="form-check-label" for="itbisAplicar">Aplicar ITBIS automáticamente a todos los servicios</label>
+                </div>
+            </div>
+        </div>
+
+        <h5 class="mt-4 mb-2">Formato de factura</h5>
+        <div class="mb-3">
+            <label class="form-label">Mensaje inferior (ej: Gracias por confiar en nosotros)</label>
+            <input type="text" name="impuestos.MensajeFactura" class="form-control" value="@impuestos?.MensajeFactura" maxlength="500" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Condiciones de pago</label>
+            <input type="text" name="impuestos.CondicionesPago" class="form-control" value="@impuestos?.CondicionesPago" maxlength="500" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Nota legal (opcional)</label>
+            <textarea name="impuestos.NotaLegal" class="form-control" rows="2" maxlength="1000">@impuestos?.NotaLegal</textarea>
+        </div>
+        <div class="mb-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="impuestos.MostrarFirma" value="true" id="mostrarFirma" @(impuestos?.MostrarFirma == true ? "checked" : "") />
+                <label class="form-check-label" for="mostrarFirma">Mostrar firma digital en factura</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="impuestos.MostrarQR" value="true" id="mostrarQR" @(impuestos?.MostrarQR == true ? "checked" : "") />
+                <label class="form-check-label" for="mostrarQR">Mostrar código QR (factura electrónica)</label>
+            </div>
+        </div>
+
+        <h5 class="mt-4 mb-2">Formas de pago permitidas</h5>
+        <div class="mb-3">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="formasPago.FormaPagoEfectivo" value="true" id="fpEfectivo" @(formasPago?.FormaPagoEfectivo == true ? "checked" : "") />
+                <label class="form-check-label" for="fpEfectivo">Efectivo</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="formasPago.FormaPagoTransferencia" value="true" id="fpTransferencia" @(formasPago?.FormaPagoTransferencia == true ? "checked" : "") />
+                <label class="form-check-label" for="fpTransferencia">Transferencia</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="formasPago.FormaPagoTarjeta" value="true" id="fpTarjeta" @(formasPago?.FormaPagoTarjeta == true ? "checked" : "") />
+                <label class="form-check-label" for="fpTarjeta">Tarjeta</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="formasPago.FormaPagoCredito" value="true" id="fpCredito" @(formasPago?.FormaPagoCredito == true ? "checked" : "") />
+                <label class="form-check-label" for="fpCredito">Crédito</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="formasPago.FormaPagoMixto" value="true" id="fpMixto" @(formasPago?.FormaPagoMixto == true ? "checked" : "") />
+                <label class="form-check-label" for="fpMixto">Mixto</label>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">Guardar configuración</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+        </div>
+    </form>
+</div>

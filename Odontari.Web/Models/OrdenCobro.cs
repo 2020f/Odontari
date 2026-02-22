@@ -18,4 +18,5 @@ public class OrdenCobro
     public DateTime CreadoAt { get; set; }
 
     public ICollection<Pago> Pagos { get; set; } = new List<Pago>();
+    public Factura? Factura { get; set; }
 }

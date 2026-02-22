@@ -63,6 +63,9 @@ builder.Services.AddScoped<Odontari.Web.Services.IPuertaEntradaService, Odontari
 builder.Services.AddScoped<Odontari.Web.Services.IAuditService, Odontari.Web.Services.AuditService>();
 builder.Services.AddScoped<Odontari.Web.Services.ReporteFinancieroExportService>();
 builder.Services.AddScoped<Odontari.Web.Services.HistogramaExportService>();
+builder.Services.AddScoped<Odontari.Web.Services.IFacturaService, Odontari.Web.Services.FacturaService>();
+builder.Services.AddScoped<Odontari.Web.Services.FacturaPdfService>();
+builder.Services.AddScoped<Odontari.Web.Services.HistorialPagosPdfService>();
 builder.Services.AddScoped<Odontari.Web.Services.IUsuarioVistasPermisoService, Odontari.Web.Services.UsuarioVistasPermisoService>();
 builder.Services.AddScoped<Odontari.Web.Services.IBloqueoVistaClinicaService, Odontari.Web.Services.BloqueoVistaClinicaService>();
 builder.Services.AddScoped<Odontari.Web.Services.IBlobUploadService, Odontari.Web.Services.BlobUploadService>();

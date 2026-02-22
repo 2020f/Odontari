@@ -1,38 +1,117 @@
-@model IEnumerable<Odontari.Web.Models.OrdenCobro>
 @{
     ViewData["Title"] = "Historial de pagos";
+    var lista = ViewBag.Lista as List<Odontari.Web.ViewModels.HistorialPagoItemViewModel> ?? new List<Odontari.Web.ViewModels.HistorialPagoItemViewModel>();
+    var pagina = (int)(ViewBag.Pagina ?? 1);
+    var totalPaginas = (int)(ViewBag.TotalPaginas ?? 0);
+    var total = (int)(ViewBag.Total ?? 0);
+    var desde = ViewBag.Desde as DateTime?;
+    var hasta = ViewBag.Hasta as DateTime?;
+    var metodoPago = ViewBag.MetodoPago as string;
+    var pacienteTexto = ViewBag.PacienteTexto as string;
 }
+<div class="content-header">
+    <h1>Historial de pagos</h1>
+    <a asp-action="Index" class="btn-content-secondary">Volver a Caja</a>
+</div>
+<div class="content-card">
+    <form method="get" asp-action="HistorialPagos" class="row g-2 mb-4">
+        <div class="col-auto">
+            <label class="form-label small mb-0">Desde</label>
+            <input type="date" name="desde" value="@(desde?.ToString("yyyy-MM-dd"))" class="form-control form-control-sm" />
+        </div>
+        <div class="col-auto">
+            <label class="form-label small mb-0">Hasta</label>
+            <input type="date" name="hasta" value="@(hasta?.ToString("yyyy-MM-dd"))" class="form-control form-control-sm" />
+        </div>
+        <div class="col-auto">
+            <label class="form-label small mb-0">Método de pago</label>
+            <select name="metodoPago" class="form-select form-select-sm">
+                @{
+                    var opcionesMetodo = new[] { ("", "— Todos —"), ("Efectivo", "Efectivo"), ("Transferencia", "Transferencia"), ("Tarjeta", "Tarjeta"), ("Crédito", "Crédito"), ("Mixto", "Mixto") };
+                }
+                @foreach (var op in opcionesMetodo)
+                {
+                    @if (op.Item1 == metodoPago)
+                    {
+                        <option value="@op.Item1" selected>@op.Item2</option>
+                    }
+                    else
+                    {
+                        <option value="@op.Item1">@op.Item2</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-auto">
+            <label class="form-label small mb-0">Paciente</label>
+            <input type="text" name="pacienteTexto" value="@pacienteTexto" class="form-control form-control-sm" placeholder="Nombre" />
+        </div>
+        <div class="col-auto d-flex align-items-end">
+            <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+        </div>
+        <div class="col-auto d-flex align-items-end">
+            <a asp-action="ExportarHistorialPagosPdf" asp-route-desde="@(desde?.ToString("yyyy-MM-dd"))" asp-route-hasta="@(hasta?.ToString("yyyy-MM-dd"))" asp-route-metodoPago="@metodoPago" asp-route-pacienteTexto="@pacienteTexto" class="btn btn-outline-danger btn-sm" target="_blank" rel="noopener">Descargar PDF</a>
+        </div>
+    </form>
 
-<h1>Historial de pagos</h1>
-<p><a asp-action="Index">Volver a Caja</a></p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Fecha</th>
-            <th>Paciente</th>
-            <th>Total</th>
-            <th>Pagado</th>
-            <th>Estado</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var o in Model)
-        {
-            <tr>
-                <td>@o.CreadoAt.ToString("dd/MM/yyyy HH:mm")</td>
-                <td>@o.Paciente?.Nombre @o.Paciente?.Apellidos</td>
-                <td>RD$ @o.Total.ToString("N2")</td>
-                <td>RD$ @o.MontoPagado.ToString("N2")</td>
-                <td>@o.Estado</td>
-            </tr>
-            @foreach (var p in o.Pagos)
-            {
-                <tr class="table-light">
-                    <td></td>
-                    <td colspan="2">→ Pago RD$ @p.Monto.ToString("N2") @p.MetodoPago @p.FechaPago.ToString("dd/MM")</td>
-                    <td colspan="2">@p.Referencia</td>
+    <p class="text-muted small">Total: @total registro(s).</p>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Paciente</th>
+                    <th>Total orden</th>
+                    <th>Monto</th>
+                    <th>Método de pago</th>
+                    <th>Referencia</th>
+                    <th>Factura</th>
                 </tr>
+            </thead>
+            <tbody>
+                @if (lista.Count == 0)
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">No hay pagos con los filtros aplicados.</td>
+                    </tr>
+                }
+                @foreach (var p in lista)
+                {
+                    <tr>
+                        <td>@p.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@p.PacienteNombre</td>
+                        <td>RD$ @p.OrdenTotal.ToString("N2")</td>
+                        <td>RD$ @p.Monto.ToString("N2")</td>
+                        <td>@(p.MetodoPago ?? "—")</td>
+                        <td class="small">@(p.Referencia ?? "—")</td>
+                        <td>
+                            @if (p.FacturaId.HasValue)
+                            {
+                                <a asp-action="DescargarFacturaPdf" asp-route-id="@p.FacturaId" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener">Descargar factura</a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (totalPaginas > 1)
+    {
+        <nav class="mt-2">
+            @if (pagina > 1)
+            {
+                <a asp-action="HistorialPagos" asp-route-pagina="@(pagina - 1)" asp-route-desde="@(desde?.ToString("yyyy-MM-dd"))" asp-route-hasta="@(hasta?.ToString("yyyy-MM-dd"))" asp-route-metodoPago="@metodoPago" asp-route-pacienteTexto="@pacienteTexto" class="btn btn-sm btn-outline-secondary">Anterior</a>
             }
-        }
-    </tbody>
-</table>
+            <span class="mx-2">Página @pagina de @totalPaginas</span>
+            @if (pagina < totalPaginas)
+            {
+                <a asp-action="HistorialPagos" asp-route-pagina="@(pagina + 1)" asp-route-desde="@(desde?.ToString("yyyy-MM-dd"))" asp-route-hasta="@(hasta?.ToString("yyyy-MM-dd"))" asp-route-metodoPago="@metodoPago" asp-route-pacienteTexto="@pacienteTexto" class="btn btn-sm btn-outline-secondary">Siguiente</a>
+            }
+        </nav>
+    }
+</div>

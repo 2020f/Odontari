@@ -28,6 +28,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<UsuarioVistaPermiso> UsuarioVistaPermisos => Set<UsuarioVistaPermiso>();
     public DbSet<BloqueoVistaClinicaDinamica> BloqueoVistaClinicaDinamicas => Set<BloqueoVistaClinicaDinamica>();
     public DbSet<ArchivoSubido> ArchivosSubidos => Set<ArchivoSubido>();
+    public DbSet<NCFTipo> NCFTipos => Set<NCFTipo>();
+    public DbSet<NCFRango> NCFRangos => Set<NCFRango>();
+    public DbSet<NCFMovimiento> NCFMovimientos => Set<NCFMovimiento>();
+    public DbSet<Factura> Facturas => Set<Factura>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -47,6 +51,15 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         {
             b.Property(c => c.Nombre).HasMaxLength(200);
             b.Property(c => c.Email).HasMaxLength(256);
+            b.Property(c => c.RNC).HasMaxLength(20);
+            b.Property(c => c.RazonSocial).HasMaxLength(300);
+            b.Property(c => c.NombreComercial).HasMaxLength(200);
+            b.Property(c => c.DireccionFiscal).HasMaxLength(500);
+            b.Property(c => c.LogoUrl).HasMaxLength(500);
+            b.Property(c => c.ItbisTasa).HasPrecision(5, 2);
+            b.Property(c => c.MensajeFactura).HasMaxLength(500);
+            b.Property(c => c.CondicionesPago).HasMaxLength(500);
+            b.Property(c => c.NotaLegal).HasMaxLength(1000);
             b.HasOne(c => c.Plan).WithMany(p => p.Clinicas).HasForeignKey(c => c.PlanId);
         });
         builder.Entity<Suscripcion>(b =>
@@ -148,6 +161,49 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             b.HasOne(a => a.Clinica).WithMany(c => c.ArchivosSubidos).HasForeignKey(a => a.ClinicaId).OnDelete(DeleteBehavior.Restrict);
             b.HasOne(a => a.Paciente).WithMany(p => p.ArchivosSubidos).HasForeignKey(a => a.PacienteId).OnDelete(DeleteBehavior.Restrict);
             b.HasOne(a => a.Usuario).WithMany().HasForeignKey(a => a.UsuarioId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<NCFTipo>(b =>
+        {
+            b.Property(t => t.Codigo).HasMaxLength(10);
+            b.Property(t => t.Nombre).HasMaxLength(100);
+            b.Property(t => t.Descripcion).HasMaxLength(200);
+        });
+
+        builder.Entity<NCFRango>(b =>
+        {
+            b.Property(r => r.SeriePrefijo).HasMaxLength(20);
+            b.Property(r => r.Desde).HasMaxLength(50);
+            b.Property(r => r.Hasta).HasMaxLength(50);
+            b.Property(r => r.Fuente).HasMaxLength(20);
+            b.Property(r => r.Nota).HasMaxLength(500);
+            b.HasOne(r => r.Clinica).WithMany(c => c.NCFRangos).HasForeignKey(r => r.ClinicaId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(r => r.NCFTipo).WithMany().HasForeignKey(r => r.NCFTipoId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<NCFMovimiento>(b =>
+        {
+            b.Property(m => m.NCFGenerado).HasMaxLength(50);
+            b.Property(m => m.Motivo).HasMaxLength(500);
+            b.HasOne(m => m.Clinica).WithMany(c => c.NCFMovimientos).HasForeignKey(m => m.ClinicaId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(m => m.NCFTipo).WithMany().HasForeignKey(m => m.NCFTipoId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(m => m.Factura).WithMany(f => f.NCFMovimientos).HasForeignKey(m => m.FacturaId).OnDelete(DeleteBehavior.SetNull);
+            b.HasOne(m => m.Usuario).WithMany().HasForeignKey(m => m.UsuarioId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<Factura>(b =>
+        {
+            b.Property(f => f.NCF).HasMaxLength(50);
+            b.Property(f => f.FormaPago).HasMaxLength(50);
+            b.Property(f => f.Nota).HasMaxLength(500);
+            b.Property(f => f.Subtotal).HasPrecision(18, 2);
+            b.Property(f => f.Itbis).HasPrecision(18, 2);
+            b.Property(f => f.Total).HasPrecision(18, 2);
+            b.HasOne(f => f.Clinica).WithMany(c => c.Facturas).HasForeignKey(f => f.ClinicaId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(f => f.NCFTipo).WithMany().HasForeignKey(f => f.NCFTipoId).OnDelete(DeleteBehavior.SetNull);
+            b.HasOne(f => f.Paciente).WithMany(p => p.Facturas).HasForeignKey(f => f.PacienteId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(f => f.Cita).WithMany(c => c.Facturas).HasForeignKey(f => f.CitaId).OnDelete(DeleteBehavior.SetNull);
+            b.HasOne(f => f.OrdenCobro).WithOne(o => o.Factura).HasForeignKey<Factura>(f => f.OrdenCobroId).OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

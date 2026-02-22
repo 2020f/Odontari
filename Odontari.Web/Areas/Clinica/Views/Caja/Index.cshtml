@@ -9,6 +9,17 @@
         <a asp-action="HistorialPagos" class="btn-content-secondary">Historial de pagos</a>
     </div>
 </div>
+@if (TempData["CajaMsg"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["CajaMsg"]
+        @if (TempData["FacturaId"] is int fid)
+        {
+            <a asp-action="DescargarFacturaPdf" asp-route-id="@fid" class="alert-link ms-2" target="_blank" rel="noopener">Descargar factura (PDF)</a>
+        }
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+}
 <div class="content-card">
     <table class="table">
         <thead>
@@ -18,6 +29,7 @@
                 <th>Pagado</th>
                 <th>Saldo</th>
                 <th>Fecha</th>
+                <th>Factura</th>
                 <th></th>
             </tr>
         </thead>
@@ -30,6 +42,16 @@
                     <td>RD$ @o.MontoPagado.ToString("N2")</td>
                     <td>RD$ @o.SaldoPendiente.ToString("N2")</td>
                     <td>@o.CreadoAt.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        @if (o.FacturaId.HasValue)
+                        {
+                            <a asp-action="DescargarFacturaPdf" asp-route-id="@o.FacturaId" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener">Descargar factura</a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </td>
                     <td><a asp-action="Cobrar" asp-route-id="@o.Id" class="btn btn-primary btn-sm">Cobrar</a></td>
                 </tr>
             }

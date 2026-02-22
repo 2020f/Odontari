@@ -108,6 +108,13 @@
                     <span class="nav-text">Bloqueo de vistas</span>
                 </a>
             }
+            @if (User.IsInRole(OdontariRoles.AdminClinica))
+            {
+                <a asp-area="Clinica" asp-controller="ConfiguracionFactura" asp-action="Index" class="nav-link @(controller == "ConfiguracionFactura" ? "active" : "")" title="Facturación y NCF">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                    <span class="nav-text">Facturación y NCF</span>
+                </a>
+            }
         </nav>
         <div class="clinica-sidebar-user">
             <div class="user-avatar" title="@displayName">@initial</div>

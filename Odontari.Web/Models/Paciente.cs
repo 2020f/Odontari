@@ -26,4 +26,5 @@ public class Paciente
     public ICollection<HistorialClinico> HistorialClinico { get; set; } = new List<HistorialClinico>();
     public HistoriaClinicaSistematica? HistoriaClinicaSistematica { get; set; }
     public ICollection<ArchivoSubido> ArchivosSubidos { get; set; } = new List<ArchivoSubido>();
+    public ICollection<Factura> Facturas { get; set; } = new List<Factura>();
 }

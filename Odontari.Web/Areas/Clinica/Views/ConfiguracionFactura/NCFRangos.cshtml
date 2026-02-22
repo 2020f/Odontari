@@ -1,0 +1,88 @@
+@{
+    ViewData["Title"] = "NCF / Rangos";
+    var rangos = ViewBag.Rangos as List<Odontari.Web.ViewModels.NCFRangoItemViewModel> ?? new List<Odontari.Web.ViewModels.NCFRangoItemViewModel>();
+}
+<div class="content-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="mb-1">Rangos NCF</h1>
+            <p class="text-muted mb-0">Rangos autorizados por DGII. Sin NCF válido la factura no tiene valor fiscal.</p>
+        </div>
+        <a asp-action="CrearRango" class="btn btn-primary">Crear rango</a>
+    </div>
+
+    @if (TempData["ConfigFacturaMsg"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["ConfigFacturaMsg"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+    }
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Desde</th>
+                    <th>Hasta</th>
+                    <th>Próximo</th>
+                    <th>Estado</th>
+                    <th>% consumido</th>
+                    <th>Vencimiento</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (rangos.Count == 0)
+                {
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">No hay rangos configurados. <a asp-action="CrearRango">Crear el primero</a>.</td>
+                    </tr>
+                }
+                @foreach (var r in rangos)
+                {
+                    <tr>
+                        <td><strong>@r.TipoCodigo</strong> — @r.TipoNombre</td>
+                        <td>@r.Desde</td>
+                        <td>@r.Hasta</td>
+                        <td>@r.Proximo</td>
+                        <td>
+                            <span class="badge @(r.Estado == "Activo" ? "bg-success" : r.Estado == "Pausado" ? "bg-secondary" : "bg-warning text-dark")">@r.Estado</span>
+                        </td>
+                        <td>
+                            <div class="progress" style="min-width: 80px; height: 1.2rem;">
+                                <div class="progress-bar @(r.PorcentajeConsumido >= 90 ? "bg-danger" : r.PorcentajeConsumido >= 70 ? "bg-warning" : "bg-success")" role="progressbar" style="width: @(Math.Min(100, r.PorcentajeConsumido))%;">@r.PorcentajeConsumido%</div>
+                            </div>
+                        </td>
+                        <td>@(r.FechaVencimiento?.ToString("dd/MM/yyyy") ?? "—")</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a asp-action="EditarRango" asp-route-id="@r.Id" class="btn btn-outline-secondary">Editar</a>
+                                @if (r.Estado == "Activo")
+                                {
+                                    <form asp-action="PausarRango" asp-route-id="@r.Id" method="post" class="d-inline" onsubmit="return confirm('¿Pausar este rango?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-warning">Pausar</button>
+                                    </form>
+                                }
+                                else if (r.Estado == "Pausado")
+                                {
+                                    <form asp-action="ActivarRango" asp-route-id="@r.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-success">Activar</button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Bitacora" class="btn btn-outline-secondary btn-sm">Ver bitácora NCF</a>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Volver</a>
+    </div>
+</div>
