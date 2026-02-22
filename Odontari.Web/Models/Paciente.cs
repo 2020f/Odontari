@@ -25,4 +25,5 @@ public class Paciente
     public ICollection<Periodontograma> Periodontogramas { get; set; } = new List<Periodontograma>();
     public ICollection<HistorialClinico> HistorialClinico { get; set; } = new List<HistorialClinico>();
     public HistoriaClinicaSistematica? HistoriaClinicaSistematica { get; set; }
+    public ICollection<ArchivoSubido> ArchivosSubidos { get; set; } = new List<ArchivoSubido>();
 }

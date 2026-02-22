@@ -27,6 +27,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<HistoriaClinicaSistematica> HistoriasClinicasSistematicas => Set<HistoriaClinicaSistematica>();
     public DbSet<UsuarioVistaPermiso> UsuarioVistaPermisos => Set<UsuarioVistaPermiso>();
     public DbSet<BloqueoVistaClinicaDinamica> BloqueoVistaClinicaDinamicas => Set<BloqueoVistaClinicaDinamica>();
+    public DbSet<ArchivoSubido> ArchivosSubidos => Set<ArchivoSubido>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -133,6 +134,20 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             b.HasKey(x => new { x.ClinicaId, x.VistaKey });
             b.Property(x => x.VistaKey).HasMaxLength(50);
             b.HasOne(x => x.Clinica).WithMany().HasForeignKey(x => x.ClinicaId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<ArchivoSubido>(b =>
+        {
+            b.Property(a => a.Container).HasMaxLength(200);
+            b.Property(a => a.BlobName).HasMaxLength(500);
+            b.Property(a => a.ContentType).HasMaxLength(200);
+            b.Property(a => a.FileNameOriginal).HasMaxLength(500);
+            b.Property(a => a.Extension).HasMaxLength(20);
+            b.Property(a => a.Estado).HasMaxLength(50);
+            b.Property(a => a.Url).HasMaxLength(1000);
+            b.HasOne(a => a.Clinica).WithMany(c => c.ArchivosSubidos).HasForeignKey(a => a.ClinicaId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(a => a.Paciente).WithMany(p => p.ArchivosSubidos).HasForeignKey(a => a.PacienteId).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(a => a.Usuario).WithMany().HasForeignKey(a => a.UsuarioId).OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

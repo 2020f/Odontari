@@ -1,0 +1,84 @@
+@{
+    var paciente = ViewBag.Paciente as Odontari.Web.Models.Paciente;
+    var pacienteId = (int)ViewBag.PacienteId;
+    var archivos = ViewBag.Archivos as IList<Odontari.Web.ViewModels.ArchivoSubidoItemViewModel> ?? new List<Odontari.Web.ViewModels.ArchivoSubidoItemViewModel>();
+    var citaId = ViewBag.CitaId as int?;
+    ViewData["Title"] = "Archivos - " + (paciente?.Nombre ?? "Paciente");
+}
+
+@await Html.PartialAsync("../Expediente/_ExpedienteMenu")
+
+<div class="expediente-header">
+    <h1 class="expediente-title">Archivos y documentos</h1>
+    <p class="expediente-sub mb-0">@(paciente?.Nombre) @(paciente?.Apellidos) — Subir imágenes (JPEG, PNG, GIF, WebP, BMP) o PDF. Máx. 10 MB por archivo.</p>
+</div>
+
+@if (TempData["MensajeArchivo"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["MensajeArchivo"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+}
+@if (TempData["ErrorArchivo"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorArchivo"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+}
+
+<div class="content-card mb-4">
+    <h2 class="expediente-section-title">Subir archivos</h2>
+    <form asp-action="Subir" asp-route-pacienteId="@pacienteId" asp-route-citaId="@citaId" method="post" enctype="multipart/form-data" class="mb-0">
+        @Html.AntiForgeryToken()
+        <div class="mb-3">
+            <label for="archivos" class="form-label">Seleccione uno o más archivos (imagen o PDF)</label>
+            <input type="file" class="form-control" id="archivos" name="archivos" multiple accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.pdf,image/*,application/pdf" />
+        </div>
+        <button type="submit" class="btn btn-primary">Subir</button>
+    </form>
+</div>
+
+<div class="content-card">
+    <h2 class="expediente-section-title">Archivos disponibles</h2>
+    @if (archivos.Any())
+    {
+        <div class="table-responsive">
+            <table class="table expediente-historial">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th>Tamaño</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in archivos)
+                    {
+                        <tr>
+                            <td>@a.FileNameOriginal</td>
+                            <td>@(a.ContentType.StartsWith("image/") ? "Imagen" : "PDF")</td>
+                            <td>@((a.SizeBytes / 1024.0).ToString("N1")) KB</td>
+                            <td>@a.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                <a asp-action="Ver" asp-route-id="@a.Id" target="_blank" class="btn btn-sm btn-outline-primary me-1">Ver</a>
+                                <a asp-action="Descargar" asp-route-id="@a.Id" class="btn btn-sm btn-outline-secondary me-1">Descargar</a>
+                                <form asp-action="Eliminar" asp-route-id="@a.Id" asp-route-pacienteId="@pacienteId" asp-route-citaId="@citaId" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar este archivo?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <p class="expediente-empty mb-0">No hay archivos subidos para este paciente. Use el formulario de arriba para subir imágenes o PDF.</p>
+    }
+</div>

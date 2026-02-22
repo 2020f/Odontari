@@ -65,6 +65,7 @@ builder.Services.AddScoped<Odontari.Web.Services.ReporteFinancieroExportService>
 builder.Services.AddScoped<Odontari.Web.Services.HistogramaExportService>();
 builder.Services.AddScoped<Odontari.Web.Services.IUsuarioVistasPermisoService, Odontari.Web.Services.UsuarioVistasPermisoService>();
 builder.Services.AddScoped<Odontari.Web.Services.IBloqueoVistaClinicaService, Odontari.Web.Services.BloqueoVistaClinicaService>();
+builder.Services.AddScoped<Odontari.Web.Services.IBlobUploadService, Odontari.Web.Services.BlobUploadService>();
 builder.Services.AddScoped<Odontari.Web.Filters.ValidarVistaPermisoAuthorizationFilter>();
 builder.Services.AddScoped<Odontari.Web.Filters.ValidarAccesoClinicaFilter>();
 var app = builder.Build();

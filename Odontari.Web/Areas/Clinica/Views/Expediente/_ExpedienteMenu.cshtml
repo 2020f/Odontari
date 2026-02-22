@@ -17,11 +17,12 @@
         }
     </div>
     <ul class="nav expediente-tabs" role="tablist">
-        <li class="nav-item"><a class="nav-link @(activa == "resumen" ? "active" : "")" asp-action="Index" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Resumen</a></li>
-        <li class="nav-item"><a class="nav-link @(activa == "histograma" ? "active" : "")" asp-action="Histograma" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Histograma</a></li>
-        <li class="nav-item"><a class="nav-link @(activa == "historial" ? "active" : "")" asp-action="Index" asp-route-id="@pacienteId" asp-route-tab="historial" asp-route-citaId="@citaId">Historial</a></li>
-        <li class="nav-item"><a class="nav-link @(activa == "odontograma" ? "active" : "")" asp-action="Odontograma" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Odontograma</a></li>
-        <li class="nav-item"><a class="nav-link @(activa == "periodontograma" ? "active" : "")" asp-action="Periodontograma" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Periodontograma</a></li>
-        <li class="nav-item"><a class="nav-link @(activa == "hcs" ? "active" : "")" asp-action="HistoriaClinicaSistematica" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Historia Clínica Sistemática</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "resumen" ? "active" : "")" asp-controller="Expediente" asp-action="Index" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Resumen</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "histograma" ? "active" : "")" asp-controller="Expediente" asp-action="Histograma" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Histograma</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "historial" ? "active" : "")" asp-controller="Expediente" asp-action="Index" asp-route-id="@pacienteId" asp-route-tab="historial" asp-route-citaId="@citaId">Historial</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "odontograma" ? "active" : "")" asp-controller="Expediente" asp-action="Odontograma" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Odontograma</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "periodontograma" ? "active" : "")" asp-controller="Expediente" asp-action="Periodontograma" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Periodontograma</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "hcs" ? "active" : "")" asp-controller="Expediente" asp-action="HistoriaClinicaSistematica" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Historia Clínica Sistemática</a></li>
+        <li class="nav-item"><a class="nav-link @(activa == "archivos" ? "active" : "")" asp-controller="SubirArchivos" asp-action="Index" asp-route-id="@pacienteId" asp-route-citaId="@citaId">Archivos</a></li>
     </ul>
 </nav>

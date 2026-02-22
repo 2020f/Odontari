@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Odontari.Web.Data;
 
@@ -11,9 +12,11 @@ using Odontari.Web.Data;
 namespace Odontari.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260221200559_desktop21")]
+    partial class desktop21
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -234,74 +237,6 @@ namespace Odontari.Web.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("Odontari.Web.Models.ArchivoSubido", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BlobName")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("ClinicaId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Container")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Extension")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("FileNameOriginal")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("PacienteId")
-                        .HasColumnType("int");
-
-                    b.Property<long>("SizeBytes")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Url")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("UsuarioId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClinicaId");
-
-                    b.HasIndex("PacienteId");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.ToTable("ArchivosSubidos");
                 });
 
             modelBuilder.Entity("Odontari.Web.Models.AuditLog", b =>
@@ -1001,32 +936,6 @@ namespace Odontari.Web.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Odontari.Web.Models.ArchivoSubido", b =>
-                {
-                    b.HasOne("Odontari.Web.Models.Clinica", "Clinica")
-                        .WithMany("ArchivosSubidos")
-                        .HasForeignKey("ClinicaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Odontari.Web.Models.Paciente", "Paciente")
-                        .WithMany("ArchivosSubidos")
-                        .HasForeignKey("PacienteId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Odontari.Web.Models.ApplicationUser", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Clinica");
-
-                    b.Navigation("Paciente");
-
-                    b.Navigation("Usuario");
-                });
-
             modelBuilder.Entity("Odontari.Web.Models.BloqueoVistaClinicaDinamica", b =>
                 {
                     b.HasOne("Odontari.Web.Models.Clinica", "Clinica")
@@ -1267,8 +1176,6 @@ namespace Odontari.Web.Migrations
 
             modelBuilder.Entity("Odontari.Web.Models.Clinica", b =>
                 {
-                    b.Navigation("ArchivosSubidos");
-
                     b.Navigation("Citas");
 
                     b.Navigation("HistorialClinico");
@@ -1295,8 +1202,6 @@ namespace Odontari.Web.Migrations
 
             modelBuilder.Entity("Odontari.Web.Models.Paciente", b =>
                 {
-                    b.Navigation("ArchivosSubidos");
-
                     b.Navigation("Citas");
 
                     b.Navigation("HistoriaClinicaSistematica");
