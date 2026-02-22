@@ -267,14 +267,15 @@
       if (!pacienteId) return;
       if (obsEl) state.observations = obsEl.value;
       const citaIdEl = document.getElementById('citaIdAt');
-      const citaId = citaIdEl ? parseInt(citaIdEl.value, 10) : 0;
+      const citaIdRaw = citaIdEl ? parseInt(citaIdEl.value, 10) : NaN;
+      const citaId = (typeof citaIdRaw === 'number' && !isNaN(citaIdRaw) && citaIdRaw > 0) ? citaIdRaw : 0;
       const tipoEl = document.getElementById('tipoOdontogramaAt');
       const tipoOdontograma = tipoEl ? parseInt(tipoEl.value, 10) : 1;
       const payload = JSON.stringify({
         PacienteId: pacienteId,
         EstadoJson: JSON.stringify({ teeth: state.teeth, observations: state.observations }),
         TipoOdontograma: tipoOdontograma,
-        CitaId: citaId || null
+        CitaId: citaId > 0 ? citaId : null
       });
       const msg = document.getElementById('guardarMsgAt');
       if (msg) msg.textContent = 'Guardando...';

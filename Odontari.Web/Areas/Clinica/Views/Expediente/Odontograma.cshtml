@@ -4,6 +4,7 @@
     var pacienteId = paciente?.Id ?? 0;
     var esInfantil = ViewBag.EsInfantil as bool? ?? false;
     var tipoOdontograma = ViewBag.TipoOdontograma as int? ?? 0;
+    var citaId = ViewBag.CitaId as int?;
     ViewData["Title"] = (esInfantil ? "Odontograma infantil" : "Odontograma") + " - " + (paciente?.Nombre ?? "");
 }
 @section Styles {
@@ -128,6 +129,10 @@
 <input type="hidden" id="pacienteId" value="@pacienteId" />
 <input type="hidden" id="estadoInicial" value="@Html.Raw(estadoJson)" />
 <input type="hidden" id="tipoOdontograma" value="@tipoOdontograma" />
+@if (citaId.HasValue)
+{
+<input type="hidden" id="citaId" value="@citaId.Value" />
+}
 
 @section Scripts {
     @if (esInfantil)

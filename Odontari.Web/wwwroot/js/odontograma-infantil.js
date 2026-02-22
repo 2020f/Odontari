@@ -276,12 +276,16 @@
   document.getElementById('btnGuardar')?.addEventListener('click', () => {
     const pacienteId = parseInt(document.getElementById('pacienteId')?.value || '0', 10);
     const tipoOdontograma = parseInt(document.getElementById('tipoOdontograma')?.value || '1', 10);
-    if (!pacienteId) return;
+    if (!pacienteId || isNaN(pacienteId)) return;
     if (obsEl) state.observations = obsEl.value;
+    const citaIdEl = document.getElementById('citaId');
+    const citaIdRaw = citaIdEl && citaIdEl.value ? parseInt(citaIdEl.value, 10) : NaN;
+    const citaId = (typeof citaIdRaw === 'number' && !isNaN(citaIdRaw) && citaIdRaw > 0) ? citaIdRaw : null;
     const payload = JSON.stringify({
       PacienteId: pacienteId,
       EstadoJson: JSON.stringify({ teeth: state.teeth, observations: state.observations }),
-      TipoOdontograma: tipoOdontograma
+      TipoOdontograma: tipoOdontograma,
+      CitaId: citaId
     });
     const msg = document.getElementById('guardarMsg');
     if (msg) msg.textContent = 'Guardando...';
@@ -292,9 +296,10 @@
     })
       .then(r => {
         if (msg) msg.textContent = r.ok ? 'Guardado.' : (r.status === 400 ? 'Paciente no infantil.' : 'Error al guardar.');
+        if (r.ok && citaId) window.location.reload();
       })
       .catch(() => { if (msg) msg.textContent = 'Error de conexión.'; })
-      .finally(() => { setTimeout(() => { if (msg) msg.textContent = ''; }, 3000); });
+      .finally(() => { if (!citaId) setTimeout(() => { if (msg) msg.textContent = ''; }, 3000); });
   });
 
   const origRender = render;

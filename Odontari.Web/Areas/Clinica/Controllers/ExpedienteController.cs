@@ -590,6 +590,14 @@ public class ExpedienteController : Controller
         return Ok();
     }
 
+    /// <summary>Obtiene un int desde JsonElement (el cliente puede enviar número o string).</summary>
+    private static int? GetIntFromJsonElement(JsonElement v)
+    {
+        if (v.ValueKind == JsonValueKind.Number && v.TryGetInt32(out var n)) return n;
+        if (v.ValueKind == JsonValueKind.String && v.GetString() is string s && int.TryParse(s, out var parsed)) return parsed;
+        return null;
+    }
+
     /// <summary>Extrae lista de hallazgos por diente del JSON del periodontograma (para historial, como en odontograma).</summary>
     private static List<string> GetListaHallazgosFromPeriodontogramaJson(string? estadoJson)
     {
@@ -660,8 +668,9 @@ public class ExpedienteController : Controller
                         foreach (var site in new[] { "M", "C", "D" })
                         {
                             if (!sV.TryGetProperty(site, out var v)) continue;
-                            if (v.GetString() is string vs && int.TryParse(vs, out var n) && n >= 4)
-                                sitios.Add(site + ":" + n + "mm");
+                            var n = GetIntFromJsonElement(v);
+                            if (n.HasValue && n.Value >= 4)
+                                sitios.Add(site + ":" + n.Value + "mm");
                         }
                         if (sitios.Count > 0)
                             lista.Add("Diente " + numDiente + " (V): Prof. sondaje " + string.Join(" ", sitios));
@@ -672,8 +681,9 @@ public class ExpedienteController : Controller
                         foreach (var site in new[] { "M", "C", "D" })
                         {
                             if (!sP.TryGetProperty(site, out var v)) continue;
-                            if (v.GetString() is string vs && int.TryParse(vs, out var n) && n >= 4)
-                                sitios.Add(site + ":" + n + "mm");
+                            var n = GetIntFromJsonElement(v);
+                            if (n.HasValue && n.Value >= 4)
+                                sitios.Add(site + ":" + n.Value + "mm");
                         }
                         if (sitios.Count > 0)
                             lista.Add("Diente " + numDiente + " (P/L): Prof. sondaje " + string.Join(" ", sitios));
@@ -684,8 +694,9 @@ public class ExpedienteController : Controller
                         foreach (var site in new[] { "M", "C", "D" })
                         {
                             if (!mV.TryGetProperty(site, out var v)) continue;
-                            if (v.GetString() is string vs && int.TryParse(vs, out var n) && n < 0)
-                                lista.Add("Diente " + numDiente + " (V): Recesión " + site + " " + n + "mm");
+                            var n = GetIntFromJsonElement(v);
+                            if (n.HasValue && n.Value < 0)
+                                lista.Add("Diente " + numDiente + " (V): Recesión " + site + " " + n.Value + "mm");
                         }
                     }
                     if (t.TryGetProperty("margenPalatal", out var mP))
@@ -693,8 +704,9 @@ public class ExpedienteController : Controller
                         foreach (var site in new[] { "M", "C", "D" })
                         {
                             if (!mP.TryGetProperty(site, out var v)) continue;
-                            if (v.GetString() is string vs && int.TryParse(vs, out var n) && n < 0)
-                                lista.Add("Diente " + numDiente + " (P/L): Recesión " + site + " " + n + "mm");
+                            var n = GetIntFromJsonElement(v);
+                            if (n.HasValue && n.Value < 0)
+                                lista.Add("Diente " + numDiente + " (P/L): Recesión " + site + " " + n.Value + "mm");
                         }
                     }
                 }
@@ -746,10 +758,10 @@ public class ExpedienteController : Controller
                         foreach (var site in new[] { "M", "C", "D" })
                         {
                             if (!sond.TryGetProperty(site, out var v)) continue;
-                            var str = v.GetString();
-                            if (string.IsNullOrEmpty(str) || !int.TryParse(str, out var num)) continue;
-                            if (num >= 6) bolsillos6++;
-                            if (num >= 4) bolsillos4++;
+                            var num = GetIntFromJsonElement(v);
+                            if (!num.HasValue) continue;
+                            if (num.Value >= 6) bolsillos6++;
+                            if (num.Value >= 4) bolsillos4++;
                         }
                     }
                 }

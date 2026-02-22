@@ -421,13 +421,17 @@
   function saveToServer() {
     var pacienteIdEl = byId('pacienteIdPeriodonto');
     if (!pacienteIdEl || !pacienteIdEl.value) return;
+    var pacienteIdRaw = parseInt(pacienteIdEl.value, 10);
+    if (isNaN(pacienteIdRaw) || pacienteIdRaw <= 0) return;
     var msg = byId('guardarMsg');
     if (msg) msg.textContent = 'Guardando...';
     var citaIdEl = byId('citaIdPeriodonto');
+    var citaIdRaw = citaIdEl && citaIdEl.value ? parseInt(citaIdEl.value, 10) : NaN;
+    var citaId = (typeof citaIdRaw === 'number' && !isNaN(citaIdRaw) && citaIdRaw > 0) ? citaIdRaw : null;
     var payload = {
-      PacienteId: parseInt(pacienteIdEl.value, 10),
+      PacienteId: pacienteIdRaw,
       EstadoJson: JSON.stringify({ superior: state.superior, inferior: state.inferior }),
-      CitaId: citaIdEl && citaIdEl.value ? parseInt(citaIdEl.value, 10) : null
+      CitaId: citaId
     };
     fetch('/Clinica/Expediente/GuardarPeriodontograma', {
       method: 'POST',
