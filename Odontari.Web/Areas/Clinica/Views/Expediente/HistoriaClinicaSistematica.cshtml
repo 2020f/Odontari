@@ -11,8 +11,9 @@
     <p class="expediente-sub mb-0"><strong>Paciente:</strong> @paciente?.Nombre @paciente?.Apellidos</p>
 </div>
 
-<form asp-action="HistoriaClinicaSistematica" asp-route-id="@Model.PacienteId" method="post">
+<form asp-action="HistoriaClinicaSistematica" asp-route-id="@Model.PacienteId" asp-route-citaId="@Model.CitaId" method="post">
     <input type="hidden" asp-for="PacienteId" />
+    <input type="hidden" asp-for="CitaId" />
     @Html.AntiForgeryToken()
 
     <div class="row">
@@ -109,5 +110,5 @@
     </div>
 
     <button type="submit" class="btn btn-primary">Guardar</button>
-    <a asp-action="Index" asp-route-id="@Model.PacienteId" class="btn btn-outline-secondary">Cancelar</a>
+    <a asp-action="Index" asp-route-id="@Model.PacienteId" asp-route-citaId="@Model.CitaId" class="btn btn-outline-secondary">Cancelar</a>
 </form>

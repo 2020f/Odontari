@@ -48,6 +48,10 @@ public class ValidarVistaPermisoAuthorizationFilter : IAsyncAuthorizationFilter
              string.Equals(action, "VistaNoPermitida", StringComparison.OrdinalIgnoreCase)))
             return;
 
+        // Subir archivo (Archivos en expediente): siempre permitido; no aplica bloqueo por clínica ni por usuario.
+        if (string.Equals(controller, "SubirArchivos", StringComparison.OrdinalIgnoreCase))
+            return;
+
         if (context.HttpContext.User?.IsInRole(OdontariRoles.SuperAdmin) == true)
             return;
         if (context.HttpContext.User?.IsInRole(OdontariRoles.AdminClinica) == true)

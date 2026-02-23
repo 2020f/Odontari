@@ -841,6 +841,7 @@ public class ExpedienteController : Controller
             .FirstOrDefaultAsync(h => h.PacienteId == id && h.ClinicaId == cid);
 
         var vm = hcs != null ? HistoriaClinicaSistematicaViewModel.FromEntity(hcs) : new HistoriaClinicaSistematicaViewModel { PacienteId = id };
+        vm.CitaId = citaId;
         ViewBag.Paciente = paciente;
         ViewBag.PacienteIdExpediente = id;
         ViewBag.SeccionActivaExpediente = "hcs";
@@ -888,6 +889,6 @@ public class ExpedienteController : Controller
         await _db.SaveChangesAsync();
 
         ViewBag.Paciente = paciente;
-        return RedirectToAction(nameof(HistoriaClinicaSistematica), new { id });
+        return RedirectToAction(nameof(HistoriaClinicaSistematica), new { id, citaId = vm.CitaId });
     }
 }

@@ -6,6 +6,9 @@ public class HistoriaClinicaSistematicaViewModel
 {
     public int PacienteId { get; set; }
 
+    /// <summary>Cuando viene de Atención (procedimientos), se conserva para el redirect tras guardar y mostrar "Ir a Procedimientos".</summary>
+    public int? CitaId { get; set; }
+
     // 1-2 Alergias
     public bool? AlergiasMedicamentos { get; set; }
     public string? AlergiasCuales { get; set; }

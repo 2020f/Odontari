@@ -13,7 +13,7 @@ public static class VistasClinica
         ("Atencion", "Mis citas")
     };
 
-    /// <summary>Operaciones, cobros y reportes (vistas que suelen limitarse: Reportes, Cobros/Caja, Tratamientos, Expediente).</summary>
+    /// <summary>Operaciones, cobros y reportes (vistas que suelen limitarse: Reportes, Cobros/Caja, Tratamientos, Expediente). Subir archivo no se bloquea; siempre visible en expediente.</summary>
     public static readonly IReadOnlyList<(string Key, string Nombre)> OperacionesYReportes = new[]
     {
         ("Tratamientos", "Tratamientos"),
