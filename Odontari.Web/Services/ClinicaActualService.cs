@@ -25,7 +25,9 @@ public class ClinicaActualService : IClinicaActualService
 
     public async Task<int?> GetClinicaIdActualAsync()
     {
-        var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext?.User == null) return null;
+        var user = await _userManager.GetUserAsync(httpContext.User);
         return user?.ClinicaId;
     }
 }
