@@ -133,21 +133,22 @@
 }
 
 .reportes-kpi-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: #5a6c7d;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: rgba(0,29,57,0.42);
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.08em;
 }
 
 .reportes-kpi-value {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--odon);
+  letter-spacing: -0.02em;
 }
-.reportes-kpi-value.reportes-kpi-success { color: #0d6b2c; }
-.reportes-kpi-value.reportes-kpi-warning { color: #b8860b; }
-.reportes-kpi-value.reportes-kpi-danger { color: #c92a2a; }
+.reportes-kpi-value.reportes-kpi-success { color: #1e7a35; }
+.reportes-kpi-value.reportes-kpi-warning { color: #a07010; }
+.reportes-kpi-value.reportes-kpi-danger { color: #a52020; }
 
 /* Secciones */
 .reportes-section {
@@ -155,12 +156,14 @@
 }
 
 .reportes-section-title {
-  font-size: 1.15rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: var(--odon);
+  color: rgba(0,29,57,0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--odon-accent);
+  border-bottom: 1px solid rgba(0,29,57,0.08);
 }
 
 .reportes-card {
@@ -186,10 +189,12 @@
   font-size: 0.875rem;
 }
 .reportes-table th {
-  font-weight: 600;
-  color: #5a6c7d;
-  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(0,29,57,0.42);
+  font-size: 0.68rem;
   text-transform: uppercase;
+  letter-spacing: 0.07em;
+  background: #fafbfc;
 }
 
 /* Citas operativo */

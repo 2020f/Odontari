@@ -6,21 +6,23 @@
   --odon-accent: #4E8EA2;
   --odon-accent-light: #6EA2B3;
   --odon-bg-light: #7BBDE8;
-  --odon-bg-page: #ffffff;
-  --odon-sidebar-width: 56px;
-  --odon-sidebar-expanded: 220px;
-  --odon-transition: 0.2s ease;
+  --odon-bg-page: #f4f7fa;
+  --odon-pale: #BDD8E9;
+  --odon-sidebar-width: 60px;
+  --odon-sidebar-expanded: 232px;
+  --odon-transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body.clinica-layout {
   margin: 0;
   min-height: 100vh;
   display: flex;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: 'DM Sans', system-ui, -apple-system, "Segoe UI", sans-serif;
   background: var(--odon-bg-page);
+  color: #1a2e3f;
 }
 
-/* Sidebar */
+/* ─── Sidebar ────────────────────────────────────────────────── */
 .clinica-sidebar {
   position: fixed;
   left: 0;
@@ -34,34 +36,50 @@ body.clinica-layout {
   z-index: 1030;
   transition: width var(--odon-transition);
   overflow: hidden;
-  box-shadow: 2px 0 12px rgba(0,0,0,0.15);
+  /* Subtle depth shadow */
+  box-shadow: 1px 0 0 rgba(255,255,255,0.04), 4px 0 24px rgba(0,0,0,0.18);
 }
 
 .clinica-sidebar:hover {
   width: var(--odon-sidebar-expanded);
 }
 
+/* Brand */
 .clinica-sidebar .sidebar-brand {
   flex-shrink: 0;
-  height: 52px;
-  padding: 0 14px;
+  height: 56px;
+  padding: 0 18px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  gap: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  position: relative;
+}
+
+.clinica-sidebar .sidebar-brand::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 18px;
+  right: 18px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--odon-accent) 0%, transparent 100%);
+  opacity: 0.4;
 }
 
 .clinica-sidebar .sidebar-brand-icon {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
-  opacity: 0.95;
+  color: var(--odon-accent-light);
 }
 
 .clinica-sidebar .sidebar-brand-text {
   white-space: nowrap;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  color: #fff;
   opacity: 0;
   transition: opacity var(--odon-transition);
 }
@@ -70,79 +88,114 @@ body.clinica-layout {
   opacity: 1;
 }
 
+/* Nav container */
 .clinica-sidebar-nav {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 8px 0;
+  padding: 10px 0 6px;
+  scrollbar-width: none;
+}
+.clinica-sidebar-nav::-webkit-scrollbar { display: none; }
+
+/* Nav section label */
+.clinica-sidebar-nav .nav-section-label {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.28);
+  padding: 14px 20px 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity var(--odon-transition);
+  pointer-events: none;
+  user-select: none;
+}
+.clinica-sidebar:hover .nav-section-label { opacity: 1; }
+
+.clinica-sidebar-nav .nav-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: 6px 14px;
 }
 
+/* Nav items */
 .clinica-sidebar-nav .nav-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  color: rgba(255,255,255,0.85);
+  gap: 14px;
+  padding: 10px 18px;
+  color: rgba(255,255,255,0.72);
   text-decoration: none;
-  border-left: 3px solid transparent;
+  position: relative;
+  border-left: 2px solid transparent;
   transition: background var(--odon-transition), color var(--odon-transition), border-color var(--odon-transition);
+  margin: 1px 0;
 }
 
 .clinica-sidebar-nav .nav-link:hover {
-  background: var(--odon-nav-hover);
-  color: #fff;
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.95);
 }
 
 .clinica-sidebar-nav .nav-link.active {
-  background: var(--odon-nav-active);
+  background: rgba(78,142,162,0.18);
   color: #fff;
-  border-left-color: var(--odon-bg-light);
+  border-left-color: var(--odon-accent-light);
+}
+
+.clinica-sidebar-nav .nav-link.active .nav-icon {
+  color: var(--odon-accent-light);
 }
 
 .clinica-sidebar-nav .nav-link .nav-icon {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
-  opacity: 0.9;
+  transition: color var(--odon-transition);
 }
 
 .clinica-sidebar-nav .nav-link .nav-text {
   white-space: nowrap;
+  font-size: 0.875rem;
+  font-weight: 500;
   opacity: 0;
   transition: opacity var(--odon-transition);
+  letter-spacing: 0.01em;
 }
 
 .clinica-sidebar:hover .nav-link .nav-text {
   opacity: 1;
 }
 
-.clinica-sidebar-nav .nav-link[title] {
-  cursor: pointer;
-}
-
-/* Zona usuario (inferior) */
+/* ─── Zona usuario (inferior) ────────────────────────────────── */
 .clinica-sidebar-user {
   flex-shrink: 0;
-  border-top: 1px solid rgba(255,255,255,0.08);
-  padding: 10px 10px 12px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding: 12px 12px 14px;
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 56px;
+  min-height: 60px;
 }
 
 .clinica-sidebar-user .user-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--odon-accent);
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--odon-accent) 0%, var(--odon-nav-active) 100%);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: 700;
+  font-size: 0.8rem;
   flex-shrink: 0;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .clinica-sidebar-user .user-info {
@@ -159,7 +212,7 @@ body.clinica-layout {
 .clinica-sidebar-user .user-name {
   display: block;
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -168,41 +221,46 @@ body.clinica-layout {
 
 .clinica-sidebar-user .user-role {
   display: block;
-  font-size: 0.7rem;
-  color: rgba(255,255,255,0.65);
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.03em;
+  margin-top: 1px;
 }
 
 .clinica-sidebar-user .user-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
 }
 
 .clinica-sidebar-user .btn-logout {
-  padding: 6px 10px;
-  color: rgba(255,255,255,0.9);
+  padding: 6px 8px;
+  color: rgba(255,255,255,0.5);
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.25);
+  border: none;
   border-radius: 6px;
   font-size: 0.75rem;
   text-decoration: none;
-  transition: background var(--odon-transition), color var(--odon-transition);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: color var(--odon-transition), background var(--odon-transition);
 }
 
 .clinica-sidebar-user .btn-logout:hover {
-  background: rgba(255,255,255,0.15);
-  color: #fff;
-}
-
-.clinica-sidebar:hover .clinica-sidebar-user .btn-logout .btn-logout-text {
-  display: inline;
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.9);
 }
 
 .clinica-sidebar .btn-logout .btn-logout-text {
   display: none;
 }
 
-/* Contenido principal */
+.clinica-sidebar:hover .clinica-sidebar-user .btn-logout .btn-logout-text {
+  display: inline;
+}
+
+/* ─── Contenido principal ────────────────────────────────────── */
 .clinica-main {
   flex: 1;
   margin-left: var(--odon-sidebar-width);
@@ -218,31 +276,37 @@ body.clinica-layout {
 
 .clinica-main-header {
   flex-shrink: 0;
-  padding: 14px 24px;
+  padding: 0 28px;
+  height: 52px;
   background: #fff;
-  border-bottom: 1px solid rgba(0,29,57,0.08);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  border-bottom: 1px solid rgba(0,29,57,0.07);
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .clinica-main-header h1 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: var(--odon-nav);
-  letter-spacing: 0.01em;
+  color: rgba(0,29,57,0.55);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .clinica-main-content {
   flex: 1;
-  padding: 20px 24px;
+  padding: 24px 28px;
   overflow: auto;
 }
 
 /* Cards y contenido dentro del área clínica */
 .clinica-main-content .card {
-  border: 1px solid rgba(0,29,57,0.08);
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,29,57,0.07);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 4px 12px rgba(0,29,57,0.04);
 }
 
 .clinica-main-content .btn-primary {
@@ -256,5 +320,5 @@ body.clinica-layout {
 }
 
 .clinica-main-content .table {
-  --bs-table-border-color: rgba(0,29,57,0.08);
+  --bs-table-border-color: rgba(0,29,57,0.07);
 }
