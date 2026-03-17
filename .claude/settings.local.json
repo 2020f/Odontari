@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/srSkimberlyn/source/repos/Odontari/Odontari.Web/Models/Enums/**)",
+      "Bash(done)",
+      "Bash(dotnet sln:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__list_pages",
+      "mcp__chrome-devtools__take_snapshot",
+      "Bash(taskkill //F //IM chrome.exe 2>&1; sleep 2; echo \"done\")",
+      "Bash(powershell -Command \"Get-Process chrome -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep 2; Write-Host done\")",
+      "Bash(sleep 10 && curl -k -s -o /dev/null -w \"%{http_code}\" https://localhost:7182/ 2>&1)",
+      "Bash(curl -k -s -o /dev/null -w \"%{http_code}\" https://localhost:7182/ 2>&1)",
+      "Bash(netstat -ano | grep \"7182\\\\|5019\" 2>&1 || powershell -Command \"netstat -ano | Select-String '7182|5019'\")",
+      "Bash(powershell -Command \"Stop-Process -Id 37808 -Force -ErrorAction SilentlyContinue; Start-Sleep 1; Write-Host 'killed'\")",
+      "mcp__chrome-devtools__fill",
+      "mcp__chrome-devtools__click",
+      "mcp__chrome-devtools__evaluate_script",
+      "mcp__chrome-devtools__take_screenshot",
+      "Bash(powershell -Command \"Stop-Process -Id 22960 -Force -ErrorAction SilentlyContinue; Write-Host 'killed'\")"
+    ]
+  }
+}

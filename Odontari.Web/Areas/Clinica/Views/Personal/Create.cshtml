@@ -4,58 +4,84 @@
     var roles = ViewBag.RolesPersonal as string[] ?? Array.Empty<string>();
 }
 
-<h1>Crear usuario (Doctores y Personal)</h1>
-<div asp-validation-summary="All" class="text-danger"></div>
-<form asp-area="Clinica" asp-controller="Personal" asp-action="Create" method="post">
-    <div class="form-group mb-2">
-        <label asp-for="NombreCompleto"></label>
-        <input asp-for="NombreCompleto" class="form-control" />
-        <span asp-validation-for="NombreCompleto" class="text-danger"></span>
+<div class="odon-form-page">
+    <div class="odon-form-header">
+        <h1 class="odon-form-title">Nuevo usuario</h1>
+        <a asp-area="Clinica" asp-controller="Personal" asp-action="Index" class="odon-form-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            Volver
+        </a>
     </div>
-    <div class="form-group mb-2">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" type="email" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-    <div class="form-group mb-2">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" class="form-control" type="password" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-    <div class="form-group mb-2">
-        <label asp-for="Rol"></label>
-        <select asp-for="Rol" class="form-select">
-            <option value="">-- Seleccione rol --</option>
-            @foreach (var r in roles)
-            {
-                <option value="@r">@r</option>
-            }
-        </select>
-        <span asp-validation-for="Rol" class="text-danger"></span>
-    </div>
-    <div class="form-group mb-2" id="horarioLaboralGroup">
-        <label class="form-label">Horario laboral (solo doctores)</label>
-        <div class="row g-2">
-            <div class="col-md-3">
-                <label asp-for="HoraEntrada" class="form-label small">Hora de entrada</label>
-                <input asp-for="HoraEntrada" class="form-control" type="time" />
+
+    <div class="odon-form-card">
+        <form asp-area="Clinica" asp-controller="Personal" asp-action="Create" method="post">
+            <div class="odon-form-body">
+
+                <p class="odon-section-label">Acceso y rol</p>
+
+                <div class="odon-form-field">
+                    <label asp-for="NombreCompleto" class="odon-label"></label>
+                    <input asp-for="NombreCompleto" class="odon-input" placeholder="Nombre completo" />
+                    <span asp-validation-for="NombreCompleto" class="odon-error-msg"></span>
+                </div>
+
+                <div class="odon-form-row">
+                    <div class="odon-form-field">
+                        <label asp-for="Email" class="odon-label"></label>
+                        <input asp-for="Email" class="odon-input" type="email" placeholder="usuario@clinica.com" />
+                        <span asp-validation-for="Email" class="odon-error-msg"></span>
+                    </div>
+                    <div class="odon-form-field">
+                        <label asp-for="Password" class="odon-label"></label>
+                        <input asp-for="Password" class="odon-input" type="password" placeholder="Contraseña segura" />
+                        <span asp-validation-for="Password" class="odon-error-msg"></span>
+                    </div>
+                </div>
+
+                <div class="odon-form-field">
+                    <label asp-for="Rol" class="odon-label"></label>
+                    <select asp-for="Rol" class="odon-select">
+                        <option value="">— Seleccione rol —</option>
+                        @foreach (var r in roles)
+                        {
+                            <option value="@r">@r</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Rol" class="odon-error-msg"></span>
+                </div>
+
+                <div class="odon-form-divider"></div>
+
+                <p class="odon-section-label">Horario laboral <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.78rem;color:rgba(0,29,57,0.38)">(solo doctores)</span></p>
+
+                <div class="odon-form-row" id="horarioLaboralGroup">
+                    <div class="odon-form-field">
+                        <label asp-for="HoraEntrada" class="odon-label">Hora de entrada</label>
+                        <input asp-for="HoraEntrada" class="odon-input" type="time" />
+                    </div>
+                    <div class="odon-form-field">
+                        <label asp-for="HoraSalida" class="odon-label">Hora de salida</label>
+                        <input asp-for="HoraSalida" class="odon-input" type="time" />
+                    </div>
+                </div>
+                <span class="odon-hint" style="display:block;margin-top:-0.5rem;margin-bottom:1rem;">Ej. 08:00 a 17:00. Se usa en el dashboard para saber cuándo el doctor está disponible.</span>
+
+                <label class="odon-check-row">
+                    <input asp-for="Activo" class="odon-check-input" />
+                    <span class="odon-check-label">Usuario activo</span>
+                </label>
+
             </div>
-            <div class="col-md-3">
-                <label asp-for="HoraSalida" class="form-label small">Hora de salida</label>
-                <input asp-for="HoraSalida" class="form-control" type="time" />
+            <div class="odon-form-footer">
+                <button type="submit" class="odon-btn odon-btn-primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                    Crear usuario
+                </button>
+                <a asp-area="Clinica" asp-controller="Personal" asp-action="Index" class="odon-btn odon-btn-secondary">Cancelar</a>
             </div>
-        </div>
-        <span class="form-text">Ej. 08:00 AM a 05:00 PM. Se usará en el dashboard para saber cuándo el doctor está en servicio.</span>
+        </form>
     </div>
-    <div class="form-group mb-2">
-        <div class="form-check">
-            <input asp-for="Activo" class="form-check-input" />
-            <label asp-for="Activo" class="form-check-label"></label>
-        </div>
-    </div>
-    <button type="submit" class="btn btn-primary">Crear</button>
-    <a asp-area="Clinica" asp-controller="Personal" asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

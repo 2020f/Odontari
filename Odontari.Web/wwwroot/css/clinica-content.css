@@ -164,6 +164,183 @@
   font-size: 0.9rem;
 }
 
+/* ─── Status Badges ──────────────────────────────────────────── */
+.odon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.71rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.odon-badge::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.odon-badge-active {
+  background: rgba(34,197,94,0.10);
+  color: #15803d;
+  border: 1px solid rgba(34,197,94,0.22);
+}
+
+.odon-badge-active::before {
+  background: #22c55e;
+}
+
+.odon-badge-inactive {
+  background: rgba(0,29,57,0.05);
+  color: #8a9ba8;
+  border: 1px solid rgba(0,29,57,0.10);
+}
+
+.odon-badge-inactive::before {
+  background: #94a3b8;
+}
+
+/* ─── Search bar ─────────────────────────────────────────────── */
+.clinica-content .search-bar {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.clinica-content .search-input {
+  flex: 1;
+  min-width: 200px;
+  max-width: 320px;
+  padding: 0.56rem 0.9rem;
+  font-size: 0.875rem;
+  border: 1.5px solid rgba(0,29,57,0.11);
+  border-radius: 9px;
+  background: #fff;
+  color: #1a2e3f;
+  font-family: inherit;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.clinica-content .search-input:focus {
+  outline: none;
+  border-color: #4E8EA2;
+  box-shadow: 0 0 0 3px rgba(78,142,162,0.13);
+}
+
+.clinica-content .search-input::placeholder {
+  color: rgba(0,29,57,0.28);
+}
+
+.clinica-content .btn-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.56rem 1.1rem;
+  border-radius: 9px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: inherit;
+  background: #4E8EA2;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s, transform 0.1s;
+  box-shadow: 0 1px 4px rgba(78,142,162,0.25);
+}
+
+.clinica-content .btn-search:hover {
+  background: #3d7b8e;
+  box-shadow: 0 3px 10px rgba(78,142,162,0.35);
+  transform: translateY(-1px);
+}
+
+/* ─── Table action chips ─────────────────────────────────────── */
+.tbl-actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.tbl-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0.24rem 0.62rem;
+  border-radius: 6px;
+  font-size: 0.77rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.tbl-action-edit {
+  color: #4E8EA2;
+  background: rgba(78,142,162,0.08);
+  border-color: rgba(78,142,162,0.18);
+}
+
+.tbl-action-edit:hover {
+  background: rgba(78,142,162,0.16);
+  color: #3d7b8e;
+}
+
+.tbl-action-view {
+  color: #49769F;
+  background: rgba(73,118,159,0.08);
+  border-color: rgba(73,118,159,0.18);
+}
+
+.tbl-action-view:hover {
+  background: rgba(73,118,159,0.15);
+  color: #001D39;
+}
+
+.tbl-action-toggle {
+  font-family: inherit;
+  cursor: pointer;
+  background: transparent;
+  font-size: 0.77rem;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.24rem 0.62rem;
+  border: 1px solid transparent;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.tbl-action-toggle-on {
+  color: #15803d;
+  background: rgba(34,197,94,0.07);
+  border-color: rgba(34,197,94,0.18);
+}
+
+.tbl-action-toggle-on:hover {
+  background: rgba(34,197,94,0.14);
+}
+
+.tbl-action-toggle-off {
+  color: #6b8296;
+  background: rgba(0,29,57,0.05);
+  border-color: rgba(0,29,57,0.12);
+}
+
+.tbl-action-toggle-off:hover {
+  background: rgba(0,29,57,0.10);
+  color: #1a2e3f;
+}
+
 /* ─── Expediente ─────────────────────────────────────────────── */
 .expediente-header {
   margin-bottom: 1.5rem;

@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Odontari.Web", "Odontari.Web\Odontari.Web.csproj", "{ED5C573A-A8B2-49AA-9890-24BA09BB1E56}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Odontari.Tests", "Odontari.Tests\Odontari.Tests.csproj", "{958241EB-5137-4635-9151-2EDAB20CE318}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,18 @@ Global
 		{ED5C573A-A8B2-49AA-9890-24BA09BB1E56}.Release|x64.Build.0 = Release|Any CPU
 		{ED5C573A-A8B2-49AA-9890-24BA09BB1E56}.Release|x86.ActiveCfg = Release|Any CPU
 		{ED5C573A-A8B2-49AA-9890-24BA09BB1E56}.Release|x86.Build.0 = Release|Any CPU
+		{958241EB-5137-4635-9151-2EDAB20CE318}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{958241EB-5137-4635-9151-2EDAB20CE318}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{958241EB-5137-4635-9151-2EDAB20CE318}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{958241EB-5137-4635-9151-2EDAB20CE318}.Debug|x64.Build.0 = Debug|Any CPU
+		{958241EB-5137-4635-9151-2EDAB20CE318}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{958241EB-5137-4635-9151-2EDAB20CE318}.Debug|x86.Build.0 = Debug|Any CPU
+		{958241EB-5137-4635-9151-2EDAB20CE318}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{958241EB-5137-4635-9151-2EDAB20CE318}.Release|Any CPU.Build.0 = Release|Any CPU
+		{958241EB-5137-4635-9151-2EDAB20CE318}.Release|x64.ActiveCfg = Release|Any CPU
+		{958241EB-5137-4635-9151-2EDAB20CE318}.Release|x64.Build.0 = Release|Any CPU
+		{958241EB-5137-4635-9151-2EDAB20CE318}.Release|x86.ActiveCfg = Release|Any CPU
+		{958241EB-5137-4635-9151-2EDAB20CE318}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

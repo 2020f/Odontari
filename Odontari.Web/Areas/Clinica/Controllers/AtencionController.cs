@@ -26,6 +26,10 @@ public class AtencionController : Controller
     private int? ClinicaId => _clinicaActual.GetClinicaIdActual();
     private string? UserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+    // AdminClinica puede ver y operar cualquier cita de la clínica.
+    // Doctor solo puede operar sus propias citas.
+    private bool EsDoctor => User.IsInRole(OdontariRoles.Doctor) && !User.IsInRole(OdontariRoles.AdminClinica);
+
     /// <summary>Mis citas del día (para el doctor actual).</summary>
     public async Task<IActionResult> Index(DateTime? fecha)
     {
@@ -51,14 +55,19 @@ public class AtencionController : Controller
     {
         var cid = ClinicaId;
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
+        var uid = UserId;
+        if (uid == null) return Unauthorized();
+
         var cita = await _db.Citas
             .Include(c => c.Paciente)
             .Include(c => c.ProcedimientosRealizados).ThenInclude(pr => pr.Tratamiento)
-            .FirstOrDefaultAsync(c => c.ClinicaId == cid && c.Id == id);
+            .FirstOrDefaultAsync(c => c.ClinicaId == cid && c.Id == id
+                                      && (!EsDoctor || c.DoctorId == uid));
         if (cita == null) return NotFound();
+
         ViewBag.Tratamientos = await _db.Tratamientos.Where(t => t.ClinicaId == cid && t.Activo).OrderBy(t => t.Nombre).ToListAsync();
 
-        // Odontograma (adulto o infantil según edad del paciente; mismo criterio que ExpedienteController)
+        // Odontograma (adulto o infantil según edad del paciente)
         var pacienteId = cita.PacienteId;
         var paciente = cita.Paciente;
         var esInfantil = false;
@@ -97,9 +106,16 @@ public class AtencionController : Controller
     {
         var cid = ClinicaId;
         if (cid == null) return Unauthorized();
-        var cita = await _db.Citas.Include(c => c.ProcedimientosRealizados).FirstOrDefaultAsync(c => c.ClinicaId == cid && c.Id == citaId);
+        var uid = UserId;
+        if (uid == null) return Unauthorized();
+
+        var cita = await _db.Citas
+            .Include(c => c.ProcedimientosRealizados)
+            .FirstOrDefaultAsync(c => c.ClinicaId == cid && c.Id == citaId
+                                      && (!EsDoctor || c.DoctorId == uid));
         var tratamiento = await _db.Tratamientos.FirstOrDefaultAsync(t => t.ClinicaId == cid && t.Id == tratamientoId);
         if (cita == null || tratamiento == null) return NotFound();
+
         _db.ProcedimientosRealizados.Add(new ProcedimientoRealizado
         {
             CitaId = citaId,
@@ -118,10 +134,14 @@ public class AtencionController : Controller
     {
         var cid = ClinicaId;
         if (cid == null) return Unauthorized();
+        var uid = UserId;
+        if (uid == null) return Unauthorized();
+
         var pr = await _db.ProcedimientosRealizados
             .Include(p => p.Cita)
             .Include(p => p.Tratamiento)
-            .FirstOrDefaultAsync(p => p.Cita!.ClinicaId == cid && p.Id == procedimientoId);
+            .FirstOrDefaultAsync(p => p.Cita!.ClinicaId == cid && p.Id == procedimientoId
+                                      && (!EsDoctor || p.Cita.DoctorId == uid));
         if (pr == null) return NotFound();
         if (pr.PrecioAplicado == 0)
         {
@@ -142,10 +162,14 @@ public class AtencionController : Controller
     {
         var cid = ClinicaId;
         if (cid == null) return Unauthorized();
+        var uid = UserId;
+        if (uid == null) return Unauthorized();
+
         var pr = await _db.ProcedimientosRealizados
             .Include(p => p.Cita)
             .Include(p => p.Tratamiento)
-            .FirstOrDefaultAsync(p => p.Cita!.ClinicaId == cid && p.Id == procedimientoId);
+            .FirstOrDefaultAsync(p => p.Cita!.ClinicaId == cid && p.Id == procedimientoId
+                                      && (!EsDoctor || p.Cita.DoctorId == uid));
         if (pr == null) return NotFound();
         if (precio < 0) precio = 0;
         pr.PrecioAplicado = precio;
@@ -162,28 +186,44 @@ public class AtencionController : Controller
     {
         var cid = ClinicaId;
         if (cid == null) return Unauthorized();
+        var uid = UserId;
+        if (uid == null) return Unauthorized();
+
         var cita = await _db.Citas
             .Include(c => c.Paciente)
             .Include(c => c.ProcedimientosRealizados).ThenInclude(pr => pr.Tratamiento)
-            .FirstOrDefaultAsync(c => c.ClinicaId == cid && c.Id == id);
+            .FirstOrDefaultAsync(c => c.ClinicaId == cid && c.Id == id
+                                      && (!EsDoctor || c.DoctorId == uid));
         if (cita == null) return NotFound();
+
+        // Idempotencia: si ya fue finalizada, redirigir sin duplicar nada.
+        if (cita.Estado == EstadoCita.Finalizada)
+            return RedirectToAction(nameof(Index), new { fecha = cita.FechaHora.Date });
+
         cita.Estado = EstadoCita.Finalizada;
         cita.FinAtencionAt = DateTime.Now;
+
         var total = cita.ProcedimientosRealizados.Where(pr => pr.MarcadoRealizado).Sum(pr => pr.PrecioAplicado);
         if (total > 0)
         {
-            _db.OrdenesCobro.Add(new OrdenCobro
+            // Idempotencia: no crear una segunda OrdenCobro si ya existe una para esta cita.
+            var ordenExiste = await _db.OrdenesCobro.AnyAsync(o => o.CitaId == cita.Id && o.ClinicaId == cid);
+            if (!ordenExiste)
             {
-                ClinicaId = cid.Value,
-                PacienteId = cita.PacienteId,
-                CitaId = cita.Id,
-                Total = total,
-                MontoPagado = 0,
-                Estado = EstadoCobro.Pendiente,
-                CreadoAt = DateTime.Now
-            });
+                _db.OrdenesCobro.Add(new OrdenCobro
+                {
+                    ClinicaId = cid.Value,
+                    PacienteId = cita.PacienteId,
+                    CitaId = cita.Id,
+                    Total = total,
+                    MontoPagado = 0,
+                    Estado = EstadoCobro.Pendiente,
+                    CreadoAt = DateTime.Now
+                });
+            }
         }
-        _db.HistorialClinico.Add(new HistorialClinico { PacienteId = cita.PacienteId, ClinicaId = cid.Value, CitaId = cita.Id, FechaEvento = DateTime.UtcNow, TipoEvento = "Atención finalizada", Descripcion = "Orden de cobro generada", UsuarioId = UserId });
+
+        _db.HistorialClinico.Add(new HistorialClinico { PacienteId = cita.PacienteId, ClinicaId = cid.Value, CitaId = cita.Id, FechaEvento = DateTime.UtcNow, TipoEvento = "Atención finalizada", Descripcion = total > 0 ? "Orden de cobro generada" : "Atención finalizada sin procedimientos cobrados", UsuarioId = UserId });
         await _db.SaveChangesAsync();
         return RedirectToAction(nameof(Index), new { fecha = cita.FechaHora.Date });
     }

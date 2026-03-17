@@ -3,31 +3,62 @@
     ViewData["Title"] = "Nuevo tratamiento";
 }
 
-<h1>Nuevo tratamiento</h1>
-<form asp-action="Create" method="post">
-    <div class="form-group">
-        <label asp-for="Nombre"></label>
-        <input asp-for="Nombre" class="form-control" />
-        <span asp-validation-for="Nombre"></span>
+<div class="odon-form-page">
+    <div class="odon-form-header">
+        <h1 class="odon-form-title">Nuevo tratamiento</h1>
+        <a asp-action="Index" class="odon-form-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            Volver
+        </a>
     </div>
-    <div class="form-group">
-        <label asp-for="PrecioBase"></label>
-        <input asp-for="PrecioBase" type="number" step="0.01" class="form-control" />
-        <span asp-validation-for="PrecioBase"></span>
+
+    <div class="odon-form-card">
+        <form asp-action="Create" method="post">
+            <div class="odon-form-body">
+
+                <p class="odon-section-label">Datos del tratamiento</p>
+
+                <div class="odon-form-row">
+                    <div class="odon-form-field">
+                        <label asp-for="Nombre" class="odon-label"></label>
+                        <input asp-for="Nombre" class="odon-input" placeholder="Ej. Limpieza dental" />
+                        <span asp-validation-for="Nombre" class="odon-error-msg"></span>
+                    </div>
+                    <div class="odon-form-field">
+                        <label asp-for="Categoria" class="odon-label"></label>
+                        <input asp-for="Categoria" class="odon-input" placeholder="Ej. Preventivo, Restauración…" />
+                        <span asp-validation-for="Categoria" class="odon-error-msg"></span>
+                    </div>
+                </div>
+
+                <div class="odon-form-row">
+                    <div class="odon-form-field">
+                        <label asp-for="PrecioBase" class="odon-label"></label>
+                        <input asp-for="PrecioBase" type="number" step="0.01" class="odon-input" placeholder="0.00" />
+                        <span asp-validation-for="PrecioBase" class="odon-error-msg"></span>
+                    </div>
+                    <div class="odon-form-field">
+                        <label asp-for="DuracionMinutos" class="odon-label"></label>
+                        <input asp-for="DuracionMinutos" type="number" class="odon-input" placeholder="Ej. 30" />
+                        <span asp-validation-for="DuracionMinutos" class="odon-error-msg"></span>
+                    </div>
+                </div>
+
+                <label class="odon-check-row">
+                    <input asp-for="Activo" class="odon-check-input" />
+                    <span class="odon-check-label">Tratamiento activo</span>
+                </label>
+
+            </div>
+            <div class="odon-form-footer">
+                <button type="submit" class="odon-btn odon-btn-primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Guardar tratamiento
+                </button>
+                <a asp-action="Index" class="odon-btn odon-btn-secondary">Cancelar</a>
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-        <label asp-for="DuracionMinutos"></label>
-        <input asp-for="DuracionMinutos" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="Categoria"></label>
-        <input asp-for="Categoria" class="form-control" />
-    </div>
-    <div class="form-check">
-        <input asp-for="Activo" class="form-check-input" />
-        <label asp-for="Activo" class="form-check-label"></label>
-    </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-</form>
+</div>
+
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

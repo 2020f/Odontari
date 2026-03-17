@@ -5,11 +5,23 @@
 
 <div class="content-header">
     <h1>Doctores y Personal</h1>
-    <a asp-area="Clinica" asp-controller="Personal" asp-action="Create" class="btn-content-primary">+ Crear usuario</a>
+    <a asp-area="Clinica" asp-controller="Personal" asp-action="Create" class="btn-content-primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Crear usuario
+    </a>
 </div>
-@if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
-@if (TempData["Message"] != null) { <div class="alert alert-success">@TempData["Message"]</div> }
-<p class="text-muted small mb-3">Se validan los límites del plan (MaxUsuarios / MaxDoctores). Desde <strong>Editar</strong> puede limitar qué vistas (módulos) ve cada usuario.</p>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+
+<p class="odon-hint" style="margin-bottom:1rem;">Se validan los límites del plan (MaxUsuarios / MaxDoctores). Desde <strong>Editar</strong> puede configurar qué módulos ve cada usuario.</p>
+
 <div class="content-card">
     <table class="table">
         <thead>
@@ -17,8 +29,8 @@
                 <th>Nombre</th>
                 <th>Email</th>
                 <th>Rol</th>
-                <th>Horario laboral</th>
-                <th>Activo</th>
+                <th>Horario</th>
+                <th>Estado</th>
                 <th></th>
             </tr>
         </thead>
@@ -28,20 +40,38 @@
                 <tr>
                     <td>@u.NombreCompleto</td>
                     <td>@u.Email</td>
-                    <td>@(u.Rol ?? "-")</td>
+                    <td>@(u.Rol ?? "—")</td>
                     <td>@(u.HorarioLaboral ?? "—")</td>
-                    <td>@(u.Activo ? "Sí" : "No")</td>
                     <td>
-                        <a asp-area="Clinica" asp-controller="Personal" asp-action="Edit" asp-route-id="@u.Id">Editar</a>
-                        |
-                        <form asp-area="Clinica" asp-controller="Personal" asp-action="ToggleActivo" asp-route-id="@u.Id" method="post" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-link p-0" style="color: var(--odon-accent); font-size: 0.9rem;">@(u.Activo ? "Desactivar" : "Activar")</button>
-                        </form>
+                        @if (u.Activo)
+                        {
+                            <span class="odon-badge odon-badge-active">Activo</span>
+                        }
+                        else
+                        {
+                            <span class="odon-badge odon-badge-inactive">Inactivo</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="tbl-actions-cell">
+                            <a asp-area="Clinica" asp-controller="Personal" asp-action="Edit" asp-route-id="@u.Id" class="tbl-action tbl-action-edit">Editar</a>
+                            <form asp-area="Clinica" asp-controller="Personal" asp-action="ToggleActivo" asp-route-id="@u.Id" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="tbl-action tbl-action-toggle @(u.Activo ? "tbl-action-toggle-on" : "tbl-action-toggle-off")">
+                                    @(u.Activo ? "Desactivar" : "Activar")
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
-    @if (!Model.Any()) { <div class="content-empty">No hay usuarios. <a asp-area="Clinica" asp-controller="Personal" asp-action="Create">Crear el primero</a></div> }
+    @if (!Model.Any())
+    {
+        <div class="content-empty">
+            No hay usuarios registrados.
+            <a asp-area="Clinica" asp-controller="Personal" asp-action="Create" style="color:var(--odon-accent);font-weight:600;">Crear el primero</a>
+        </div>
+    }
 </div>

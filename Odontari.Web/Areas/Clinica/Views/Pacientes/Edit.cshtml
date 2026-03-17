@@ -3,44 +3,86 @@
     ViewData["Title"] = "Editar paciente";
 }
 
-<h1>Editar paciente</h1>
-<form asp-action="Edit" asp-route-id="@Model.Id" method="post">
-    <input type="hidden" asp-for="Id" />
-    <div class="form-group">
-        <label asp-for="Nombre"></label>
-        <input asp-for="Nombre" class="form-control" />
-        <span asp-validation-for="Nombre"></span>
+<div class="odon-form-page">
+    <div class="odon-form-header">
+        <h1 class="odon-form-title">Editar paciente</h1>
+        <a asp-action="Index" class="odon-form-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            Volver
+        </a>
     </div>
-    <div class="form-group">
-        <label asp-for="Apellidos"></label>
-        <input asp-for="Apellidos" class="form-control" />
+
+    <div class="odon-form-card">
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div class="odon-form-body">
+
+                <p class="odon-section-label">Información personal</p>
+
+                <div class="odon-form-row">
+                    <div class="odon-form-field">
+                        <label asp-for="Nombre" class="odon-label"></label>
+                        <input asp-for="Nombre" class="odon-input" />
+                        <span asp-validation-for="Nombre" class="odon-error-msg"></span>
+                    </div>
+                    <div class="odon-form-field">
+                        <label asp-for="Apellidos" class="odon-label"></label>
+                        <input asp-for="Apellidos" class="odon-input" />
+                        <span asp-validation-for="Apellidos" class="odon-error-msg"></span>
+                    </div>
+                </div>
+
+                <div class="odon-form-row">
+                    <div class="odon-form-field">
+                        <label asp-for="Cedula" class="odon-label"></label>
+                        <input asp-for="Cedula" class="odon-input" />
+                        <span asp-validation-for="Cedula" class="odon-error-msg"></span>
+                    </div>
+                    <div class="odon-form-field">
+                        <label asp-for="FechaNacimiento" class="odon-label"></label>
+                        <input asp-for="FechaNacimiento" class="odon-input" type="date" />
+                        <span class="odon-hint">Determina si se muestra odontograma infantil (menores de 14 años).</span>
+                    </div>
+                </div>
+
+                <div class="odon-form-row">
+                    <div class="odon-form-field">
+                        <label asp-for="Telefono" class="odon-label"></label>
+                        <input asp-for="Telefono" class="odon-input" />
+                        <span asp-validation-for="Telefono" class="odon-error-msg"></span>
+                    </div>
+                    <div class="odon-form-field">
+                        <label asp-for="Email" class="odon-label"></label>
+                        <input asp-for="Email" class="odon-input" />
+                        <span asp-validation-for="Email" class="odon-error-msg"></span>
+                    </div>
+                </div>
+
+                <div class="odon-form-divider"></div>
+
+                <p class="odon-section-label">Historial clínico</p>
+
+                <div class="odon-form-field">
+                    <label asp-for="Alergias" class="odon-label"></label>
+                    <input asp-for="Alergias" class="odon-input" placeholder="Ej. Penicilina, látex…" />
+                    <span class="odon-hint">Dejar en blanco si no hay alergias conocidas.</span>
+                </div>
+
+                <label class="odon-check-row">
+                    <input asp-for="Activo" class="odon-check-input" />
+                    <span class="odon-check-label">Paciente activo</span>
+                </label>
+
+            </div>
+            <div class="odon-form-footer">
+                <button type="submit" class="odon-btn odon-btn-primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Guardar cambios
+                </button>
+                <a asp-action="Index" class="odon-btn odon-btn-secondary">Cancelar</a>
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-        <label asp-for="Cedula"></label>
-        <input asp-for="Cedula" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="FechaNacimiento"></label>
-        <input asp-for="FechaNacimiento" class="form-control" type="date" />
-        <span class="form-text text-muted small">Se usa para mostrar odontograma infantil (menores de 14 años) cuando corresponda.</span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Telefono"></label>
-        <input asp-for="Telefono" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="Alergias"></label>
-        <input asp-for="Alergias" class="form-control" />
-    </div>
-    <div class="form-check">
-        <input asp-for="Activo" class="form-check-input" />
-        <label asp-for="Activo" class="form-check-label"></label>
-    </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-</form>
+</div>
+
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

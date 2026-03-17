@@ -224,3 +224,187 @@
   color: #9aacb8;
   font-size: 0.875rem;
 }
+
+/* ─── Metric card variants ───────────────────────────────────── */
+.dashboard-metric-card.metric-doctor::before {
+  background: #49769F;
+}
+
+.dashboard-metric-card .metric-value-sub {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(0,29,57,0.45);
+  letter-spacing: 0;
+}
+
+.dashboard-metric-card .metric-badge-ocupado {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(220,53,69,0.10);
+  color: #b02a37;
+  border: 1px solid rgba(220,53,69,0.20);
+  margin-top: 0.35rem;
+}
+
+/* ─── Card header extras ─────────────────────────────────────── */
+.dashboard-card .card-header-chip {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 20px;
+  background: rgba(78,142,162,0.10);
+  color: var(--odon-accent);
+  border: 1px solid rgba(78,142,162,0.20);
+  white-space: nowrap;
+}
+
+.dashboard-card .card-header-date {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(0,29,57,0.45);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* ─── Recepción row (segunda fila de tarjetas) ───────────────── */
+.dashboard-recepcion-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+  margin-top: 1.25rem;
+}
+
+/* ─── Doctor status items ────────────────────────────────────── */
+.dashboard-doctor-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid rgba(0,29,57,0.05);
+  transition: background 0.12s;
+}
+
+.dashboard-doctor-item:last-child {
+  border-bottom: none;
+}
+
+.dashboard-doctor-item:hover {
+  background: rgba(78,142,162,0.03);
+}
+
+.dashboard-doctor-item .doctor-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #BDD8E9 0%, #d6e9f3 100%);
+  color: var(--odon-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.dashboard-doctor-item .doctor-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.dashboard-doctor-item .doctor-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1e3244;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dashboard-doctor-item .doctor-sub {
+  font-size: 0.78rem;
+  color: #6b8296;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Doctor status badge ────────────────────────────────────── */
+.doctor-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0.22rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.doctor-status-badge::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Libre — verde */
+.doctor-status-badge.ds-libre {
+  background: rgba(34,197,94,0.10);
+  color: #15803d;
+  border: 1px solid rgba(34,197,94,0.22);
+}
+.doctor-status-badge.ds-libre::before {
+  background: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34,197,94,0.25);
+  animation: ds-pulse-libre 2.2s ease-in-out infinite;
+}
+
+/* Ocupado — rojo */
+.doctor-status-badge.ds-ocupado {
+  background: rgba(220,53,69,0.09);
+  color: #b02a37;
+  border: 1px solid rgba(220,53,69,0.22);
+}
+.doctor-status-badge.ds-ocupado::before {
+  background: #dc3545;
+  box-shadow: 0 0 0 2px rgba(220,53,69,0.22);
+  animation: ds-pulse-ocupado 1.8s ease-in-out infinite;
+}
+
+/* Fuera de horario — gris */
+.doctor-status-badge.ds-fuera {
+  background: rgba(0,29,57,0.05);
+  color: #8a9ba8;
+  border: 1px solid rgba(0,29,57,0.10);
+}
+.doctor-status-badge.ds-fuera::before {
+  background: #94a3b8;
+}
+
+/* Pulso animado para los dots */
+@keyframes ds-pulse-libre {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.65; transform: scale(0.85); }
+}
+
+@keyframes ds-pulse-ocupado {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.55; transform: scale(0.82); }
+}

@@ -1,13 +1,21 @@
 @using Odontari.Web.Models.Enums
+@using Odontari.Web.ViewModels
 @using System.Globalization
 @{
     ViewData["Title"] = "Panel de Control";
-    var citasHoy = ViewBag.CitasHoy as IList<Odontari.Web.Models.Cita> ?? new List<Odontari.Web.Models.Cita>();
-    var pendientesCobro = ViewBag.PendientesCobro as IList<Odontari.Web.Models.OrdenCobro> ?? new List<Odontari.Web.Models.OrdenCobro>();
-    var ci = CultureInfo.GetCultureInfo("es-ES");
-    var hoy = DateTime.Today;
+    var citasHoy         = ViewBag.CitasHoy as IList<Odontari.Web.Models.Cita> ?? new List<Odontari.Web.Models.Cita>();
+    var pendientesCobro  = ViewBag.PendientesCobro as IList<Odontari.Web.Models.OrdenCobro> ?? new List<Odontari.Web.Models.OrdenCobro>();
+    var doctoresStatus   = ViewBag.DoctoresStatus as IList<DoctorStatusViewModel>;
+    var citasManana      = ViewBag.CitasManana as IList<Odontari.Web.Models.Cita>;
+    var esRecepcion      = User.IsInRole("Recepcion") || User.IsInRole("AdminClinica");
+
+    var ci        = CultureInfo.GetCultureInfo("es-ES");
+    var hoy       = DateTime.Today;
+    var manana    = hoy.AddDays(1);
     var nombreDia = ci.DateTimeFormat.GetDayName(hoy.DayOfWeek);
     var nombreMes = ci.DateTimeFormat.GetMonthName(hoy.Month);
+    var diaManana = ci.DateTimeFormat.GetDayName(manana.DayOfWeek);
+    var mesMana   = ci.DateTimeFormat.GetMonthName(manana.Month);
 }
 @section Styles {
     <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
@@ -25,21 +33,40 @@
                 <div class="metric-label">Citas hoy</div>
                 <div class="metric-value">@citasHoy.Count</div>
             </div>
-            <div class="metric-icon citas">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            </div>
         </div>
-        <div class="dashboard-metric-card">
+        <div class="dashboard-metric-card metric-cobro">
             <div>
                 <div class="metric-label">Pendientes de cobro</div>
                 <div class="metric-value">@pendientesCobro.Count</div>
             </div>
-            <div class="metric-icon cobro">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            </div>
         </div>
+        @if (esRecepcion && citasManana != null)
+        {
+            <div class="dashboard-metric-card">
+                <div>
+                    <div class="metric-label">Citas mañana</div>
+                    <div class="metric-value">@citasManana.Count</div>
+                </div>
+            </div>
+        }
+        @if (esRecepcion && doctoresStatus != null)
+        {
+            var libres   = doctoresStatus.Count(d => d.Estado == DoctorEstado.Libre);
+            var ocupados = doctoresStatus.Count(d => d.Estado == DoctorEstado.Ocupado);
+            <div class="dashboard-metric-card metric-doctor">
+                <div>
+                    <div class="metric-label">Doctores activos</div>
+                    <div class="metric-value">@libres <span class="metric-value-sub">libres</span></div>
+                </div>
+                @if (ocupados > 0)
+                {
+                    <div class="metric-badge-ocupado">@ocupados en atención</div>
+                }
+            </div>
+        }
     </div>
 
+    @* Tarjetas principales *@
     <div class="dashboard-cards">
         <div class="dashboard-card">
             <div class="card-header">
@@ -55,12 +82,12 @@
                         var inicial = (c.Paciente?.Nombre ?? "?").Length > 0 ? char.ToUpperInvariant((c.Paciente?.Nombre ?? "?")[0]).ToString() : "?";
                         var estadoNombre = c.Estado switch
                         {
-                            EstadoCita.Solicitada => "Pendiente",
-                            EstadoCita.Confirmada => "Confirmada",
-                            EstadoCita.EnSala => "En sala",
-                            EstadoCita.EnAtencion => "En atención",
-                            EstadoCita.Finalizada => "Finalizada",
-                            _ => c.Estado.ToString()
+                            EstadoCita.Solicitada  => "Pendiente",
+                            EstadoCita.Confirmada  => "Confirmada",
+                            EstadoCita.EnSala      => "En sala",
+                            EstadoCita.EnAtencion  => "En atención",
+                            EstadoCita.Finalizada  => "Finalizada",
+                            _                      => c.Estado.ToString()
                         };
                         <div class="dashboard-list-item">
                             <div class="avatar">@inicial</div>
@@ -75,7 +102,7 @@
                 }
                 else
                 {
-                    <div class="dashboard-empty">No hay citas hoy. <a asp-controller="Agenda" asp-action="Create" asp-route-fechaHora="@hoy.AddHours(9)" style="color: var(--odon-accent);">Crear cita</a></div>
+                    <div class="dashboard-empty">No hay citas hoy. <a asp-controller="Agenda" asp-action="Create" asp-route-fechaHora="@hoy.AddHours(9)" style="color:var(--odon-accent);">Crear cita</a></div>
                 }
             </div>
         </div>
@@ -110,6 +137,97 @@
             </div>
         </div>
     </div>
+
+    @* Panel Recepción: Estado doctores + Citas mañana *@
+    @if (esRecepcion)
+    {
+        <div class="dashboard-recepcion-row">
+
+            @* Tarjeta: Estado de doctores *@
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2>Estado de doctores</h2>
+                    <span class="card-header-chip">Tiempo real</span>
+                </div>
+                <div class="card-body">
+                    @if (doctoresStatus != null && doctoresStatus.Any())
+                    {
+                        @foreach (var doc in doctoresStatus)
+                        {
+                            var inicial = doc.NombreCompleto.Length > 0 ? char.ToUpperInvariant(doc.NombreCompleto[0]).ToString() : "?";
+                            var estadoClass = doc.Estado switch
+                            {
+                                DoctorEstado.Ocupado         => "ds-ocupado",
+                                DoctorEstado.FueraDeHorario  => "ds-fuera",
+                                _                            => "ds-libre"
+                            };
+                            var estadoLabel = doc.Estado switch
+                            {
+                                DoctorEstado.Ocupado        => "En atención",
+                                DoctorEstado.FueraDeHorario => "Fuera de horario",
+                                _                           => "Libre"
+                            };
+                            <div class="dashboard-doctor-item">
+                                <div class="doctor-avatar">@inicial</div>
+                                <div class="doctor-info">
+                                    <div class="doctor-name">@doc.NombreCompleto</div>
+                                    @if (doc.Estado == DoctorEstado.Ocupado && doc.PacienteActual != null)
+                                    {
+                                        <div class="doctor-sub">@doc.PacienteActual</div>
+                                    }
+                                    else if (doc.ProximaCitaTexto != null)
+                                    {
+                                        <div class="doctor-sub">Próx. @doc.ProximaCitaTexto</div>
+                                    }
+                                    else if (doc.HorarioTexto != null)
+                                    {
+                                        <div class="doctor-sub">@doc.HorarioTexto</div>
+                                    }
+                                </div>
+                                <span class="doctor-status-badge @estadoClass">@estadoLabel</span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="dashboard-empty">No hay doctores activos registrados.</div>
+                    }
+                </div>
+            </div>
+
+            @* Tarjeta: Citas de mañana *@
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2>Citas de mañana</h2>
+                    <span class="card-header-date">@(char.ToUpper(diaManana[0]) + diaManana.Substring(1)) @manana.Day de @mesMana</span>
+                    <a asp-controller="Agenda" asp-action="Index" asp-route-fecha="@manana">Ver agenda</a>
+                </div>
+                <div class="card-body">
+                    @if (citasManana != null && citasManana.Any())
+                    {
+                        @foreach (var c in citasManana)
+                        {
+                            var inicial = (c.Paciente?.Nombre ?? "?").Length > 0 ? char.ToUpperInvariant((c.Paciente?.Nombre ?? "?")[0]).ToString() : "?";
+                            var doctorNombre = c.Doctor?.NombreCompleto ?? c.Doctor?.Email ?? "—";
+                            <div class="dashboard-list-item">
+                                <div class="avatar">@inicial</div>
+                                <div class="body">
+                                    <div class="title">@(c.Paciente?.Nombre) @(c.Paciente?.Apellidos)</div>
+                                    <div class="sub">@(c.Motivo ?? "Consulta") · Dr. @doctorNombre</div>
+                                </div>
+                                <span class="hora">@c.FechaHora.ToString("HH:mm")</span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="dashboard-empty">No hay citas agendadas para mañana. <a asp-controller="Agenda" asp-action="Create" asp-route-fechaHora="@manana.AddHours(9)" style="color:var(--odon-accent);">Crear cita</a></div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    }
 </div>
 
 @if (ViewBag.MostrarAccesoDenegado == true)
