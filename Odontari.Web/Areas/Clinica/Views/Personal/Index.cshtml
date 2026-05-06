@@ -2,6 +2,9 @@
 @{
     ViewData["Title"] = "Doctores y Personal";
 }
+@section Styles {
+    <link rel="stylesheet" href="~/css/personal-gafete.css" asp-append-version="true" />
+}
 
 <div class="content-header">
     <h1>Doctores y Personal</h1>
@@ -20,58 +23,119 @@
     <div class="alert alert-success">@TempData["Message"]</div>
 }
 
-<p class="odon-hint" style="margin-bottom:1rem;">Se validan los límites del plan (MaxUsuarios / MaxDoctores). Desde <strong>Editar</strong> puede configurar qué módulos ve cada usuario.</p>
+<p class="odon-hint" style="margin-bottom:1.5rem;">Se validan los límites del plan (MaxUsuarios / MaxDoctores). Desde <strong>Editar</strong> puede configurar qué módulos ve cada usuario.</p>
 
-<div class="content-card">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Rol</th>
-                <th>Horario</th>
-                <th>Estado</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var u in Model)
-            {
-                <tr>
-                    <td>@u.NombreCompleto</td>
-                    <td>@u.Email</td>
-                    <td>@(u.Rol ?? "—")</td>
-                    <td>@(u.HorarioLaboral ?? "—")</td>
-                    <td>
-                        @if (u.Activo)
-                        {
-                            <span class="odon-badge odon-badge-active">Activo</span>
-                        }
-                        else
-                        {
-                            <span class="odon-badge odon-badge-inactive">Inactivo</span>
-                        }
-                    </td>
-                    <td>
-                        <div class="tbl-actions-cell">
-                            <a asp-area="Clinica" asp-controller="Personal" asp-action="Edit" asp-route-id="@u.Id" class="tbl-action tbl-action-edit">Editar</a>
-                            <form asp-area="Clinica" asp-controller="Personal" asp-action="ToggleActivo" asp-route-id="@u.Id" method="post" class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="tbl-action tbl-action-toggle @(u.Activo ? "tbl-action-toggle-on" : "tbl-action-toggle-off")">
-                                    @(u.Activo ? "Desactivar" : "Activar")
-                                </button>
-                            </form>
+@{
+    static string RolKey(string? rol) => rol switch
+    {
+        "AdminClinica" => "admin",
+        "Doctor"       => "doctor",
+        "Recepcion"    => "recepcion",
+        "Finanzas"     => "finanzas",
+        _              => "default"
+    };
+
+    static string RolLabel(string? rol) => rol switch
+    {
+        "AdminClinica" => "Admin clínica",
+        "Doctor"       => "Doctor",
+        "Recepcion"    => "Recepción",
+        "Finanzas"     => "Finanzas",
+        _              => rol ?? "Sin rol"
+    };
+
+    static string Iniciales(string? nombre)
+    {
+        if (string.IsNullOrWhiteSpace(nombre)) return "?";
+        var partes = nombre.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return partes.Length >= 2
+            ? $"{partes[0][0]}{partes[^1][0]}".ToUpper()
+            : nombre[0].ToString().ToUpper();
+    }
+}
+
+<div class="gafete-grid">
+    @foreach (var u in Model)
+    {
+        var rk = RolKey(u.Rol);
+        <div class="gafete-card @(!u.Activo ? "gafete-card-inactive" : "")">
+
+            @* Tira superior de color *@
+            <div class="gafete-top gafete-top-@rk">
+                <div class="gafete-hole"></div>
+                <div class="gafete-avatar gafete-avatar-@rk">
+                    @Iniciales(u.NombreCompleto)
+                </div>
+            </div>
+
+            @* Cuerpo *@
+            <div class="gafete-body">
+                <div class="gafete-cord-line"></div>
+
+                <div class="gafete-name">@(u.NombreCompleto ?? u.Email)</div>
+
+                <span class="gafete-rol gafete-rol-@rk">
+                    @if (rk == "doctor")
+                    {
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    }
+                    else if (rk == "admin")
+                    {
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01z"/></svg>
+                    }
+                    @RolLabel(u.Rol)
+                </span>
+
+                <div class="gafete-details">
+                    <div class="gafete-detail-item">
+                        <span class="gafete-detail-icon">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        </span>
+                        <span class="gafete-detail-text" title="@u.Email">@u.Email</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(u.HorarioLaboral) && u.HorarioLaboral != "—")
+                    {
+                        <div class="gafete-detail-item">
+                            <span class="gafete-detail-icon">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            </span>
+                            <span class="gafete-detail-text">@u.HorarioLaboral</span>
                         </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                    }
+                </div>
+
+                <div class="gafete-divider"></div>
+            </div>
+
+            @* Pie: estado + acciones *@
+            <div class="gafete-foot">
+                <div class="gafete-status @(u.Activo ? "gafete-status-active" : "gafete-status-inactive")">
+                    <div class="gafete-status-dot"></div>
+                    @(u.Activo ? "Activo" : "Inactivo")
+                </div>
+                <div class="gafete-actions">
+                    <a asp-area="Clinica" asp-controller="Personal" asp-action="Edit" asp-route-id="@u.Id"
+                       class="gafete-action gafete-action-edit">Editar</a>
+                    <form asp-area="Clinica" asp-controller="Personal" asp-action="ToggleActivo" asp-route-id="@u.Id"
+                          method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit"
+                                class="gafete-action @(u.Activo ? "gafete-action-toggle-on" : "gafete-action-toggle-off")">
+                            @(u.Activo ? "Desactivar" : "Activar")
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    }
+
     @if (!Model.Any())
     {
-        <div class="content-empty">
+        <div class="gafete-empty">
             No hay usuarios registrados.
-            <a asp-area="Clinica" asp-controller="Personal" asp-action="Create" style="color:var(--odon-accent);font-weight:600;">Crear el primero</a>
+            <a asp-area="Clinica" asp-controller="Personal" asp-action="Create"
+               style="color:var(--odon-accent);font-weight:600;">Crear el primero</a>
         </div>
     }
 </div>

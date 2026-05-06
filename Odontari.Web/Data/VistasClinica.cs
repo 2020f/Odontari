@@ -19,7 +19,8 @@ public static class VistasClinica
         ("Tratamientos", "Tratamientos"),
         ("Caja", "Cobros / Caja"),
         ("Reportes", "Reportes"),
-        ("Personal", "Configuración")
+        ("Personal", "Configuración"),
+        ("Consentimiento", "Consentimientos")
     };
 
     /// <summary>Todas las vistas en orden: primero navegación, luego operaciones.</summary>

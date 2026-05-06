@@ -24,10 +24,14 @@
             <div class="form-group">
                 <label asp-for="MaxUsuarios"></label>
                 <input asp-for="MaxUsuarios" class="form-control" />
+                <span asp-validation-for="MaxUsuarios" class="text-danger"></span>
+                <small class="form-text text-muted">Solo se puede aumentar. Las clínicas activas dependen de este límite.</small>
             </div>
             <div class="form-group">
                 <label asp-for="MaxDoctores"></label>
                 <input asp-for="MaxDoctores" class="form-control" />
+                <span asp-validation-for="MaxDoctores" class="text-danger"></span>
+                <small class="form-text text-muted">Solo se puede aumentar.</small>
             </div>
             <div class="form-check">
                 <input asp-for="PermiteFacturacion" class="form-check-input" />
@@ -36,6 +40,10 @@
             <div class="form-check">
                 <input asp-for="PermiteOdontograma" class="form-check-input" />
                 <label asp-for="PermiteOdontograma" class="form-check-label"></label>
+            </div>
+            <div class="form-check">
+                <input asp-for="PermiteConsentimiento" class="form-check-input" />
+                <label asp-for="PermiteConsentimiento" class="form-check-label"></label>
             </div>
             <div class="form-check">
                 <input asp-for="Activo" class="form-check-input" />

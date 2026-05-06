@@ -58,15 +58,15 @@ public class ReportesController : Controller
         if (esDoctor && !string.IsNullOrEmpty(userId)) doctorId = userId;
 
         // Doctores para filtro
-        var roleDoctorId = await _db.Roles.Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
-        var doctorIds = await _db.UserRoles.Where(ur => ur.RoleId == roleDoctorId).Select(ur => ur.UserId).ToListAsync();
-        ViewBag.Doctores = await _db.Users
+        var roleDoctorId = await _db.Roles.AsNoTracking().Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
+        var doctorIds = await _db.UserRoles.AsNoTracking().Where(ur => ur.RoleId == roleDoctorId).Select(ur => ur.UserId).ToListAsync();
+        ViewBag.Doctores = await _db.Users.AsNoTracking()
             .Where(u => u.ClinicaId == cid && doctorIds.Contains(u.Id))
             .Select(u => new { u.Id, NombreCompleto = u.NombreCompleto ?? u.Email })
             .ToListAsync();
 
         // === Órdenes y pagos en período (filtro estado opcional) ===
-        var queryOrdenes = _db.OrdenesCobro
+        var queryOrdenes = _db.OrdenesCobro.AsNoTracking()
             .Where(o => o.ClinicaId == cid && o.CreadoAt >= inicio && o.CreadoAt < finMasUno);
         if (!string.IsNullOrEmpty(doctorId))
         {
@@ -79,14 +79,14 @@ public class ReportesController : Controller
         var ordenesPeriodo = await queryOrdenes.ToListAsync();
 
         // Pagos en período (para cobrado real)
-        var pagosEnPeriodo = await _db.Pagos
+        var pagosEnPeriodo = await _db.Pagos.AsNoTracking()
             .Where(p => p.OrdenCobro.ClinicaId == cid && p.FechaPago >= inicio && p.FechaPago < finMasUno)
             .Select(p => new { p.Monto, p.OrdenCobroId, p.FechaPago })
             .ToListAsync();
         if (!string.IsNullOrEmpty(doctorId))
         {
-            var citaIds = await _db.Citas.Where(c => c.ClinicaId == cid && c.DoctorId == doctorId).Select(c => c.Id).ToListAsync();
-            var ordenIdsDoctor = await _db.OrdenesCobro.Where(o => o.ClinicaId == cid && o.CitaId != null && citaIds.Contains(o.CitaId.Value)).Select(o => o.Id).ToListAsync();
+            var citaIds = await _db.Citas.AsNoTracking().Where(c => c.ClinicaId == cid && c.DoctorId == doctorId).Select(c => c.Id).ToListAsync();
+            var ordenIdsDoctor = await _db.OrdenesCobro.AsNoTracking().Where(o => o.ClinicaId == cid && o.CitaId != null && citaIds.Contains(o.CitaId.Value)).Select(o => o.Id).ToListAsync();
             pagosEnPeriodo = pagosEnPeriodo.Where(p => ordenIdsDoctor.Contains(p.OrdenCobroId)).ToList();
         }
 
@@ -95,7 +95,7 @@ public class ReportesController : Controller
         var cobrado = pagosEnPeriodo.Sum(p => p.Monto);
         var pendienteOrdenes = ordenesPeriodo.Sum(o => o.Total - o.MontoPagado);
 
-        IQueryable<Cita> queryCitas = _db.Citas
+        IQueryable<Cita> queryCitas = _db.Citas.AsNoTracking()
             .Where(c => c.ClinicaId == cid && c.FechaHora >= inicio && c.FechaHora < finMasUno)
             .Include(c => c.Paciente);
         if (!string.IsNullOrEmpty(doctorId)) queryCitas = queryCitas.Where(c => c.DoctorId == doctorId);
@@ -143,7 +143,7 @@ public class ReportesController : Controller
         ViewBag.IngresosPorPeriodoJson = System.Text.Json.JsonSerializer.Serialize(ingresosPorPeriodo);
 
         // --- Ingresos por doctor ---
-        var ordenesConCita = await _db.OrdenesCobro
+        var ordenesConCita = await _db.OrdenesCobro.AsNoTracking()
             .Where(o => o.ClinicaId == cid && o.CreadoAt >= inicio && o.CreadoAt < finMasUno && o.CitaId != null)
             .Include(o => o.Cita)
             .ToListAsync();
@@ -163,11 +163,11 @@ public class ReportesController : Controller
         ViewBag.IngresosPorDoctorJson = System.Text.Json.JsonSerializer.Serialize(ingresosPorDoctor.Select(d => new { label = d.DoctorNombre, value = (double)d.Total }));
 
         // --- Tratamientos más realizados ---
-        var procedimientos = await _db.ProcedimientosRealizados
+        IQueryable<ProcedimientoRealizado> procQuery = _db.ProcedimientosRealizados.AsNoTracking()
             .Where(pr => pr.Cita!.ClinicaId == cid && pr.Cita.FechaHora >= inicio && pr.Cita.FechaHora < finMasUno && pr.MarcadoRealizado)
-            .Include(pr => pr.Tratamiento)
-            .ToListAsync();
-        if (!string.IsNullOrEmpty(doctorId)) procedimientos = procedimientos.Where(pr => pr.Cita!.DoctorId == doctorId).ToList();
+            .Include(pr => pr.Tratamiento);
+        if (!string.IsNullOrEmpty(doctorId)) procQuery = procQuery.Where(pr => pr.Cita!.DoctorId == doctorId);
+        var procedimientos = await procQuery.ToListAsync();
         var porTratamiento = procedimientos
             .GroupBy(pr => new { pr.TratamientoId, Nombre = pr.Tratamiento?.Nombre ?? "Sin nombre" })
             .Select(g => new { Tratamiento = g.Key.Nombre, Cantidad = g.Count(), Total = g.Sum(pr => pr.PrecioAplicado) })
@@ -187,7 +187,7 @@ public class ReportesController : Controller
 
         // --- Pacientes nuevos vs recurrentes ---
         var pacientesEnPeriodo = citasPeriodo.Where(c => c.Estado == EstadoCita.Finalizada).Select(c => c.PacienteId).Distinct().ToList();
-        var primeraCitaPorPaciente = await _db.Citas
+        var primeraCitaPorPaciente = await _db.Citas.AsNoTracking()
             .Where(c => c.ClinicaId == cid)
             .GroupBy(c => c.PacienteId)
             .Select(g => new { PacienteId = g.Key, PrimeraFecha = g.Min(c => c.FechaHora) })
@@ -199,7 +199,7 @@ public class ReportesController : Controller
         ViewBag.PacientesNuevosVsRecurrentesJson = System.Text.Json.JsonSerializer.Serialize(new[] { new { label = "Nuevos", value = nuevos }, new { label = "Recurrentes", value = recurrentes } });
 
         // --- Cuentas por cobrar ---
-        var ordenesPendientesRaw = await _db.OrdenesCobro
+        var ordenesPendientesRaw = await _db.OrdenesCobro.AsNoTracking()
             .Where(o => o.ClinicaId == cid && (o.Estado == EstadoCobro.Pendiente || o.Estado == EstadoCobro.Parcial))
             .Include(o => o.Paciente)
             .Include(o => o.Pagos)
@@ -271,7 +271,7 @@ public class ReportesController : Controller
         var ci = CultureInfo.GetCultureInfo("es-ES");
         var userName = User.Identity?.Name ?? User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Sistema";
 
-        var clinica = await _db.Clinicas.Where(c => c.Id == cid).Select(c => new { c.Nombre, c.Direccion, c.Telefono }).FirstOrDefaultAsync();
+        var clinica = await _db.Clinicas.AsNoTracking().Where(c => c.Id == cid).Select(c => new { c.Nombre, c.Direccion, c.Telefono }).FirstOrDefaultAsync();
         var encabezado = new EncabezadoReporte
         {
             NombreClinica = clinica?.Nombre ?? "Clínica",
@@ -283,7 +283,7 @@ public class ReportesController : Controller
             UsuarioGenero = userName
         };
 
-        IQueryable<OrdenCobro> queryOrdenes = _db.OrdenesCobro
+        IQueryable<OrdenCobro> queryOrdenes = _db.OrdenesCobro.AsNoTracking()
             .Where(o => o.ClinicaId == cid && o.CreadoAt >= inicio && o.CreadoAt < finMasUno)
             .Include(o => o.Paciente)
             .Include(o => o.Pagos)
@@ -294,7 +294,7 @@ public class ReportesController : Controller
                 .ThenInclude(pr => pr.Tratamiento);
         if (!string.IsNullOrEmpty(doctorId))
         {
-            var citaIds = await _db.Citas.Where(c => c.ClinicaId == cid && c.DoctorId == doctorId).Select(c => c.Id).ToListAsync();
+            var citaIds = await _db.Citas.AsNoTracking().Where(c => c.ClinicaId == cid && c.DoctorId == doctorId).Select(c => c.Id).ToListAsync();
             queryOrdenes = queryOrdenes.Where(o => o.CitaId != null && citaIds.Contains(o.CitaId.Value));
         }
         if (estadoCobro.HasValue && estadoCobro.Value >= 0 && estadoCobro.Value <= 3)
@@ -357,18 +357,18 @@ public class ReportesController : Controller
             .OrderByDescending(x => x.TotalFacturado)
             .ToList();
 
-        var procedimientos = await _db.ProcedimientosRealizados
+        IQueryable<ProcedimientoRealizado> procQueryExport = _db.ProcedimientosRealizados.AsNoTracking()
             .Where(pr => pr.Cita!.ClinicaId == cid && pr.Cita.FechaHora >= inicio && pr.Cita.FechaHora < finMasUno && pr.MarcadoRealizado)
-            .Include(pr => pr.Tratamiento)
-            .ToListAsync();
-        if (!string.IsNullOrEmpty(doctorId)) procedimientos = procedimientos.Where(pr => pr.Cita!.DoctorId == doctorId).ToList();
+            .Include(pr => pr.Tratamiento);
+        if (!string.IsNullOrEmpty(doctorId)) procQueryExport = procQueryExport.Where(pr => pr.Cita!.DoctorId == doctorId);
+        var procedimientos = await procQueryExport.ToListAsync();
         var tratamientosVendidos = procedimientos
             .GroupBy(pr => pr.Tratamiento?.Nombre ?? "Sin nombre")
             .Select(g => new TratamientoVendidoRow { Tratamiento = g.Key, Cantidad = g.Count(), TotalGenerado = g.Sum(pr => pr.PrecioAplicado) })
             .OrderByDescending(x => x.TotalGenerado)
             .ToList();
 
-        var ordenesCxC = await _db.OrdenesCobro
+        var ordenesCxC = await _db.OrdenesCobro.AsNoTracking()
             .Where(o => o.ClinicaId == cid && (o.Estado == EstadoCobro.Pendiente || o.Estado == EstadoCobro.Parcial))
             .Include(o => o.Paciente)
             .Include(o => o.Pagos)
@@ -407,7 +407,7 @@ public class ReportesController : Controller
         var fin = fechaFin?.Date ?? DateTime.Today;
         var finMasUno = fin.AddDays(1);
 
-        IQueryable<Cita> query = _db.Citas
+        IQueryable<Cita> query = _db.Citas.AsNoTracking()
             .Where(c => c.ClinicaId == cid && c.FechaHora >= inicio && c.FechaHora < finMasUno && c.Estado == EstadoCita.NoShow)
             .Include(c => c.Paciente)
             .Include(c => c.Doctor)

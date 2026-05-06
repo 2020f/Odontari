@@ -56,23 +56,50 @@ public class FacturaPdfService
 
                 page.Header().Column(col =>
                 {
-                    col.Item().Text(data.RazonSocial).Bold().FontSize(14);
-                    if (!string.IsNullOrEmpty(data.RNC)) col.Item().Text($"RNC: {data.RNC}").FontSize(9);
-                    if (!string.IsNullOrEmpty(data.DireccionFiscal)) col.Item().Text(data.DireccionFiscal).FontSize(8);
-                    if (!string.IsNullOrEmpty(data.Telefono)) col.Item().Text($"Tel: {data.Telefono}").FontSize(8);
-                    if (!string.IsNullOrEmpty(data.Email)) col.Item().Text(data.Email).FontSize(8);
-                    col.Item().PaddingBottom(8);
+                    // Banda principal — nombre de la clínica
+                    col.Item()
+                       .Background("#1B3A5C")
+                       .PaddingHorizontal(14).PaddingVertical(10)
+                       .Column(inner =>
+                       {
+                           inner.Item().Text(data.RazonSocial)
+                               .Bold().FontSize(16).FontColor("#FFFFFF");
+                           if (!string.IsNullOrEmpty(data.RNC))
+                               inner.Item().Text($"RNC: {data.RNC}")
+                                   .FontSize(8.5f).FontColor("#96BEE6");
+                       });
+
+                    // Franja de contacto
+                    var contactParts = new List<string>();
+                    if (!string.IsNullOrEmpty(data.DireccionFiscal)) contactParts.Add(data.DireccionFiscal);
+                    if (!string.IsNullOrEmpty(data.Telefono)) contactParts.Add($"Tel. {data.Telefono}");
+                    if (!string.IsNullOrEmpty(data.Email)) contactParts.Add(data.Email);
+                    if (contactParts.Count > 0)
+                    {
+                        col.Item()
+                           .Background("#EEF3FA")
+                           .PaddingHorizontal(14).PaddingVertical(4)
+                           .Text(string.Join("   ·   ", contactParts))
+                           .FontSize(7.5f).FontColor("#3A5A80");
+                    }
+
+                    col.Item().Height(10);
+
+                    // Datos de factura
                     col.Item().Row(r =>
                     {
                         r.RelativeItem().Column(c =>
                         {
-                            c.Item().Text("FACTURA").Bold().FontSize(12);
+                            c.Item().Text("FACTURA").Bold().FontSize(13).FontColor("#1B3A5C");
                             c.Item().Text($"Nº {data.NumeroInterno}").FontSize(10);
                             if (!string.IsNullOrEmpty(data.NCF)) c.Item().Text($"NCF: {data.NCF}").FontSize(9);
                             if (!data.EsFiscal) c.Item().Text("Documento no válido para crédito fiscal").FontSize(8).Italic();
                             c.Item().Text($"Fecha: {data.FechaEmision:dd/MM/yyyy}").FontSize(9);
                         });
                     });
+
+                    // Línea separadora
+                    col.Item().PaddingTop(6).Height(1.5f).Background("#1B3A5C");
                 });
 
                 page.Content().PaddingVertical(8).Column(col =>

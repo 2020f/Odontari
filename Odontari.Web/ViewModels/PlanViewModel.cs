@@ -11,6 +11,7 @@ public class PlanViewModel
     public int MaxDoctores { get; set; }
     public bool PermiteFacturacion { get; set; }
     public bool PermiteOdontograma { get; set; }
+    public bool PermiteConsentimiento { get; set; }
     public bool Activo { get; set; }
 }
 
@@ -24,6 +25,7 @@ public class PlanEditViewModel
     public int MaxDoctores { get; set; }
     public bool PermiteFacturacion { get; set; }
     public bool PermiteOdontograma { get; set; }
+    public bool PermiteConsentimiento { get; set; }
     public bool PermiteWhatsApp { get; set; }
     public bool PermiteARS { get; set; }
     public bool Activo { get; set; } = true;

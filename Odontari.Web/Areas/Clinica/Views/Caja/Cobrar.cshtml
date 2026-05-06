@@ -10,112 +10,109 @@
     <link rel="stylesheet" href="~/css/caja-cobrar.css" asp-append-version="true" />
 }
 
-<div class="clinica-content cobrar-page">
-    <div class="cobrar-header">
-        <h1 class="cobrar-title">Registrar pago</h1>
-        <a asp-action="Index" class="cobrar-back">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Volver a Caja
-        </a>
-    </div>
-
-    @if (orden != null)
-    {
-        <div class="cobrar-resumen">
-            <div class="cobrar-resumen-paciente">
-                <span class="cobrar-resumen-label">Paciente</span>
-                <span class="cobrar-resumen-valor">@orden.Paciente?.Nombre @orden.Paciente?.Apellidos</span>
-            </div>
-            <div class="cobrar-resumen-financiero">
-                <span class="cobrar-resumen-item"><strong>Total orden:</strong> RD$ @orden.Total.ToString("N2")</span>
-                <span class="cobrar-resumen-item"><strong>Ya pagado:</strong> RD$ @orden.MontoPagado.ToString("N2")</span>
-                <span class="cobrar-resumen-item cobrar-saldo"><strong>Saldo:</strong> RD$ @Model.SaldoPendiente.ToString("N2")</span>
-            </div>
+<div class="odon-form-page odon-form-page-wide">
+    <div class="odon-form-card">
+        <div class="odon-form-header">
+            <a asp-action="Index" class="odon-form-back">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                Volver a Caja
+            </a>
+            <h1 class="odon-form-title">Registrar pago</h1>
         </div>
-    }
 
-    <div class="cobrar-procedimientos-card">
-        <h2 class="cobrar-procedimientos-title">Procedimientos a cobrar</h2>
-        @if (procedimientos.Any())
-        {
-            <table class="cobrar-procedimientos-table">
-                <thead>
-                    <tr>
-                        <th>Tratamiento</th>
-                        <th class="cobrar-procedimientos-th-precio">Precio</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var p in procedimientos)
-                    {
+        <div class="odon-form-body">
+            @if (orden != null)
+            {
+                <span class="odon-section-label">Resumen de la orden</span>
+                <div class="cobrar-resumen-grid">
+                    <div class="cobrar-resumen-item-new">
+                        <span class="odon-label">Paciente</span>
+                        <span class="cobrar-resumen-valor">@orden.Paciente?.Nombre @orden.Paciente?.Apellidos</span>
+                    </div>
+                    <div class="cobrar-resumen-item-new">
+                        <span class="odon-label">Total orden</span>
+                        <span class="cobrar-resumen-valor">RD$ @orden.Total.ToString("N2")</span>
+                    </div>
+                    <div class="cobrar-resumen-item-new">
+                        <span class="odon-label">Ya pagado</span>
+                        <span class="cobrar-resumen-valor">RD$ @orden.MontoPagado.ToString("N2")</span>
+                    </div>
+                    <div class="cobrar-resumen-item-new cobrar-saldo-highlight">
+                        <span class="odon-label">Saldo pendiente</span>
+                        <span class="cobrar-resumen-valor cobrar-saldo-valor">RD$ @Model.SaldoPendiente.ToString("N2")</span>
+                    </div>
+                </div>
+            }
+
+            @if (procedimientos.Any())
+            {
+                <span class="odon-section-label" style="margin-top:1.25rem">Procedimientos</span>
+                <table class="cobrar-procedimientos-table">
+                    <thead>
                         <tr>
-                            <td>@p.Nombre @if (!string.IsNullOrEmpty(p.Notas)) { <span class="cobrar-procedimientos-notas">(@p.Notas)</span> }</td>
-                            <td class="cobrar-procedimientos-precio">RD$ @p.Precio.ToString("N2")</td>
+                            <th>Tratamiento</th>
+                            <th class="cobrar-procedimientos-th-precio">Precio</th>
                         </tr>
-                    }
-                </tbody>
-                <tfoot>
-                    <tr class="cobrar-procedimientos-total-row">
-                        <td><strong>Total</strong></td>
-                        <td class="cobrar-procedimientos-precio"><strong>RD$ @totalProcedimientos.ToString("N2")</strong></td>
-                    </tr>
-                </tfoot>
-            </table>
-        }
-        else
-        {
-            <p class="cobrar-procedimientos-empty">No hay detalle de procedimientos para esta orden. El total mostrado corresponde a la orden de cobro.</p>
-            <p class="cobrar-procedimientos-total-solo"><strong>Total orden:</strong> RD$ @(orden?.Total.ToString("N2") ?? "0.00")</p>
-        }
-    </div>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in procedimientos)
+                        {
+                            <tr>
+                                <td>@p.Nombre @if (!string.IsNullOrEmpty(p.Notas)) { <span class="cobrar-procedimientos-notas">(@p.Notas)</span> }</td>
+                                <td class="cobrar-procedimientos-precio">RD$ @p.Precio.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="cobrar-procedimientos-total-row">
+                            <td><strong>Total</strong></td>
+                            <td class="cobrar-procedimientos-precio"><strong>RD$ @totalProcedimientos.ToString("N2")</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            }
+            else if (orden != null)
+            {
+                <p class="cobrar-procedimientos-empty">No hay detalle de procedimientos. Total de la orden: <strong>RD$ @orden.Total.ToString("N2")</strong></p>
+            }
 
-    <div class="cobrar-card">
-        <form asp-action="Cobrar" asp-route-id="@Model.OrdenCobroId" method="post" class="cobrar-form">
-            <input type="hidden" asp-for="OrdenCobroId" />
-            <input type="hidden" asp-for="SaldoPendiente" />
-            <div class="cobrar-field">
-                <label asp-for="Monto" class="cobrar-label">Monto (RD$)</label>
-                <div class="cobrar-input-wrap">
-                    <span class="cobrar-input-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                    </span>
-                    <input asp-for="Monto" type="number" step="0.01" min="0" class="cobrar-input" placeholder="0.00" />
+            <span class="odon-section-label" style="margin-top:1.25rem">Datos del pago</span>
+            <form asp-action="Cobrar" asp-route-id="@Model.OrdenCobroId" method="post">
+                <input type="hidden" asp-for="OrdenCobroId" />
+                <input type="hidden" asp-for="SaldoPendiente" />
+
+                <div class="odon-form-row">
+                    <div class="odon-form-field">
+                        <label class="odon-label" asp-for="Monto">Monto (RD$)</label>
+                        <input asp-for="Monto" type="number" step="0.01" min="0" class="odon-input" placeholder="0.00" />
+                        <span asp-validation-for="Monto" class="text-danger small"></span>
+                    </div>
+                    <div class="odon-form-field">
+                        <label class="odon-label" asp-for="MetodoPago">Método de pago</label>
+                        <select asp-for="MetodoPago" class="odon-select">
+                            <option value="">-- Seleccionar --</option>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Transferencia">Transferencia</option>
+                            <option value="Tarjeta">Tarjeta</option>
+                            <option value="Crédito">Crédito</option>
+                            <option value="Mixto">Mixto</option>
+                        </select>
+                    </div>
                 </div>
-                <span asp-validation-for="Monto" class="cobrar-validation"></span>
-            </div>
-            <div class="cobrar-field">
-                <label asp-for="MetodoPago" class="cobrar-label">Método de pago</label>
-                <div class="cobrar-input-wrap">
-                    <span class="cobrar-input-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                    </span>
-                    <select asp-for="MetodoPago" class="cobrar-input">
-                        <option value="">-- Seleccionar --</option>
-                        <option value="Efectivo">Efectivo</option>
-                        <option value="Transferencia">Transferencia</option>
-                        <option value="Tarjeta">Tarjeta</option>
-                        <option value="Crédito">Crédito</option>
-                        <option value="Mixto">Mixto</option>
-                    </select>
+                <div class="odon-form-field" style="margin-top:.75rem">
+                    <label class="odon-label" asp-for="Referencia">Referencia</label>
+                    <input asp-for="Referencia" class="odon-input" placeholder="Nº de referencia o nota" />
                 </div>
-            </div>
-            <div class="cobrar-field">
-                <label asp-for="Referencia" class="cobrar-label">Referencia</label>
-                <div class="cobrar-input-wrap">
-                    <span class="cobrar-input-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                    </span>
-                    <input asp-for="Referencia" class="cobrar-input" placeholder="Nº de referencia o nota" />
+
+                <div class="odon-form-footer" style="position:static;border-top:1px solid #edf0f4;margin:1.5rem -2rem -1.75rem;padding:1rem 2rem">
+                    <a asp-action="Index" class="odon-btn odon-btn-secondary">Cancelar</a>
+                    <button type="submit" class="odon-btn odon-btn-primary">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                        Registrar pago
+                    </button>
                 </div>
-            </div>
-            <div class="cobrar-actions">
-                <button type="submit" class="cobrar-btn-primary">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    Registrar pago
-                </button>
-                <a asp-action="Index" class="cobrar-btn-cancel">Cancelar</a>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 

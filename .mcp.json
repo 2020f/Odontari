@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "obsidian": {
+      "command": "npx",
+      "args": ["-y", "obsidian-mcp", "C:\\Users\\srSkimberlyn\\Desktop\\agenda-inteligente\\agenda inteligente"]
+    }
+  }
+}

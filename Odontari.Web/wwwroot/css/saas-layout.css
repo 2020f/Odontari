@@ -54,6 +54,7 @@ body.saas-layout {
   width: 28px;
   height: 28px;
   flex-shrink: 0;
+  object-fit: contain;
   opacity: 0.95;
 }
 

@@ -1,3 +1,5 @@
+using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -6,10 +8,11 @@ using Odontari.Web.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the container. 952
 var connectionString = builder.Configuration.GetConnectionString("ConexionSql") ?? throw new InvalidOperationException("Connection string 'ConexionSql' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString, sqlOptions =>
+        sqlOptions.CommandTimeout(120)));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -50,6 +53,27 @@ builder.Services.ConfigureApplicationCookie(options =>
         }
     };
 });
+
+// Data Protection — persiste las claves en Azure Blob para sobrevivir reinicios del App Service
+var blobConnStr = builder.Configuration["AzureBlob:ConnectionString"];
+var blobContainer = builder.Configuration["AzureBlob:Container"] ?? "fotos-generales";
+if (!string.IsNullOrWhiteSpace(blobConnStr))
+{
+    try
+    {
+        var blobContainerClient = new BlobContainerClient(blobConnStr, blobContainer);
+        blobContainerClient.CreateIfNotExists();
+        var dpBlobClient = blobContainerClient.GetBlobClient("dataprotection-keys.xml");
+        builder.Services.AddDataProtection()
+            .SetApplicationName("OdontariWeb")
+            .PersistKeysToAzureBlobStorage(dpBlobClient);
+    }
+    catch (Exception ex)
+    {
+        var startupLogger = LoggerFactory.Create(lb => lb.AddConsole()).CreateLogger("Startup");
+        startupLogger.LogWarning(ex, "No se pudo configurar Data Protection en Azure Blob. La app arrancará con claves en memoria (sesiones se perderán al reiniciar).");
+    }
+}
 
 builder.Services.AddControllersWithViews(o =>
 {
@@ -110,10 +134,10 @@ try
 {
     await Odontari.Web.Data.SeedData.EnsureSeedAsync(app.Services);
 }
-catch (SqlException ex)
+catch (Exception ex) when (ex is SqlException || ex is InvalidOperationException || ex is TimeoutException)
 {
     var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    logger.LogWarning(ex, "No se pudo conectar a SQL Server durante el seed. Verifique que SQL Server esté en ejecución y la cadena de conexión en appsettings.json (Server e instancia correctos). La aplicación arrancará pero roles/usuarios iniciales pueden no existir.");
+    logger.LogWarning(ex, "Error durante el seed inicial. Verifique que SQL Server esté en ejecución. La aplicación arrancará pero roles/usuarios iniciales pueden no existir.");
 }
 
 app.Run();

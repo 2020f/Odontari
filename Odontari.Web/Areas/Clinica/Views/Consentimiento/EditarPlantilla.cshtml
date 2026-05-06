@@ -1,0 +1,92 @@
+@model Odontari.Web.ViewModels.PlantillaConsentimientoEditViewModel
+@{
+    ViewData["Title"] = "Editar plantilla";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/consentimiento.css" asp-append-version="true" />
+}
+
+<div class="odon-form-page odon-form-page-wide">
+    <div class="odon-form-card">
+        <div class="odon-form-header">
+            <a asp-action="Index" class="odon-form-back">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                Volver
+            </a>
+            <h1 class="odon-form-title">Editar plantilla — v@Model.Version</h1>
+        </div>
+        <form asp-action="EditarPlantilla" method="post">
+            @Html.AntiForgeryToken()
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="Version" type="hidden" />
+            <div class="odon-form-body">
+                <div class="alert alert-info mb-3 py-2 px-3 small">
+                    <strong>Nota:</strong> Si editas el texto base, la versión se incrementará automáticamente. Los documentos ya firmados conservan el texto de la versión en que fueron generados.
+                </div>
+
+                <span class="odon-section-label">Identificación</span>
+                <div class="odon-form-row">
+                    <div class="odon-form-field">
+                        <label class="odon-label" asp-for="Nombre">Nombre interno</label>
+                        <input asp-for="Nombre" class="odon-input" />
+                        <span asp-validation-for="Nombre" class="text-danger small"></span>
+                    </div>
+                    <div class="odon-form-field">
+                        <label class="odon-label" asp-for="Titulo">Título visible al paciente</label>
+                        <input asp-for="Titulo" class="odon-input" />
+                        <span asp-validation-for="Titulo" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <span class="odon-section-label" style="margin-top:1.25rem">Texto del documento</span>
+
+                <div class="consent-markers-hint">
+                    <div class="consent-markers-hint-title">Marcadores disponibles — clic para insertar</div>
+                    <div class="consent-markers-list">
+                        @foreach (var m in new[] { "{NOMBRE_PACIENTE}", "{CEDULA}", "{EDAD}", "{DOCTOR}", "{FECHA}", "{HORA}", "{CLINICA}" })
+                        {
+                            <span class="consent-marker-chip" onclick="insertMarker('@m')">@m</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="odon-form-field">
+                    <label class="odon-label" asp-for="TextoBase">Texto base del consentimiento</label>
+                    <textarea id="textoBase" asp-for="TextoBase" class="odon-input" rows="14"></textarea>
+                    <span asp-validation-for="TextoBase" class="text-danger small"></span>
+                </div>
+
+                <div class="odon-form-row" style="margin-top:1rem">
+                    <label class="odon-check-row">
+                        <input asp-for="EsObligatorio" type="checkbox" />
+                        <span>Es obligatorio (bloquea finalizar sin firma)</span>
+                    </label>
+                    <label class="odon-check-row">
+                        <input asp-for="Activo" type="checkbox" />
+                        <span>Plantilla activa</span>
+                    </label>
+                </div>
+            </div>
+            <div class="odon-form-footer">
+                <a asp-action="Index" class="odon-btn odon-btn-secondary">Cancelar</a>
+                <button type="submit" class="odon-btn odon-btn-primary">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+                    Guardar cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function insertMarker(marker) {
+            const ta = document.getElementById('textoBase');
+            const start = ta.selectionStart, end = ta.selectionEnd;
+            ta.value = ta.value.substring(0, start) + marker + ta.value.substring(end);
+            ta.selectionStart = ta.selectionEnd = start + marker.length;
+            ta.focus();
+        }
+    </script>
+}

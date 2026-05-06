@@ -71,7 +71,7 @@ body.clinica-layout {
   width: 24px;
   height: 24px;
   flex-shrink: 0;
-  color: var(--odon-accent-light);
+  object-fit: contain;
 }
 
 .clinica-sidebar .sidebar-brand-text {
@@ -171,94 +171,7 @@ body.clinica-layout {
   opacity: 1;
 }
 
-/* ─── Zona usuario (inferior) ────────────────────────────────── */
-.clinica-sidebar-user {
-  flex-shrink: 0;
-  border-top: 1px solid rgba(255,255,255,0.07);
-  padding: 12px 12px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 60px;
-}
-
-.clinica-sidebar-user .user-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--odon-accent) 0%, var(--odon-nav-active) 100%);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.8rem;
-  flex-shrink: 0;
-  letter-spacing: 0.02em;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-
-.clinica-sidebar-user .user-info {
-  flex: 1;
-  min-width: 0;
-  opacity: 0;
-  transition: opacity var(--odon-transition);
-}
-
-.clinica-sidebar:hover .clinica-sidebar-user .user-info {
-  opacity: 1;
-}
-
-.clinica-sidebar-user .user-name {
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: rgba(255,255,255,0.95);
-}
-
-.clinica-sidebar-user .user-role {
-  display: block;
-  font-size: 0.68rem;
-  color: rgba(255,255,255,0.45);
-  letter-spacing: 0.03em;
-  margin-top: 1px;
-}
-
-.clinica-sidebar-user .user-actions {
-  display: flex;
-  align-items: center;
-}
-
-.clinica-sidebar-user .btn-logout {
-  padding: 6px 8px;
-  color: rgba(255,255,255,0.5);
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: color var(--odon-transition), background var(--odon-transition);
-}
-
-.clinica-sidebar-user .btn-logout:hover {
-  background: rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.9);
-}
-
-.clinica-sidebar .btn-logout .btn-logout-text {
-  display: none;
-}
-
-.clinica-sidebar:hover .clinica-sidebar-user .btn-logout .btn-logout-text {
-  display: inline;
-}
+/* ─── Usuario en header superior derecho ─────────────────────── */
 
 /* ─── Contenido principal ────────────────────────────────────── */
 .clinica-main {
@@ -282,6 +195,7 @@ body.clinica-layout {
   border-bottom: 1px solid rgba(0,29,57,0.07);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -294,6 +208,73 @@ body.clinica-layout {
   color: rgba(0,29,57,0.55);
   letter-spacing: 0.02em;
   text-transform: uppercase;
+}
+
+/* Bloque usuario — header derecho */
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.header-user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.2;
+}
+
+.header-user-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1a2e3f;
+  white-space: nowrap;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-user-role {
+  font-size: 0.68rem;
+  color: rgba(0,29,57,0.42);
+  letter-spacing: 0.03em;
+}
+
+.header-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--odon-accent) 0%, var(--odon-nav-active) 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.78rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(78,142,162,0.35);
+}
+
+.header-btn-logout {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid rgba(0,29,57,0.1);
+  border-radius: 7px;
+  color: rgba(0,29,57,0.45);
+  cursor: pointer;
+  transition: background var(--odon-transition), color var(--odon-transition), border-color var(--odon-transition);
+  flex-shrink: 0;
+}
+
+.header-btn-logout:hover {
+  background: rgba(0,29,57,0.05);
+  color: #001D39;
+  border-color: rgba(0,29,57,0.2);
 }
 
 .clinica-main-content {

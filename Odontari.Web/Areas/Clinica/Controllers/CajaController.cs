@@ -175,9 +175,8 @@ public class CajaController : Controller
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
 
         var queryPagos = _db.Pagos
+            .AsNoTracking()
             .Where(p => p.OrdenCobro.ClinicaId == cid)
-            .Include(p => p.OrdenCobro).ThenInclude(o => o!.Paciente)
-            .Include(p => p.OrdenCobro).ThenInclude(o => o!.Factura)
             .AsQueryable();
 
         if (desde.HasValue) queryPagos = queryPagos.Where(p => p.FechaPago >= desde.Value);
@@ -226,9 +225,8 @@ public class CajaController : Controller
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
 
         var queryPagos = _db.Pagos
+            .AsNoTracking()
             .Where(p => p.OrdenCobro.ClinicaId == cid)
-            .Include(p => p.OrdenCobro).ThenInclude(o => o!.Paciente)
-            .Include(p => p.OrdenCobro).ThenInclude(o => o!.Factura)
             .AsQueryable();
         if (desde.HasValue) queryPagos = queryPagos.Where(p => p.FechaPago >= desde.Value);
         if (hasta.HasValue) queryPagos = queryPagos.Where(p => p.FechaPago < hasta.Value.AddDays(1));
@@ -238,6 +236,11 @@ public class CajaController : Controller
             var txt = pacienteTexto.Trim();
             queryPagos = queryPagos.Where(p => (p.OrdenCobro.Paciente.Nombre + " " + (p.OrdenCobro.Paciente.Apellidos ?? "")).Contains(txt));
         }
+
+        var nombreClinica = await _db.Clinicas.AsNoTracking()
+            .Where(c => c.Id == cid)
+            .Select(c => c.Nombre)
+            .FirstOrDefaultAsync();
 
         var items = await queryPagos
             .OrderByDescending(p => p.FechaPago)
@@ -255,7 +258,7 @@ public class CajaController : Controller
             })
             .ToListAsync();
 
-        var pdf = _historialPagosPdfService.GeneratePdf(items, desde, hasta, metodoPago);
+        var pdf = _historialPagosPdfService.GeneratePdf(items, desde, hasta, metodoPago, nombreClinica);
         return File(pdf, "application/pdf", "HistorialPagos.pdf");
     }
 }

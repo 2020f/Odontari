@@ -48,6 +48,7 @@ public static class SeedData
             MaxDoctores = 2,
             PermiteFacturacion = true,
             PermiteOdontograma = true,
+            PermiteConsentimiento = false,
             PermiteWhatsApp = false,
             PermiteARS = false,
             Activo = true

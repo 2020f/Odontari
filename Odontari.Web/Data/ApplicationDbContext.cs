@@ -32,6 +32,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<NCFRango> NCFRangos => Set<NCFRango>();
     public DbSet<NCFMovimiento> NCFMovimientos => Set<NCFMovimiento>();
     public DbSet<Factura> Facturas => Set<Factura>();
+    public DbSet<PlantillaConsentimiento> PlantillasConsentimiento => Set<PlantillaConsentimiento>();
+    public DbSet<ConsentimientoGenerado> ConsentimientosGenerados => Set<ConsentimientoGenerado>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -189,6 +191,46 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             b.HasOne(m => m.NCFTipo).WithMany().HasForeignKey(m => m.NCFTipoId).OnDelete(DeleteBehavior.Restrict);
             b.HasOne(m => m.Factura).WithMany(f => f.NCFMovimientos).HasForeignKey(m => m.FacturaId).OnDelete(DeleteBehavior.SetNull);
             b.HasOne(m => m.Usuario).WithMany().HasForeignKey(m => m.UsuarioId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<PlantillaConsentimiento>(b =>
+        {
+            b.Property(p => p.Nombre).HasMaxLength(200);
+            b.Property(p => p.Titulo).HasMaxLength(300);
+            b.HasOne(p => p.Clinica)
+                .WithMany(c => c.PlantillasConsentimiento)
+                .HasForeignKey(p => p.ClinicaId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<ConsentimientoGenerado>(b =>
+        {
+            b.Property(c => c.NombreFirmante).HasMaxLength(200);
+            b.Property(c => c.Observacion).HasMaxLength(500);
+            b.HasOne(c => c.Clinica)
+                .WithMany(cl => cl.ConsentimientosGenerados)
+                .HasForeignKey(c => c.ClinicaId)
+                .OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(c => c.Plantilla)
+                .WithMany(p => p.Consentimientos)
+                .HasForeignKey(c => c.PlantillaId)
+                .OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(c => c.Paciente)
+                .WithMany(p => p.Consentimientos)
+                .HasForeignKey(c => c.PacienteId)
+                .OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(c => c.Cita)
+                .WithMany()
+                .HasForeignKey(c => c.CitaId)
+                .OnDelete(DeleteBehavior.Restrict);
+            b.HasOne(c => c.ProcedimientoRealizado)
+                .WithMany()
+                .HasForeignKey(c => c.ProcedimientoRealizadoId)
+                .OnDelete(DeleteBehavior.SetNull);
+            b.HasOne(c => c.Doctor)
+                .WithMany()
+                .HasForeignKey(c => c.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         builder.Entity<Factura>(b =>

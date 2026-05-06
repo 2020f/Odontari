@@ -5,12 +5,15 @@
     var citaId = ViewBag.CitaId as int?;
     ViewData["Title"] = "Archivos - " + (paciente?.Nombre ?? "Paciente");
 }
+@section Styles {
+    <link rel="stylesheet" href="~/css/subirarchivos.css" asp-append-version="true" />
+}
 
 @await Html.PartialAsync("../Expediente/_ExpedienteMenu")
 
 <div class="expediente-header">
     <h1 class="expediente-title">Archivos y documentos</h1>
-    <p class="expediente-sub mb-0">@(paciente?.Nombre) @(paciente?.Apellidos) — Subir imágenes (JPEG, PNG, GIF, WebP, BMP) o PDF. Máx. 10 MB por archivo.</p>
+    <p class="expediente-sub mb-0">@(paciente?.Nombre) @(paciente?.Apellidos) — Imágenes (JPEG, PNG, GIF, WebP, BMP) o PDF. Máx. 10 MB por archivo.</p>
 </div>
 
 @if (TempData["MensajeArchivo"] != null)
@@ -29,56 +32,137 @@
 }
 
 <div class="content-card mb-4">
-    <h2 class="expediente-section-title">Subir archivos</h2>
-    <form asp-action="Subir" asp-route-pacienteId="@pacienteId" asp-route-citaId="@citaId" method="post" enctype="multipart/form-data" class="mb-0">
-        @Html.AntiForgeryToken()
-        <div class="mb-3">
-            <label for="archivos" class="form-label">Seleccione uno o más archivos (imagen o PDF)</label>
-            <input type="file" class="form-control" id="archivos" name="archivos" multiple accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.pdf,image/*,application/pdf" />
-        </div>
-        <button type="submit" class="btn btn-primary">Subir</button>
-    </form>
+    <div class="sa-card-body">
+        <h2 class="expediente-section-title mb-3">Subir archivos</h2>
+        <form asp-action="Subir" asp-route-pacienteId="@pacienteId" asp-route-citaId="@citaId" method="post" enctype="multipart/form-data" id="uploadForm">
+            @Html.AntiForgeryToken()
+            <div class="sa-upload-zone" id="uploadZone">
+                <div class="sa-upload-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                </div>
+                <div class="sa-upload-label">Arrastre archivos aquí</div>
+                <div class="sa-upload-hint">o haga clic para seleccionar — JPEG, PNG, GIF, WebP, BMP, PDF — máx. 10 MB por archivo</div>
+                <div class="sa-upload-btn-fake">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Seleccionar archivos
+                </div>
+                <input type="file" class="sa-upload-input" id="archivos" name="archivos" multiple
+                       accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.pdf,image/*,application/pdf" />
+            </div>
+
+            <div class="sa-selected-files" id="selectedFiles" style="display:none">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                <span id="selectedText"></span>
+            </div>
+
+            <div class="sa-submit-row">
+                <button type="submit" class="odon-btn odon-btn-primary" id="btnSubir" disabled>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Subir archivos
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <div class="content-card">
-    <h2 class="expediente-section-title">Archivos disponibles</h2>
-    @if (archivos.Any())
-    {
-        <div class="table-responsive">
-            <table class="table expediente-historial">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Tipo</th>
-                        <th>Tamaño</th>
-                        <th>Fecha</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var a in archivos)
-                    {
-                        <tr>
-                            <td>@a.FileNameOriginal</td>
-                            <td>@(a.ContentType.StartsWith("image/") ? "Imagen" : "PDF")</td>
-                            <td>@((a.SizeBytes / 1024.0).ToString("N1")) KB</td>
-                            <td>@a.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td>
-                                <a asp-action="Ver" asp-route-id="@a.Id" target="_blank" class="btn btn-sm btn-outline-primary me-1">Ver</a>
-                                <a asp-action="Descargar" asp-route-id="@a.Id" class="btn btn-sm btn-outline-secondary me-1">Descargar</a>
-                                <form asp-action="Eliminar" asp-route-id="@a.Id" asp-route-pacienteId="@pacienteId" asp-route-citaId="@citaId" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar este archivo?');">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-                                </form>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
-    else
-    {
-        <p class="expediente-empty mb-0">No hay archivos subidos para este paciente. Use el formulario de arriba para subir imágenes o PDF.</p>
-    }
+    <div class="sa-card-body">
+        <h2 class="expediente-section-title mb-3">
+            Archivos disponibles
+            <span class="sa-count">@archivos.Count</span>
+        </h2>
+
+        @if (archivos.Any())
+        {
+            <div class="sa-file-list">
+                @foreach (var a in archivos)
+                {
+                    var esImagen = a.ContentType.StartsWith("image/");
+                    <div class="sa-file-item">
+                        <div class="sa-file-icon @(esImagen ? "sa-file-icon-img" : "sa-file-icon-pdf")">
+                            @if (esImagen)
+                            {
+                                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            }
+                            else
+                            {
+                                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                            }
+                        </div>
+
+                        <span class="sa-file-name" title="@a.FileNameOriginal">@a.FileNameOriginal</span>
+
+                        <div class="sa-file-meta">
+                            <span>@((a.SizeBytes / 1024.0).ToString("N1")) KB</span>
+                            <span>@a.CreatedAt.ToString("dd/MM/yyyy")</span>
+                        </div>
+
+                        <div class="sa-file-actions">
+                            <a asp-action="Ver" asp-route-id="@a.Id" target="_blank" class="sa-action-btn sa-action-ver">Ver</a>
+                            <a asp-action="Descargar" asp-route-id="@a.Id" class="sa-action-btn sa-action-descargar">Descargar</a>
+                            <form asp-action="Eliminar" asp-route-id="@a.Id" asp-route-pacienteId="@pacienteId" asp-route-citaId="@citaId"
+                                  method="post" class="d-inline" onsubmit="return confirm('¿Eliminar este archivo?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="sa-action-btn sa-action-eliminar">Eliminar</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="sa-empty">
+                <div class="sa-empty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                </div>
+                No hay archivos subidos para este paciente.<br/>
+                <span style="color:#b0bec8;">Use el área de arriba para subir imágenes o PDF.</span>
+            </div>
+        }
+    </div>
 </div>
+
+@section Scripts {
+<script>
+(function () {
+    const zone   = document.getElementById('uploadZone');
+    const input  = document.getElementById('archivos');
+    const selEl  = document.getElementById('selectedFiles');
+    const selTxt = document.getElementById('selectedText');
+    const btn    = document.getElementById('btnSubir');
+
+    function refresh() {
+        const n = input.files.length;
+        if (n > 0) {
+            selTxt.textContent = n === 1 ? input.files[0].name : n + ' archivos seleccionados';
+            selEl.style.display = 'flex';
+            btn.disabled = false;
+        } else {
+            selEl.style.display = 'none';
+            btn.disabled = true;
+        }
+    }
+
+    input.addEventListener('change', refresh);
+
+    zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', ()  => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        const dt = new DataTransfer();
+        Array.from(e.dataTransfer.files).forEach(f => dt.items.add(f));
+        input.files = dt.files;
+        refresh();
+    });
+})();
+</script>
+}

@@ -149,25 +149,76 @@ public class ExpedienteController : Controller
         if (proximaCita != null)
             vm.ProximoPaso = $"Próxima cita: {proximaCita.FechaHora:dd/MM/yyyy HH:mm} — {proximaCita.Motivo ?? "—"}";
 
-        // Timeline: HistorialClinico (citas, odontograma, procedimientos), opcionalmente filtrado por fechas
-        var query = _db.HistorialClinico
+        // Timeline: HistorialClinico con autor resuelto
+        var queryH = _db.HistorialClinico
+            .AsNoTracking()
             .Where(h => h.PacienteId == id && h.ClinicaId == cid);
         if (fechaInicio.HasValue)
-            query = query.Where(h => h.FechaEvento.Date >= fechaInicio.Value.Date);
+            queryH = queryH.Where(h => h.FechaEvento.Date >= fechaInicio.Value.Date);
         if (fechaFin.HasValue)
-            query = query.Where(h => h.FechaEvento.Date <= fechaFin.Value.Date);
-        var historial = await query
+            queryH = queryH.Where(h => h.FechaEvento.Date <= fechaFin.Value.Date);
+
+        var historialRaw = await queryH
             .OrderByDescending(h => h.FechaEvento)
             .Take(500)
-            .Select(h => new HistorialEventoViewModel
-            {
-                Id = h.Id,
-                CitaId = h.CitaId,
-                FechaEvento = h.FechaEvento,
-                TipoEvento = h.TipoEvento,
-                Descripcion = h.Descripcion
-            })
+            .Select(h => new { h.Id, h.CitaId, h.FechaEvento, h.TipoEvento, h.Descripcion, h.UsuarioId })
             .ToListAsync();
+
+        // Resolver nombres de autores en un solo query (NombreCompleto puede ser prop. computada — traer a memoria)
+        var userIds = historialRaw.Where(h => h.UsuarioId != null).Select(h => h.UsuarioId!).Distinct().ToList();
+        Dictionary<string, string> usuarios;
+        if (userIds.Count > 0)
+        {
+            var usersRaw = await _db.Users.AsNoTracking()
+                .Where(u => userIds.Contains(u.Id))
+                .Select(u => new { u.Id, u.NombreCompleto, u.Email })
+                .ToListAsync();
+            usuarios = usersRaw.ToDictionary(u => u.Id, u => u.NombreCompleto ?? u.Email ?? "");
+        }
+        else
+        {
+            usuarios = new Dictionary<string, string>();
+        }
+
+        var historial = historialRaw.Select(h => new HistorialEventoViewModel
+        {
+            Id          = h.Id,
+            CitaId      = h.CitaId,
+            FechaEvento = h.FechaEvento,
+            TipoEvento  = h.TipoEvento,
+            Descripcion = h.Descripcion,
+            AutorNombre = h.UsuarioId != null && usuarios.TryGetValue(h.UsuarioId, out var n) ? n : null
+        }).ToList();
+
+        // Agregar notas de recepción desde Cita.Motivo
+        IQueryable<Cita> queryCitas = _db.Citas
+            .AsNoTracking()
+            .Where(c => c.PacienteId == id && c.ClinicaId == cid && c.Motivo != null && c.Motivo != "");
+        if (fechaInicio.HasValue)
+            queryCitas = queryCitas.Where(c => c.FechaHora.Date >= fechaInicio.Value.Date);
+        if (fechaFin.HasValue)
+            queryCitas = queryCitas.Where(c => c.FechaHora.Date <= fechaFin.Value.Date);
+        var citasConMotivo = await queryCitas
+            .OrderByDescending(c => c.FechaHora)
+            .Take(200)
+            .Select(c => new { c.Id, c.FechaHora, c.Motivo })
+            .ToListAsync();
+
+        foreach (var c in citasConMotivo)
+        {
+            historial.Add(new HistorialEventoViewModel
+            {
+                Id          = 0,
+                CitaId      = c.Id,
+                FechaEvento = c.FechaHora,
+                TipoEvento  = "Nota de recepción",
+                Descripcion = c.Motivo,
+                AutorNombre = "Recepción"
+            });
+        }
+
+        // Re-ordenar: más recientes primero
+        historial = historial.OrderByDescending(h => h.FechaEvento).ToList();
         vm.Timeline = historial;
 
         ViewBag.FechaInicio = fechaInicio;
@@ -890,5 +941,90 @@ public class ExpedienteController : Controller
 
         ViewBag.Paciente = paciente;
         return RedirectToAction(nameof(HistoriaClinicaSistematica), new { id, citaId = vm.CitaId });
+    }
+
+    /// <summary>
+    /// Agrega una nota clínica al historial del paciente. Solo doctores.
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = OdontariRoles.Doctor + "," + OdontariRoles.AdminClinica)]
+    public async Task<IActionResult> AgregarNotaClinica(int pacienteId, string nota, int? citaId)
+    {
+        var cid = ClinicaId;
+        if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
+
+        nota = (nota ?? "").Trim();
+        if (string.IsNullOrWhiteSpace(nota))
+            return RedirectToAction(nameof(Histograma), new { id = pacienteId });
+
+        var paciente = await _db.Pacientes
+            .FirstOrDefaultAsync(p => p.ClinicaId == cid && p.Id == pacienteId);
+        if (paciente == null) return NotFound();
+
+        _db.HistorialClinico.Add(new HistorialClinico
+        {
+            PacienteId  = pacienteId,
+            ClinicaId   = cid.Value,
+            CitaId      = citaId,
+            FechaEvento = DateTime.UtcNow,
+            TipoEvento  = "Nota clínica",
+            Descripcion = nota,
+            UsuarioId   = UserId
+        });
+        await _db.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Histograma), new { id = pacienteId });
+    }
+
+    /// <summary>Resumen de una cita para el panel flotante del histograma.</summary>
+    [HttpGet]
+    public async Task<IActionResult> ResumenCita(int id)
+    {
+        var cid = ClinicaId;
+        if (cid == null) return Unauthorized();
+
+        var cita = await _db.Citas
+            .Include(c => c.Doctor)
+            .Include(c => c.ProcedimientosRealizados).ThenInclude(pr => pr.Tratamiento)
+            .FirstOrDefaultAsync(c => c.ClinicaId == cid && c.Id == id);
+
+        if (cita == null) return NotFound();
+
+        var historial = await _db.HistorialClinico
+            .Where(h => h.ClinicaId == cid && h.CitaId == id)
+            .OrderBy(h => h.FechaEvento)
+            .ToListAsync();
+
+        var result = new
+        {
+            citaId = cita.Id,
+            fecha = cita.FechaHora.ToString("dd/MM/yyyy HH:mm"),
+            motivo = cita.Motivo ?? "Sin motivo registrado",
+            estado = cita.Estado.ToString(),
+            doctorNombre = cita.Doctor?.NombreCompleto ?? cita.Doctor?.Email ?? "—",
+            duracionMin = (cita.FinAtencionAt.HasValue && cita.InicioAtencionAt.HasValue)
+                ? (int)(cita.FinAtencionAt.Value - cita.InicioAtencionAt.Value).TotalMinutes
+                : (int?)null,
+            procedimientos = cita.ProcedimientosRealizados.Select(pr => new
+            {
+                nombre = pr.Tratamiento?.Nombre ?? "—",
+                precio = pr.PrecioAplicado,
+                realizado = pr.MarcadoRealizado,
+                notas = pr.Notas,
+                realizadoAt = pr.RealizadoAt?.ToString("HH:mm")
+            }).OrderByDescending(pr => pr.realizado).ToList(),
+            totalCobrado = cita.ProcedimientosRealizados
+                .Where(pr => pr.MarcadoRealizado)
+                .Sum(pr => pr.PrecioAplicado),
+            eventos = historial.Select(h => new
+            {
+                tipo = h.TipoEvento,
+                descripcion = h.Descripcion,
+                hora = h.FechaEvento.ToString("HH:mm")
+            }).ToList()
+        };
+
+        return Json(result);
     }
 }

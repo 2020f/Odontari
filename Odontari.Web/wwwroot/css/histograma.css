@@ -1,0 +1,766 @@
+/* ─── Histograma — Diseño moderno ────────────────────────────── */
+
+/* ─── Section wrapper ─────────────────────────────────────────── */
+.histo-section {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e9eef4;
+    box-shadow: 0 1px 4px rgba(0,29,57,.04), 0 4px 16px rgba(0,29,57,.04);
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+}
+
+.histo-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    flex-wrap: wrap;
+    padding: .9rem 1.5rem;
+    border-bottom: 1px solid #f0f4f8;
+    background: #fafbfc;
+}
+
+.histo-section-title {
+    font-size: .72rem;
+    font-weight: 700;
+    color: rgba(0,29,57,.48);
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    margin: 0;
+}
+
+.histo-section-body {
+    padding: 1.25rem 1.5rem;
+}
+
+/* ─── Data grid (Datos del paciente) ─────────────────────────── */
+.histo-data-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1rem 2rem;
+}
+
+.histo-data-label {
+    font-size: .68rem;
+    font-weight: 700;
+    color: rgba(0,29,57,.42);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: .2rem;
+}
+
+.histo-data-value {
+    font-size: .895rem;
+    color: #1e293b;
+    font-weight: 500;
+    line-height: 1.45;
+}
+
+/* ─── Medical conditions grid ────────────────────────────────── */
+.histo-conditions {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: .45rem;
+}
+
+.histo-condition {
+    display: flex;
+    align-items: flex-start;
+    gap: .55rem;
+    padding: .5rem .75rem;
+    border-radius: 8px;
+    font-size: .82rem;
+    background: #f8fafc;
+    border: 1px solid #e9eef4;
+}
+
+.histo-condition-yes {
+    background: rgba(220,53,69,.055);
+    border-color: rgba(220,53,69,.18);
+}
+
+.histo-condition-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #dde5ed;
+    flex-shrink: 0;
+    margin-top: .32rem;
+}
+
+.histo-condition-yes .histo-condition-dot {
+    background: #dc3545;
+}
+
+.histo-condition-name {
+    color: #64748b;
+    flex: 1;
+    line-height: 1.4;
+}
+
+.histo-condition-yes .histo-condition-name {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.histo-condition-val {
+    font-size: .72rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    padding: .08rem .42rem;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.histo-condition-yes .histo-condition-val {
+    color: #a02530;
+    background: rgba(220,53,69,.12);
+}
+
+.histo-condition-no .histo-condition-val {
+    color: #b0bec8;
+    background: transparent;
+}
+
+/* ─── Odontogram stat cards ──────────────────────────────────── */
+.histo-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: .65rem;
+    margin-bottom: 1rem;
+}
+
+.histo-stat {
+    padding: .9rem .75rem;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid #e9eef4;
+    background: #fafbfc;
+}
+
+.histo-stat-num {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: .3rem;
+}
+
+.histo-stat-label {
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #94a3b8;
+}
+
+.histo-stat-caries  { color: #dc3545; background: rgba(220,53,69,.055); border-color: rgba(220,53,69,.14); }
+.histo-stat-rest    { color: #0284c7; background: rgba(2,132,199,.055); border-color: rgba(2,132,199,.14); }
+.histo-stat-ausentes{ color: #64748b; background: rgba(100,116,139,.06); border-color: rgba(100,116,139,.14); }
+.histo-stat-endo    { color: #15803d; background: rgba(21,128,61,.055); border-color: rgba(21,128,61,.14); }
+.histo-stat-otros   { color: #7c3aed; background: rgba(124,58,237,.055); border-color: rgba(124,58,237,.14); }
+
+/* Hallazgos scrollable */
+.histo-hallazgos {
+    max-height: 180px;
+    overflow-y: auto;
+    border: 1px solid #e9eef4;
+    border-radius: 8px;
+    background: #fafbfc;
+    padding: .5rem .75rem;
+    margin-top: .65rem;
+    font-size: .82rem;
+    color: #334155;
+    line-height: 1.75;
+}
+
+/* ─── Quick summary 3-col ────────────────────────────────────── */
+.histo-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+}
+
+@media (max-width: 640px) {
+    .histo-summary-grid { grid-template-columns: 1fr; }
+}
+
+.histo-summary-label {
+    font-size: .68rem;
+    font-weight: 700;
+    color: rgba(0,29,57,.42);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: .35rem;
+}
+
+.histo-summary-value {
+    font-size: .895rem;
+    color: #1e293b;
+    font-weight: 500;
+    line-height: 1.55;
+}
+
+/* ─── Timeline ───────────────────────────────────────────────── */
+.histo-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    padding: .7rem 1.5rem;
+    border-bottom: 1px solid #f0f4f8;
+    background: #fafbfd;
+}
+
+.histo-filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+}
+
+.histo-filter-label {
+    font-size: .74rem;
+    font-weight: 600;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
+.histo-filter-bar .form-control-sm {
+    font-size: .8rem;
+    border-color: #e2e8f0;
+    border-radius: 7px;
+    padding: .3rem .65rem;
+}
+
+.histo-active-filter {
+    font-size: .75rem;
+    color: #64748b;
+    padding: .25rem .75rem;
+    background: #eef2f7;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+/* Timeline list */
+.histo-timeline-list {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.histo-timeline-list::before {
+    content: '';
+    position: absolute;
+    left: .55rem;
+    top: .4rem;
+    bottom: .4rem;
+    width: 2px;
+    background: #e9eef4;
+    border-radius: 2px;
+}
+
+.histo-tl-item {
+    position: relative;
+    padding-bottom: 1.35rem;
+}
+
+.histo-tl-item:last-child {
+    padding-bottom: 0;
+}
+
+.histo-tl-dot {
+    position: absolute;
+    left: -1.5rem;
+    top: .28rem;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    border: 2.5px solid #fff;
+    box-shadow: 0 0 0 1.5px #cbd5e1;
+}
+
+.histo-tl-dot-cita   { background: #4E8EA2; box-shadow: 0 0 0 1.5px #4E8EA2; }
+.histo-tl-dot-odonto { background: #7c3aed; box-shadow: 0 0 0 1.5px #7c3aed; }
+.histo-tl-dot-pago   { background: #15803d; box-shadow: 0 0 0 1.5px #15803d; }
+
+.histo-tl-head {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+    margin-bottom: .2rem;
+}
+
+.histo-tl-date {
+    font-size: .72rem;
+    font-weight: 600;
+    color: #94a3b8;
+}
+
+.histo-tl-type {
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: .1rem .45rem;
+    border-radius: 4px;
+    background: #f0f4f8;
+    color: #64748b;
+}
+
+.histo-tl-type-cita   { background: rgba(78,142,162,.12); color: #2d7a90; }
+.histo-tl-type-odonto { background: rgba(124,58,237,.10); color: #6d28d9; }
+.histo-tl-type-pago   { background: rgba(21,128,61,.10);  color: #15803d; }
+
+.histo-tl-desc {
+    font-size: .855rem;
+    color: #475569;
+    line-height: 1.5;
+    margin-bottom: .35rem;
+}
+
+.histo-tl-action {
+    display: inline-flex;
+    align-items: center;
+    gap: .28rem;
+    font-size: .75rem;
+    font-weight: 600;
+    color: #4E8EA2;
+    text-decoration: none;
+    padding: .2rem .55rem;
+    border-radius: 5px;
+    background: rgba(78,142,162,.08);
+    border: 1px solid rgba(78,142,162,.18);
+    transition: background .15s, color .15s;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.histo-tl-action:hover {
+    background: rgba(78,142,162,.16);
+    color: #0A4174;
+}
+
+.histo-tl-empty {
+    color: #94a3b8;
+    font-size: .875rem;
+    padding: 1.75rem 0;
+    text-align: center;
+}
+
+/* ─── Drawer / Panel flotante de resumen de cita ─────────────── */
+.cita-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,29,57,.35);
+    z-index: 1040;
+    opacity: 0;
+    transition: opacity .25s;
+    pointer-events: none;
+}
+
+.cita-drawer-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.cita-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(480px, 100vw);
+    background: #fff;
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform .28s cubic-bezier(.4,0,.2,1);
+    box-shadow: -4px 0 32px rgba(0,29,57,.14);
+}
+
+.cita-drawer.open {
+    transform: translateX(0);
+}
+
+.cita-drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1.5rem;
+    border-bottom: 1px solid #e9eef4;
+    background: #fafbfc;
+    flex-shrink: 0;
+}
+
+.cita-drawer-titulo {
+    font-size: .8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: rgba(0,29,57,.5);
+    margin: 0;
+}
+
+.cita-drawer-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: #f0f4f8;
+    border-radius: 7px;
+    color: #64748b;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+    flex-shrink: 0;
+}
+
+.cita-drawer-close:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.cita-drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem 1.5rem;
+}
+
+/* Header info de la cita */
+.cita-drawer-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .75rem 1.5rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid #f0f4f8;
+}
+
+.cita-drawer-info-full {
+    grid-column: 1 / -1;
+}
+
+.cita-drawer-label {
+    font-size: .67rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: rgba(0,29,57,.42);
+    margin-bottom: .2rem;
+}
+
+.cita-drawer-value {
+    font-size: .875rem;
+    font-weight: 500;
+    color: #1e293b;
+}
+
+/* Estado badge */
+.cita-estado-finalizada { color: #15803d; background: #dcfce7; padding: .15rem .55rem; border-radius: 6px; font-size: .72rem; font-weight: 700; }
+.cita-estado-cancelada  { color: #64748b; background: #f1f5f9; padding: .15rem .55rem; border-radius: 6px; font-size: .72rem; font-weight: 700; }
+.cita-estado-noshow     { color: #b45309; background: #fef3c7; padding: .15rem .55rem; border-radius: 6px; font-size: .72rem; font-weight: 700; }
+.cita-estado-otra       { color: #0284c7; background: rgba(2,132,199,.1); padding: .15rem .55rem; border-radius: 6px; font-size: .72rem; font-weight: 700; }
+
+/* Procedimientos */
+.cita-drawer-section-title {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: rgba(0,29,57,.45);
+    margin-bottom: .65rem;
+}
+
+.cita-proc-list {
+    display: flex;
+    flex-direction: column;
+    gap: .45rem;
+    margin-bottom: 1.1rem;
+}
+
+.cita-proc-item {
+    display: flex;
+    align-items: flex-start;
+    gap: .65rem;
+    padding: .65rem .85rem;
+    border-radius: 9px;
+    border: 1px solid #e9eef4;
+    background: #fafbfc;
+}
+
+.cita-proc-item-done {
+    background: rgba(21,128,61,.04);
+    border-color: rgba(21,128,61,.16);
+}
+
+.cita-proc-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #dde5ed;
+    flex-shrink: 0;
+    margin-top: .1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cita-proc-item-done .cita-proc-check {
+    background: #15803d;
+    border-color: #15803d;
+    color: #fff;
+}
+
+.cita-proc-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.cita-proc-nombre {
+    font-size: .875rem;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.3;
+}
+
+.cita-proc-notas {
+    font-size: .775rem;
+    color: #64748b;
+    margin-top: .15rem;
+}
+
+.cita-proc-precio {
+    font-size: .85rem;
+    font-weight: 700;
+    color: #15803d;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.cita-proc-precio-zero {
+    color: #94a3b8;
+}
+
+/* Total */
+.cita-total-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .75rem .85rem;
+    background: #f0f7fa;
+    border-radius: 9px;
+    border: 1px solid #bdd8e9;
+    margin-bottom: 1.25rem;
+}
+
+.cita-total-label {
+    font-size: .8rem;
+    font-weight: 700;
+    color: #0A4174;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.cita-total-valor {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #0A4174;
+}
+
+/* Notas / eventos */
+.cita-eventos-list {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+}
+
+.cita-evento-item {
+    display: flex;
+    gap: .6rem;
+    font-size: .82rem;
+    color: #475569;
+    padding: .4rem 0;
+    border-bottom: 1px solid #f5f7fa;
+    align-items: flex-start;
+}
+
+.cita-evento-item:last-child {
+    border-bottom: none;
+}
+
+.cita-evento-hora {
+    font-size: .7rem;
+    font-weight: 600;
+    color: #94a3b8;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: .05rem;
+}
+
+.cita-evento-tipo {
+    font-weight: 600;
+    color: #1e293b;
+    flex-shrink: 0;
+}
+
+/* Loading / error states */
+.cita-drawer-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    color: #94a3b8;
+    font-size: .875rem;
+    gap: .75rem;
+}
+
+.cita-drawer-spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #4E8EA2;
+    border-radius: 50%;
+    animation: drawer-spin .7s linear infinite;
+}
+
+@keyframes drawer-spin {
+    to { transform: rotate(360deg); }
+}
+
+.cita-drawer-empty {
+    text-align: center;
+    color: #94a3b8;
+    font-size: .875rem;
+    padding: 1.5rem 0;
+}
+
+/* Antecedentes divider area */
+.histo-subsection {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #f0f4f8;
+}
+
+.histo-subsection-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: .75rem;
+}
+
+/* ── Autor del evento en el timeline ── */
+.histo-tl-autor {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #83b3dc;
+    margin-bottom: 4px;
+}
+.histo-tl-autor svg { flex-shrink: 0; }
+
+/* ── Notas (clínica y recepción) ── */
+.histo-tl-item-nota {
+    background: #f7fafd;
+    border-radius: 10px;
+    padding: 12px 14px;
+    border-left: 3px solid #83b3dc;
+}
+.histo-tl-desc-nota {
+    font-size: .875rem;
+    color: #1a2e45;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin-top: 2px;
+}
+/* Dot de nota clínica (verde) */
+.histo-tl-dot-nota {
+    background: #10b981;
+    border-color: #10b981;
+}
+/* Dot de nota de recepción (naranja) */
+.histo-tl-dot-recep {
+    background: #f59e0b;
+    border-color: #f59e0b;
+}
+/* Badge tipo nota clínica */
+.histo-tl-type-nota {
+    background: #d1fae5;
+    color: #065f46;
+}
+/* Badge tipo nota recepción */
+.histo-tl-type-recep {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* ── Formulario agregar nota clínica ── */
+.histo-nota-form-wrap {
+    padding: 1rem 1.5rem 1.25rem;
+    border-bottom: 1.5px solid #e8eef5;
+    background: #fbfdff;
+}
+.histo-nota-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.histo-nota-form-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #fff;
+    border: 1.5px solid #c3d9f0;
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: 0 1px 4px rgba(55,104,151,0.06);
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.histo-nota-form-body:focus-within {
+    border-color: #376897;
+    box-shadow: 0 0 0 3px rgba(55,104,151,0.1);
+}
+.histo-nota-icon { color: #376897; flex-shrink: 0; margin-top: 3px; }
+.histo-nota-textarea {
+    flex: 1;
+    border: none;
+    background: transparent;
+    resize: none;
+    font-size: 14px;
+    color: #1a2e45;
+    line-height: 1.6;
+    outline: none;
+    font-family: inherit;
+    min-height: 56px;
+}
+.histo-nota-textarea::placeholder { color: #b0c4d8; }
+.histo-nota-form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.histo-nota-hint {
+    font-size: 11px;
+    color: #9dafc2;
+    font-style: italic;
+}
+.histo-nota-btn {
+    white-space: nowrap;
+    padding: 7px 18px;
+    background: #376897;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-decoration: none;
+}
+.histo-nota-btn:hover { background: #2d5a80; color: #fff; }

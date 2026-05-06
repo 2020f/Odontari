@@ -126,12 +126,40 @@ public class ReporteFinancieroExportService
 
                 page.Header().Column(col =>
                 {
-                    col.Item().Text(data.Encabezado.NombreClinica).Bold().FontSize(14);
-                    col.Item().Text("RNC: " + data.Encabezado.RNC);
-                    col.Item().Text(data.Encabezado.Direccion);
-                    col.Item().Text(data.Encabezado.Telefono);
-                    col.Item().PaddingVertical(4).Text("Reporte Financiero").Bold().FontSize(12);
-                    col.Item().Text("Rango: " + data.Encabezado.RangoFechas + "  |  Generado: " + data.Encabezado.FechaGeneracion.ToString("dd/MM/yyyy HH:mm", Ci) + "  |  Por: " + data.Encabezado.UsuarioGenero).FontSize(8);
+                    // Banda principal — nombre de la clínica
+                    col.Item()
+                       .Background("#1B3A5C")
+                       .PaddingHorizontal(14).PaddingVertical(10)
+                       .Column(inner =>
+                       {
+                           inner.Item().Text(data.Encabezado.NombreClinica)
+                               .Bold().FontSize(16).FontColor("#FFFFFF");
+                           if (!string.IsNullOrEmpty(data.Encabezado.RNC))
+                               inner.Item().Text($"RNC: {data.Encabezado.RNC}")
+                                   .FontSize(8.5f).FontColor("#96BEE6");
+                       });
+
+                    // Franja de contacto
+                    var contactParts = new List<string>();
+                    if (!string.IsNullOrEmpty(data.Encabezado.Direccion)) contactParts.Add(data.Encabezado.Direccion);
+                    if (!string.IsNullOrEmpty(data.Encabezado.Telefono)) contactParts.Add($"Tel. {data.Encabezado.Telefono}");
+                    if (contactParts.Count > 0)
+                    {
+                        col.Item()
+                           .Background("#EEF3FA")
+                           .PaddingHorizontal(14).PaddingVertical(4)
+                           .Text(string.Join("   ·   ", contactParts))
+                           .FontSize(7.5f).FontColor("#3A5A80");
+                    }
+
+                    col.Item().Height(8);
+
+                    // Título del reporte e info de generación
+                    col.Item().Text("Reporte Financiero").Bold().FontSize(13).FontColor("#1B3A5C");
+                    col.Item().Text("Rango: " + data.Encabezado.RangoFechas + "   ·   Generado: " + data.Encabezado.FechaGeneracion.ToString("dd/MM/yyyy HH:mm", Ci) + "   ·   Por: " + data.Encabezado.UsuarioGenero).FontSize(8).FontColor("#555555");
+
+                    // Línea separadora
+                    col.Item().PaddingTop(5).Height(1.5f).Background("#1B3A5C");
                 });
 
                 page.Content().PaddingVertical(10).Column(col =>

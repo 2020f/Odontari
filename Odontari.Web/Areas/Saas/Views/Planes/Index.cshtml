@@ -21,6 +21,7 @@
                     <th>Max doctores</th>
                     <th>Facturación</th>
                     <th>Odontograma</th>
+                    <th>Consentimiento</th>
                     <th>Activo</th>
                     <th></th>
                 </tr>
@@ -35,6 +36,7 @@
                         <td>@p.MaxDoctores</td>
                         <td>@(p.PermiteFacturacion ? "Sí" : "No")</td>
                         <td>@(p.PermiteOdontograma ? "Sí" : "No")</td>
+                        <td>@(p.PermiteConsentimiento ? "Sí" : "No")</td>
                         <td>@(p.Activo ? "Sí" : "No")</td>
                         <td><a asp-area="Saas" asp-controller="Planes" asp-action="Edit" asp-route-id="@p.Id" class="table-link">Editar</a></td>
                     </tr>

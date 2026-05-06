@@ -6,6 +6,7 @@
     var fin = (DateTime)ViewBag.FechaFin;
     var vista = ViewBag.Vista as string ?? "semanal";
     var esDoctor = ViewBag.EsDoctor == true;
+    var puedeEditarCita = ViewBag.PuedeEditarCita == true;
     var doctores = ViewBag.Doctores as IEnumerable<dynamic>;
     var pacientes = ViewBag.Pacientes as IEnumerable<dynamic>;
     var motivos = ViewBag.Motivos as IEnumerable<string>;
@@ -27,7 +28,6 @@
         if (h < 19) slots.Add(new TimeSpan(h, 30, 0));
     }
 
-    string FmtFechaCorta(DateTime dt) => dt.ToString("dd.MM.yyyy", ci);
     string FmtDiaNombre(DateTime dt) => ci.DateTimeFormat.GetDayName(dt.DayOfWeek);
     string FmtRango() => vista == "diario"
         ? inicio.ToString("d MMM yyyy", ci)
@@ -38,6 +38,7 @@
 @section Styles {
     <link rel="stylesheet" href="~/css/agenda.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/agenda-dinamica.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/agenda-datetime-picker.css" asp-append-version="true" />
 }
 
 <div class="agenda-dinamica-page">
@@ -159,13 +160,13 @@
                             };
                             var duracion = c.DuracionMinutos > 0 ? c.DuracionMinutos : 30;
                             var spanSlots = Math.Max(1, duracion / 30);
-                            <a asp-action="Editar" asp-route-id="@c.Id" class="agenda-dinamica-block @estadoClase" style="--span: @spanSlots;" title="@(c.PacienteNombre) — @(c.Motivo ?? "Consulta")">
+                            <button type="button" class="agenda-dinamica-block @estadoClase" style="--span: @spanSlots;" data-cita-id="@c.Id" title="@(c.PacienteNombre) — @(c.Motivo ?? "Consulta")">
                                 <span class="block-time">@c.FechaHora.ToString("HH:mm") - @c.FechaHora.AddMinutes(duracion).ToString("HH:mm")</span>
                                 <span class="block-name">@c.PacienteNombre</span>
                                 <span class="block-motive">@(c.Motivo ?? "Consulta")</span>
                                 <span class="block-doctor">@(c.DoctorNombre ?? "—")</span>
                                 <span class="block-estado">@estadoNombre</span>
-                            </a>
+                            </button>
                         }
                     </div>
                 }
@@ -173,6 +174,30 @@
         </div>
         <div class="agenda-dinamica-now-line" id="nowLine" aria-hidden="true"></div>
     </div>
+
+    <!-- Backdrop y Drawer de detalle de cita -->
+    <div class="cita-drawer-backdrop" id="citaDrawerBackdrop" aria-hidden="true"></div>
+    <aside class="cita-drawer" id="citaDrawer" role="complementary" aria-label="Detalle de cita" aria-hidden="true">
+        <div class="cita-drawer-header" id="citaDrawerHeader">
+            <div class="cita-drawer-header-top">
+                <h2 class="cita-drawer-title" id="citaDrawerNombre">—</h2>
+                <button type="button" class="cita-drawer-close" id="citaDrawerClose" aria-label="Cerrar">✕</button>
+            </div>
+            <div class="cita-drawer-fecha" id="citaDrawerFecha">—</div>
+            <span class="cita-drawer-badge" id="citaDrawerBadge">—</span>
+        </div>
+        <div class="cita-drawer-body" id="citaDrawerBody">
+            <div class="cita-drawer-skeleton">
+                <div class="cita-drawer-skel-line tall"></div>
+                <div class="cita-drawer-skel-line"></div>
+                <div class="cita-drawer-skel-line short"></div>
+                <div class="cita-drawer-skel-line"></div>
+            </div>
+        </div>
+        <div class="cita-drawer-footer" id="citaDrawerFooter">
+            <button type="button" class="cita-drawer-btn-close" id="citaDrawerBtnClose">Cerrar</button>
+        </div>
+    </aside>
 
     <!-- FAB: botón flotante redondo con + para abrir modal nueva cita -->
     <button type="button" class="agenda-fab" id="agendaFabNuevaCita" aria-label="Nueva cita" title="Nueva cita">
@@ -187,6 +212,7 @@
 </div>
 
 @section Scripts {
+    <script src="~/js/agenda-datetime-picker.js" asp-append-version="true"></script>
     <script>
         (function () {
             var now = new Date();
@@ -206,15 +232,13 @@
             }
         })();
 
+        // ── Modal nueva cita ──────────────────────────────────────────────────
         (function () {
-            var fab = document.getElementById('agendaFabNuevaCita');
-            var overlay = document.getElementById('agendaModalNuevaCita');
-            var backdrop = document.getElementById('agendaModalBackdrop');
+            var fab       = document.getElementById('agendaFabNuevaCita');
+            var overlay   = document.getElementById('agendaModalNuevaCita');
+            var backdrop  = document.getElementById('agendaModalBackdrop');
             var btnCerrar = document.getElementById('btnCerrarModalNuevaCita');
-            var form = document.getElementById('formModalNuevaCita');
-            var modalFecha = document.getElementById('ModalFecha');
-            var modalHora = document.getElementById('ModalHora');
-            var hiddenFechaHora = document.getElementById('ModalFechaHora');
+            var form      = document.getElementById('formModalNuevaCita');
             var erroresEl = document.getElementById('modalNuevaCitaErrores');
 
             function abrirModal() {
@@ -232,57 +256,195 @@
                 }
                 if (erroresEl) erroresEl.innerHTML = '';
             }
-            function actualizarFechaHora() {
-                if (modalFecha && modalHora && hiddenFechaHora)
-                    hiddenFechaHora.value = modalFecha.value + 'T' + modalHora.value;
-            }
 
-            if (fab) fab.addEventListener('click', abrirModal);
+            if (fab)      fab.addEventListener('click', abrirModal);
             if (backdrop) backdrop.addEventListener('click', cerrarModal);
             if (btnCerrar) btnCerrar.addEventListener('click', cerrarModal);
-            if (modalFecha) modalFecha.addEventListener('change', actualizarFechaHora);
-            if (modalHora) modalHora.addEventListener('change', actualizarFechaHora);
 
             if (form) {
                 form.addEventListener('submit', function (e) {
                     e.preventDefault();
-                    actualizarFechaHora();
-                    erroresEl.innerHTML = '';
+                    if (erroresEl) erroresEl.innerHTML = '';
                     var submitBtn = form.querySelector('button[type="submit"]');
                     if (submitBtn) submitBtn.disabled = true;
 
-                    var formData = new FormData(form);
-
-                    fetch(form.action, {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(function (r) {
-                        if (r.redirected) {
-                            window.location.href = r.url;
-                            return;
-                        }
-                        return r.json().then(function (data) {
-                            if (data.success && data.redirectUrl) {
-                                window.location.href = data.redirectUrl;
-                                return;
-                            }
-                            if (data.success === false && data.errors && data.errors.length) {
-                                erroresEl.innerHTML = '<ul class="agenda-modal-errors-list">' + data.errors.map(function (x) { return '<li>' + (x || '').replace(/</g, '&lt;') + '</li>'; }).join('') + '</ul>';
-                                erroresEl.style.display = 'block';
-                            }
-                        }).catch(function () {
-                            form.submit();
-                        });
-                    })
-                    .catch(function () {
-                        form.submit();
-                    })
-                    .finally(function () {
-                        if (submitBtn) submitBtn.disabled = false;
-                    });
+                    fetch(form.action, { method: 'POST', body: new FormData(form) })
+                        .then(function (r) {
+                            if (r.redirected) { window.location.href = r.url; return; }
+                            return r.json().then(function (data) {
+                                if (data.success && data.redirectUrl) {
+                                    window.location.href = data.redirectUrl;
+                                } else if (data.success === false && data.errors && data.errors.length) {
+                                    erroresEl.innerHTML = '<ul class="agenda-modal-errors-list">' +
+                                        data.errors.map(function (x) {
+                                            return '<li>' + (x || '').replace(/</g, '&lt;') + '</li>';
+                                        }).join('') + '</ul>';
+                                    erroresEl.style.display = 'block';
+                                }
+                            }).catch(function () { form.submit(); });
+                        })
+                        .catch(function () { form.submit(); })
+                        .finally(function () { if (submitBtn) submitBtn.disabled = false; });
                 });
             }
+        })();
+
+        // ── Picker fecha/hora del modal ───────────────────────────────────────
+        (function () {
+            var horasUrl = '@Url.Action("GetHorasOcupadas", "Agenda", new { area = "Clinica" })';
+            new OdontariDatePicker({
+                trigger:          document.getElementById('pickerTriggerModal'),
+                hiddenInput:      document.getElementById('ModalFechaHora'),
+                doctorSelect:     document.getElementById('ModalDoctorId'),
+                horasOcupadasUrl: horasUrl,
+                onSelect: function () { /* hidden input actualizado, nada más que hacer */ }
+            });
+        })();
+
+        // ── Drawer de detalle de cita ─────────────────────────────────────────
+        (function () {
+            var detalleUrl  = '@Url.Action("DetalleCita", "Agenda", new { area = "Clinica" })';
+            var backdrop    = document.getElementById('citaDrawerBackdrop');
+            var drawer      = document.getElementById('citaDrawer');
+            var body        = document.getElementById('citaDrawerBody');
+            var footer      = document.getElementById('citaDrawerFooter');
+            var elNombre    = document.getElementById('citaDrawerNombre');
+            var elFecha     = document.getElementById('citaDrawerFecha');
+            var elBadge     = document.getElementById('citaDrawerBadge');
+            var btnClose1   = document.getElementById('citaDrawerClose');
+            var btnClose2   = document.getElementById('citaDrawerBtnClose');
+
+            var estadoColores = {
+                solicitada: '#f59e0b', confirmada: '#3b82f6', ensala: '#8b5cf6',
+                enatencion: '#10b981', finalizada: '#6b7280', cancelada: '#ef4444', noshow: '#9ca3af'
+            };
+
+            function abrirDrawer(citaId) {
+                backdrop.classList.add('open');
+                drawer.classList.add('open');
+                backdrop.setAttribute('aria-hidden', 'false');
+                drawer.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+
+                // Skeleton mientras carga
+                body.innerHTML =
+                    '<div class="cita-drawer-skeleton">' +
+                    '<div class="cita-drawer-skel-line tall"></div>' +
+                    '<div class="cita-drawer-skel-line"></div>' +
+                    '<div class="cita-drawer-skel-line short"></div>' +
+                    '<div class="cita-drawer-skel-line"></div>' +
+                    '</div>';
+                footer.innerHTML = '<button type="button" class="cita-drawer-btn-close" onclick="document.getElementById(\'citaDrawerBtnClose\').click()">Cerrar</button>';
+                elNombre.textContent = 'Cargando\u2026';
+                elFecha.textContent  = '';
+                elBadge.textContent  = '';
+
+                fetch(detalleUrl + '?id=' + citaId)
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) {
+                        if (d.error) { cerrarDrawer(); return; }
+
+                        // Cabecera
+                        elNombre.textContent = d.paciente.nombre;
+                        elFecha.textContent  = d.fechaHora + ' \u2022 ' + d.duracion + ' min';
+                        elBadge.textContent  = d.estado;
+                        var color = estadoColores[d.estadoSlug] || '#376897';
+                        drawer.querySelector('.cita-drawer-header').style.background =
+                            'linear-gradient(135deg, ' + color + ' 0%, ' + shadeColor(color, -18) + ' 100%)';
+
+                        // Sección paciente
+                        var edadStr = d.paciente.edad !== null ? d.paciente.edad + ' años' : '—';
+                        var secPaciente =
+                            '<div class="cita-drawer-section">' +
+                            '<p class="cita-drawer-section-title">Paciente</p>' +
+                            fila('👤', 'Nombre',   d.paciente.nombre) +
+                            fila('🪪', 'Cédula',   d.paciente.cedula) +
+                            fila('📞', 'Teléfono', d.paciente.telefono) +
+                            fila('🎂', 'Edad',     edadStr) +
+                            '</div>';
+
+                        // Sección cita
+                        var secCita =
+                            '<div class="cita-drawer-section">' +
+                            '<p class="cita-drawer-section-title">Cita</p>' +
+                            fila('👨‍⚕️', 'Doctor',   d.doctor) +
+                            fila('📅', 'Fecha',    d.fechaHora) +
+                            fila('⏱',  'Duración', d.duracion + ' minutos') +
+                            '</div>';
+
+                        // Sección motivo/nota
+                        var secMotivo =
+                            '<div class="cita-drawer-section">' +
+                            '<p class="cita-drawer-section-title">Motivo / Nota de recepción</p>' +
+                            (d.motivo
+                                ? '<p class="cita-drawer-motivo-text">' + escHtml(d.motivo) + '</p>'
+                                : '<p class="cita-drawer-motivo-empty">Sin nota registrada.</p>') +
+                            '</div>';
+
+                        body.innerHTML = secPaciente + secCita + secMotivo;
+
+                        // Footer: botón editar solo si tiene permiso
+                        if (d.puedeEditar && d.editUrl) {
+                            footer.innerHTML =
+                                '<a href="' + d.editUrl + '" class="cita-drawer-btn-edit">' +
+                                '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+                                'Editar cita</a>' +
+                                '<button type="button" class="cita-drawer-btn-close" id="citaDrawerBtnClose2">Cerrar</button>';
+                            document.getElementById('citaDrawerBtnClose2').addEventListener('click', cerrarDrawer);
+                        } else {
+                            footer.innerHTML =
+                                '<button type="button" class="cita-drawer-btn-close" style="flex:1" id="citaDrawerBtnClose2">Cerrar</button>';
+                            document.getElementById('citaDrawerBtnClose2').addEventListener('click', cerrarDrawer);
+                        }
+                    })
+                    .catch(function () { cerrarDrawer(); });
+            }
+
+            function cerrarDrawer() {
+                backdrop.classList.remove('open');
+                drawer.classList.remove('open');
+                backdrop.setAttribute('aria-hidden', 'true');
+                drawer.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            }
+
+            function fila(ico, label, val) {
+                return '<div class="cita-drawer-row">' +
+                    '<span class="cita-drawer-row-icon">' + ico + '</span>' +
+                    '<div><div class="cita-drawer-row-label">' + label + '</div>' +
+                    '<div class="cita-drawer-row-val">' + escHtml(String(val || '—')) + '</div></div>' +
+                    '</div>';
+            }
+
+            function escHtml(s) {
+                return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            }
+
+            function shadeColor(hex, pct) {
+                var n = parseInt(hex.slice(1), 16);
+                var r = Math.max(0, Math.min(255, (n >> 16) + pct));
+                var g = Math.max(0, Math.min(255, ((n >> 8) & 0xff) + pct));
+                var b = Math.max(0, Math.min(255, (n & 0xff) + pct));
+                return '#' + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
+            }
+
+            // Clic en bloques de cita
+            document.querySelectorAll('.agenda-dinamica-block[data-cita-id]').forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    abrirDrawer(btn.getAttribute('data-cita-id'));
+                });
+            });
+
+            // Cerrar con backdrop y botones
+            backdrop.addEventListener('click', cerrarDrawer);
+            if (btnClose1) btnClose1.addEventListener('click', cerrarDrawer);
+            if (btnClose2) btnClose2.addEventListener('click', cerrarDrawer);
+
+            // Cerrar con Escape
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && drawer.classList.contains('open')) cerrarDrawer();
+            });
         })();
     </script>
 }

@@ -511,6 +511,77 @@ namespace Odontari.Web.Migrations
                     b.ToTable("Clinicas");
                 });
 
+            modelBuilder.Entity("Odontari.Web.Models.ConsentimientoGenerado", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CitaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ClinicaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DoctorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("FechaFirma")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaGeneracion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FirmaDigitalBase64")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NombreFirmante")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Observacion")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("PacienteId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PlantillaId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProcedimientoRealizadoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TextoFinal")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("VersionPlantilla")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CitaId");
+
+                    b.HasIndex("ClinicaId");
+
+                    b.HasIndex("DoctorId");
+
+                    b.HasIndex("PacienteId");
+
+                    b.HasIndex("PlantillaId");
+
+                    b.HasIndex("ProcedimientoRealizadoId");
+
+                    b.ToTable("ConsentimientosGenerados");
+                });
+
             modelBuilder.Entity("Odontari.Web.Models.Factura", b =>
                 {
                     b.Property<int>("Id")
@@ -1103,6 +1174,9 @@ namespace Odontari.Web.Migrations
                     b.Property<bool>("PermiteARS")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("PermiteConsentimiento")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("PermiteFacturacion")
                         .HasColumnType("bit");
 
@@ -1119,6 +1193,53 @@ namespace Odontari.Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Planes");
+                });
+
+            modelBuilder.Entity("Odontari.Web.Models.PlantillaConsentimiento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ClinicaId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("EsObligatorio")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("FechaActualizacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TextoBase")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClinicaId");
+
+                    b.ToTable("PlantillasConsentimiento");
                 });
 
             modelBuilder.Entity("Odontari.Web.Models.ProcedimientoRealizado", b =>
@@ -1366,6 +1487,56 @@ namespace Odontari.Web.Migrations
                     b.Navigation("Plan");
                 });
 
+            modelBuilder.Entity("Odontari.Web.Models.ConsentimientoGenerado", b =>
+                {
+                    b.HasOne("Odontari.Web.Models.Cita", "Cita")
+                        .WithMany()
+                        .HasForeignKey("CitaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Odontari.Web.Models.Clinica", "Clinica")
+                        .WithMany("ConsentimientosGenerados")
+                        .HasForeignKey("ClinicaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Odontari.Web.Models.ApplicationUser", "Doctor")
+                        .WithMany()
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Odontari.Web.Models.Paciente", "Paciente")
+                        .WithMany("Consentimientos")
+                        .HasForeignKey("PacienteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Odontari.Web.Models.PlantillaConsentimiento", "Plantilla")
+                        .WithMany("Consentimientos")
+                        .HasForeignKey("PlantillaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Odontari.Web.Models.ProcedimientoRealizado", "ProcedimientoRealizado")
+                        .WithMany()
+                        .HasForeignKey("ProcedimientoRealizadoId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Cita");
+
+                    b.Navigation("Clinica");
+
+                    b.Navigation("Doctor");
+
+                    b.Navigation("Paciente");
+
+                    b.Navigation("Plantilla");
+
+                    b.Navigation("ProcedimientoRealizado");
+                });
+
             modelBuilder.Entity("Odontari.Web.Models.Factura", b =>
                 {
                     b.HasOne("Odontari.Web.Models.Cita", "Cita")
@@ -1588,6 +1759,17 @@ namespace Odontari.Web.Migrations
                     b.Navigation("Paciente");
                 });
 
+            modelBuilder.Entity("Odontari.Web.Models.PlantillaConsentimiento", b =>
+                {
+                    b.HasOne("Odontari.Web.Models.Clinica", "Clinica")
+                        .WithMany("PlantillasConsentimiento")
+                        .HasForeignKey("ClinicaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Clinica");
+                });
+
             modelBuilder.Entity("Odontari.Web.Models.ProcedimientoRealizado", b =>
                 {
                     b.HasOne("Odontari.Web.Models.Cita", "Cita")
@@ -1655,6 +1837,8 @@ namespace Odontari.Web.Migrations
 
                     b.Navigation("Citas");
 
+                    b.Navigation("ConsentimientosGenerados");
+
                     b.Navigation("Facturas");
 
                     b.Navigation("HistorialClinico");
@@ -1672,6 +1856,8 @@ namespace Odontari.Web.Migrations
                     b.Navigation("Pacientes");
 
                     b.Navigation("Periodontogramas");
+
+                    b.Navigation("PlantillasConsentimiento");
 
                     b.Navigation("Suscripciones");
 
@@ -1696,6 +1882,8 @@ namespace Odontari.Web.Migrations
 
                     b.Navigation("Citas");
 
+                    b.Navigation("Consentimientos");
+
                     b.Navigation("Facturas");
 
                     b.Navigation("HistoriaClinicaSistematica");
@@ -1712,6 +1900,11 @@ namespace Odontari.Web.Migrations
             modelBuilder.Entity("Odontari.Web.Models.Plan", b =>
                 {
                     b.Navigation("Clinicas");
+                });
+
+            modelBuilder.Entity("Odontari.Web.Models.PlantillaConsentimiento", b =>
+                {
+                    b.Navigation("Consentimientos");
                 });
 
             modelBuilder.Entity("Odontari.Web.Models.Tratamiento", b =>

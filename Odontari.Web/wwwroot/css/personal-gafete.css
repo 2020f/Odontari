@@ -1,0 +1,254 @@
+/* ─── Personal — Gafetes de empleado ─────────────────────────── */
+
+/* Grid de tarjetas */
+.gafete-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 1.5rem;
+}
+
+/* ─── Tarjeta gafete ──────────────────────────────────────────── */
+.gafete-card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 2px 8px rgba(0,29,57,.07), 0 8px 28px rgba(0,29,57,.07);
+    border: 1px solid rgba(0,29,57,.07);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform .18s, box-shadow .18s;
+    position: relative;
+}
+
+.gafete-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,29,57,.10), 0 16px 40px rgba(0,29,57,.09);
+}
+
+.gafete-card-inactive {
+    opacity: .72;
+    filter: grayscale(.45);
+}
+
+/* ─── Tira superior (color por rol) ──────────────────────────── */
+.gafete-top {
+    height: 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 0;
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* Colores por rol */
+.gafete-top-admin    { background: linear-gradient(135deg, #001D39 0%, #0A4174 100%); }
+.gafete-top-doctor   { background: linear-gradient(135deg, #0E6B5E 0%, #15a08a 100%); }
+.gafete-top-recepcion{ background: linear-gradient(135deg, #1e5fa8 0%, #4E8EA2 100%); }
+.gafete-top-finanzas { background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%); }
+.gafete-top-default  { background: linear-gradient(135deg, #334155 0%, #64748b 100%); }
+
+/* Agujero del cordón — oculto */
+.gafete-hole {
+    display: none;
+}
+
+/* Avatar con iniciales */
+.gafete-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -.02em;
+    margin-bottom: -28px; /* mitad del avatar sobresale */
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+.gafete-avatar-admin    { background: #001D39; }
+.gafete-avatar-doctor   { background: #0E6B5E; }
+.gafete-avatar-recepcion{ background: #1e5fa8; }
+.gafete-avatar-finanzas { background: #5b21b6; }
+.gafete-avatar-default  { background: #475569; }
+
+/* ─── Cuerpo blanco de la tarjeta ────────────────────────────── */
+.gafete-body {
+    padding: 36px 1.1rem .75rem; /* espacio para el avatar */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 1;
+}
+
+/* Línea decorativa — quitada junto al cordón */
+.gafete-cord-line {
+    display: none;
+}
+
+/* Nombre */
+.gafete-name {
+    font-size: .95rem;
+    font-weight: 800;
+    color: #001D39;
+    line-height: 1.25;
+    margin-bottom: .4rem;
+    letter-spacing: -.01em;
+}
+
+/* Rol pill */
+.gafete-rol {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .18rem .65rem;
+    border-radius: 20px;
+    font-size: .67rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: .65rem;
+}
+
+.gafete-rol-admin    { background: rgba(0,29,57,.08);   color: #001D39; border: 1px solid rgba(0,29,57,.14); }
+.gafete-rol-doctor   { background: rgba(14,107,94,.10); color: #0E6B5E; border: 1px solid rgba(14,107,94,.2); }
+.gafete-rol-recepcion{ background: rgba(30,95,168,.09); color: #1e5fa8; border: 1px solid rgba(30,95,168,.18); }
+.gafete-rol-finanzas { background: rgba(91,33,182,.09); color: #5b21b6; border: 1px solid rgba(91,33,182,.18); }
+.gafete-rol-default  { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+
+/* Detalle (email, horario) */
+.gafete-details {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+    margin-bottom: .5rem;
+}
+
+.gafete-detail-item {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .775rem;
+    color: #64748b;
+    overflow: hidden;
+    justify-content: center;
+}
+
+.gafete-detail-icon {
+    flex-shrink: 0;
+    color: #94a3b8;
+    display: flex;
+}
+
+.gafete-detail-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Separador */
+.gafete-divider {
+    width: 40px;
+    height: 2px;
+    background: #e9eef4;
+    border-radius: 2px;
+    margin: .35rem auto .5rem;
+}
+
+/* ─── Pie de tarjeta: estado + acciones ──────────────────────── */
+.gafete-foot {
+    padding: .75rem 1rem;
+    border-top: 1px solid #f0f4f8;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    background: #fafbfc;
+}
+
+.gafete-status {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .72rem;
+    font-weight: 700;
+}
+
+.gafete-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.gafete-status-active   { color: #15803d; }
+.gafete-status-active   .gafete-status-dot { background: #22c55e; }
+.gafete-status-inactive { color: #94a3b8; }
+.gafete-status-inactive .gafete-status-dot { background: #cbd5e1; }
+
+.gafete-actions {
+    display: flex;
+    gap: .35rem;
+}
+
+.gafete-action {
+    display: inline-flex;
+    align-items: center;
+    padding: .22rem .6rem;
+    border-radius: 6px;
+    font-size: .73rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: background .15s, color .15s;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.gafete-action-edit {
+    color: #4E8EA2;
+    background: rgba(78,142,162,.08);
+    border-color: rgba(78,142,162,.18);
+}
+.gafete-action-edit:hover {
+    background: rgba(78,142,162,.16);
+    color: #3d7b8e;
+}
+
+.gafete-action-toggle-on {
+    color: #b45309;
+    background: rgba(180,83,9,.07);
+    border-color: rgba(180,83,9,.17);
+}
+.gafete-action-toggle-on:hover {
+    background: rgba(180,83,9,.14);
+}
+
+.gafete-action-toggle-off {
+    color: #15803d;
+    background: rgba(21,128,61,.08);
+    border-color: rgba(21,128,61,.18);
+}
+.gafete-action-toggle-off:hover {
+    background: rgba(21,128,61,.15);
+}
+
+/* ─── Estado vacío ────────────────────────────────────────────── */
+.gafete-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #94a3b8;
+    font-size: .9rem;
+}

@@ -97,6 +97,25 @@ public class AtencionController : Controller
             .ToListAsync();
         ViewBag.Historial = historial;
 
+        // Plantillas y consentimientos: solo si el plan lo permite
+        var clinicaConPlan = await _db.Clinicas.Include(c => c.Plan).FirstOrDefaultAsync(c => c.Id == cid);
+        var permiteConsentimiento = clinicaConPlan?.Plan?.PermiteConsentimiento ?? false;
+
+        ViewBag.PlantillasConsentimiento = permiteConsentimiento
+            ? await _db.PlantillasConsentimiento
+                .Where(p => p.ClinicaId == cid && p.Activo)
+                .OrderBy(p => p.Nombre)
+                .ToListAsync()
+            : new List<PlantillaConsentimiento>();
+
+        ViewBag.ConsentimientosCita = permiteConsentimiento
+            ? await _db.ConsentimientosGenerados
+                .Include(c => c.Plantilla)
+                .Where(c => c.ClinicaId == cid && c.CitaId == id)
+                .OrderByDescending(c => c.FechaGeneracion)
+                .ToListAsync()
+            : new List<ConsentimientoGenerado>();
+
         return View(cita);
     }
 

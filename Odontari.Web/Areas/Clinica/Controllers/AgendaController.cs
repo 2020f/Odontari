@@ -81,6 +81,7 @@ public class AgendaController : Controller
         ViewBag.FechaFin = fin;
         ViewBag.Vista = vista;
         ViewBag.EsDoctor = esDoctor;
+        ViewBag.PuedeEditarCita = User.IsInRole(OdontariRoles.AdminClinica) || User.IsInRole(OdontariRoles.Recepcion);
 
         var roleDoctorId = await _db.Roles.Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
         var doctorIds = await _db.UserRoles.Where(ur => ur.RoleId == roleDoctorId).Select(ur => ur.UserId).ToListAsync();
@@ -118,6 +119,7 @@ public class AgendaController : Controller
         var inicio = dia.Date;
         var fin = inicio.AddDays(1);
         IQueryable<Cita> query = _db.Citas
+            .AsNoTracking()
             .Where(c => c.ClinicaId == cid && c.FechaHora >= inicio && c.FechaHora < fin && c.Estado != EstadoCita.Cancelada)
             .Include(c => c.Paciente)
             .Include(c => c.Doctor);
@@ -125,21 +127,20 @@ public class AgendaController : Controller
             query = query.Where(c => c.DoctorId == doctorId);
         var citas = await query.OrderBy(c => c.FechaHora).ToListAsync();
         ViewBag.Fecha = dia;
-        var roleDoctorId = await _db.Roles.Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
-        var doctorIds = await _db.UserRoles.Where(ur => ur.RoleId == roleDoctorId).Select(ur => ur.UserId).ToListAsync();
-        ViewBag.Doctores = await _db.Users.Where(u => u.ClinicaId == cid && doctorIds.Contains(u.Id)).Select(u => new { u.Id, NombreCompleto = u.NombreCompleto, Email = u.Email }).ToListAsync();
+        var roleDoctorId = await _db.Roles.AsNoTracking().Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
+        var doctorIds = await _db.UserRoles.AsNoTracking().Where(ur => ur.RoleId == roleDoctorId).Select(ur => ur.UserId).ToListAsync();
+        ViewBag.Doctores = await _db.Users.AsNoTracking().Where(u => u.ClinicaId == cid && doctorIds.Contains(u.Id)).Select(u => new { u.Id, NombreCompleto = u.NombreCompleto, Email = u.Email }).ToListAsync();
         ViewBag.DoctorIdSel = doctorId;
-        // Resumen del día (todas las citas del día, cualquier estado, mismo filtro doctor)
-        var queryResumen = _db.Citas.Where(c => c.ClinicaId == cid && c.FechaHora >= inicio && c.FechaHora < fin);
+        // Resumen del día: single-pass COUNT per estado via individual CountAsync (avoids loading entities into memory)
+        var queryResumen = _db.Citas.AsNoTracking().Where(c => c.ClinicaId == cid && c.FechaHora >= inicio && c.FechaHora < fin);
         if (!string.IsNullOrEmpty(doctorId)) queryResumen = queryResumen.Where(c => c.DoctorId == doctorId);
-        var todasDelDia = await queryResumen.ToListAsync();
-        ViewBag.ResumenTotal = todasDelDia.Count;
-        ViewBag.ResumenSolicitada = todasDelDia.Count(c => c.Estado == EstadoCita.Solicitada);
-        ViewBag.ResumenConfirmada = todasDelDia.Count(c => c.Estado == EstadoCita.Confirmada);
-        ViewBag.ResumenEnSala = todasDelDia.Count(c => c.Estado == EstadoCita.EnSala);
-        ViewBag.ResumenEnAtencion = todasDelDia.Count(c => c.Estado == EstadoCita.EnAtencion);
-        ViewBag.ResumenFinalizada = todasDelDia.Count(c => c.Estado == EstadoCita.Finalizada);
-        ViewBag.ResumenCancelada = todasDelDia.Count(c => c.Estado == EstadoCita.Cancelada);
+        ViewBag.ResumenTotal = await queryResumen.CountAsync();
+        ViewBag.ResumenSolicitada = await queryResumen.CountAsync(c => c.Estado == EstadoCita.Solicitada);
+        ViewBag.ResumenConfirmada = await queryResumen.CountAsync(c => c.Estado == EstadoCita.Confirmada);
+        ViewBag.ResumenEnSala = await queryResumen.CountAsync(c => c.Estado == EstadoCita.EnSala);
+        ViewBag.ResumenEnAtencion = await queryResumen.CountAsync(c => c.Estado == EstadoCita.EnAtencion);
+        ViewBag.ResumenFinalizada = await queryResumen.CountAsync(c => c.Estado == EstadoCita.Finalizada);
+        ViewBag.ResumenCancelada = await queryResumen.CountAsync(c => c.Estado == EstadoCita.Cancelada);
         var list = citas.Select(c => new CitaListViewModel
         {
             Id = c.Id,
@@ -158,11 +159,17 @@ public class AgendaController : Controller
     {
         var cid = ClinicaId;
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
+        var esDoctor = User.IsInRole(OdontariRoles.Doctor) && !User.IsInRole(OdontariRoles.AdminClinica);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        ViewBag.EsDoctor = esDoctor;
+        ViewBag.DoctorIdLogueado = esDoctor ? userId : null;
         ViewBag.Pacientes = await _db.Pacientes.Where(p => p.ClinicaId == cid && p.Activo).OrderBy(p => p.Nombre).Select(p => new { p.Id, Nombre = p.Nombre + " " + (p.Apellidos ?? "") }).ToListAsync();
         var roleDoctorIdCreate = await _db.Roles.Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
         var doctorIdsCreate = await _db.UserRoles.Where(ur => ur.RoleId == roleDoctorIdCreate).Select(ur => ur.UserId).ToListAsync();
         ViewBag.Doctores = await _db.Users.Where(u => u.ClinicaId == cid && doctorIdsCreate.Contains(u.Id)).Select(u => new { u.Id, Nombre = u.NombreCompleto ?? u.Email ?? u.Id }).ToListAsync();
-        return View(new CitaEditViewModel { FechaHora = fechaHora ?? DateTime.Now.Date.AddHours(9), DuracionMinutos = 30 });
+        var vm = new CitaEditViewModel { FechaHora = fechaHora ?? DateTime.Now.Date.AddHours(9), DuracionMinutos = 30 };
+        if (esDoctor && userId != null) vm.DoctorId = userId;
+        return View(vm);
     }
 
     [HttpPost]
@@ -173,8 +180,32 @@ public class AgendaController : Controller
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
         var desdeModal = isModalForm == "1";
 
+        // Seguridad multitenant: si el usuario es Doctor, siempre forzar su propio ID como DoctorId.
+        if (User.IsInRole(OdontariRoles.Doctor) && !User.IsInRole(OdontariRoles.AdminClinica))
+        {
+            var uid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (uid != null)
+            {
+                vm.DoctorId = uid;
+                ModelState.Remove(nameof(vm.DoctorId)); // limpiar error de validación previo si lo hubiera
+            }
+        }
+
         if (ModelState.IsValid)
         {
+            // 0. No se puede agendar en el pasado.
+            // El servidor corre en UTC; los usuarios están en RD (UTC-4).
+            // Comparamos la fecha enviada (hora local sin zona) contra la hora actual en RD,
+            // con 30 minutos de tolerancia para evitar falsos positivos por latencia o diferencias de reloj.
+            var ahoraRD = DateTime.UtcNow.AddHours(-4);
+            if (vm.FechaHora < ahoraRD.AddMinutes(-30))
+            {
+                ModelState.AddModelError("", "No se puede agendar una cita en el pasado. Verifica la fecha y la hora.");
+                if (desdeModal) return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
+                await CargarViewBagCreateAsync(cid.Value, vm);
+                return View(vm);
+            }
+
             var duracion = vm.DuracionMinutos <= 0 ? 30 : Math.Clamp(vm.DuracionMinutos, 5, 480);
             var finCita = vm.FechaHora.AddMinutes(duracion);
 
@@ -243,10 +274,118 @@ public class AgendaController : Controller
 
     private async Task CargarViewBagCreateAsync(int cid, CitaEditViewModel vm)
     {
+        var esDoctor = User.IsInRole(OdontariRoles.Doctor) && !User.IsInRole(OdontariRoles.AdminClinica);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        ViewBag.EsDoctor = esDoctor;
+        ViewBag.DoctorIdLogueado = esDoctor ? userId : null;
         ViewBag.Pacientes = await _db.Pacientes.Where(p => p.ClinicaId == cid && p.Activo).OrderBy(p => p.Nombre).Select(p => new { p.Id, Nombre = p.Nombre + " " + (p.Apellidos ?? "") }).ToListAsync();
         var roleDoctorId = await _db.Roles.Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
         var doctorIds = await _db.UserRoles.Where(ur => ur.RoleId == roleDoctorId).Select(ur => ur.UserId).ToListAsync();
         ViewBag.Doctores = await _db.Users.Where(u => u.ClinicaId == cid && doctorIds.Contains(u.Id)).Select(u => new { u.Id, Nombre = u.NombreCompleto ?? u.Email ?? u.Id }).ToListAsync();
+    }
+
+    /// <summary>
+    /// AJAX: devuelve los datos de una cita para el drawer de detalle en VistaDinamica.
+    /// </summary>
+    [HttpGet]
+    public async Task<IActionResult> DetalleCita(int id)
+    {
+        var cid = ClinicaId;
+        if (cid == null) return Json(new { error = "Sin clínica" });
+
+        var cita = await _db.Citas
+            .AsNoTracking()
+            .Include(c => c.Paciente)
+            .Include(c => c.Doctor)
+            .Where(c => c.ClinicaId == cid && c.Id == id)
+            .FirstOrDefaultAsync();
+
+        if (cita == null) return Json(new { error = "No encontrada" });
+
+        var puedeEditar = User.IsInRole(OdontariRoles.AdminClinica) || User.IsInRole(OdontariRoles.Recepcion);
+        var editUrl = puedeEditar ? Url.Action(nameof(Editar), "Agenda", new { area = "Clinica", id }) : null;
+
+        int? edad = null;
+        if (cita.Paciente.FechaNacimiento.HasValue)
+        {
+            var hoy = DateTime.Today;
+            var fn  = cita.Paciente.FechaNacimiento.Value;
+            edad = hoy.Year - fn.Year - (hoy.DayOfYear < fn.DayOfYear ? 1 : 0);
+        }
+
+        var estadoTexto = cita.Estado switch
+        {
+            EstadoCita.Solicitada  => "Pendiente",
+            EstadoCita.Confirmada  => "Confirmada",
+            EstadoCita.EnSala      => "En sala",
+            EstadoCita.EnAtencion  => "En atención",
+            EstadoCita.Finalizada  => "Finalizada",
+            EstadoCita.Cancelada   => "Cancelada",
+            EstadoCita.NoShow      => "No show",
+            _                      => cita.Estado.ToString()
+        };
+
+        return Json(new
+        {
+            id         = cita.Id,
+            paciente   = new
+            {
+                nombre   = cita.Paciente.Nombre + " " + (cita.Paciente.Apellidos ?? ""),
+                cedula   = cita.Paciente.Cedula ?? "—",
+                telefono = cita.Paciente.Telefono ?? "—",
+                edad
+            },
+            doctor     = cita.Doctor?.NombreCompleto ?? cita.Doctor?.Email ?? "—",
+            fechaHora  = cita.FechaHora.ToString("dddd d 'de' MMMM yyyy, HH:mm", new System.Globalization.CultureInfo("es-ES")),
+            duracion   = cita.DuracionMinutos,
+            motivo     = cita.Motivo ?? "",
+            estado     = estadoTexto,
+            estadoSlug = cita.Estado.ToString().ToLowerInvariant(),
+            puedeEditar,
+            editUrl
+        });
+    }
+
+    /// <summary>
+    /// AJAX: devuelve los slots ocupados del doctor en la fecha dada.
+    /// Usado por el DateTimePicker para deshabilitar horas no disponibles.
+    /// </summary>
+    [HttpGet]
+    public async Task<IActionResult> GetHorasOcupadas(string doctorId, string fecha)
+    {
+        var cid = ClinicaId;
+        if (cid == null) return Json(new { ocupadas = Array.Empty<object>() });
+        if (string.IsNullOrWhiteSpace(doctorId) || string.IsNullOrWhiteSpace(fecha))
+            return Json(new { ocupadas = Array.Empty<object>() });
+        if (!DateTime.TryParseExact(fecha, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var fechaDt))
+            return Json(new { ocupadas = Array.Empty<object>() });
+
+        var citas = await _db.Citas
+            .AsNoTracking()
+            .Where(c => c.ClinicaId == cid && c.DoctorId == doctorId
+                && c.FechaHora.Date == fechaDt.Date
+                && c.Estado != EstadoCita.Cancelada)
+            .Select(c => new { c.FechaHora, c.DuracionMinutos })
+            .ToListAsync();
+
+        var ocupadas = citas.Select(c => new
+        {
+            inicio = c.FechaHora.ToString("HH:mm"),
+            fin    = c.FechaHora.AddMinutes(c.DuracionMinutos > 0 ? c.DuracionMinutos : 30).ToString("HH:mm")
+        }).ToList();
+
+        var doctor = await _db.Users
+            .AsNoTracking()
+            .Where(u => u.Id == doctorId && u.ClinicaId == cid)
+            .Select(u => new { u.HoraEntrada, u.HoraSalida })
+            .FirstOrDefaultAsync();
+
+        return Json(new
+        {
+            ocupadas,
+            horaEntrada = doctor?.HoraEntrada?.ToString(@"hh\:mm"),
+            horaSalida  = doctor?.HoraSalida?.ToString(@"hh\:mm")
+        });
     }
 
     [HttpPost]

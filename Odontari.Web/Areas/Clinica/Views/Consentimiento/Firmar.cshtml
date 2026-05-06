@@ -1,0 +1,233 @@
+@model Odontari.Web.ViewModels.FirmarConsentimientoViewModel
+@using Odontari.Web.Models.Enums
+@{
+    ViewData["Title"] = "Firma de consentimiento";
+    var yaFirmado = Model.Estado == EstadoConsentimiento.Firmado;
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/consentimiento.css" asp-append-version="true" />
+}
+
+<div class="consent-page">
+
+    @* Encabezado del documento *@
+    <div class="consent-doc-card">
+        <div class="consent-doc-header">
+            @if (!string.IsNullOrEmpty(Model.ClinicaLogo))
+            {
+                <img src="@Model.ClinicaLogo" alt="Logo" class="consent-doc-logo" />
+            }
+            else
+            {
+                <div class="consent-doc-logo-placeholder">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1.75"><path d="M12 2C9 2 6 4 6 7c0 1.5.4 3 .8 4.5C7.5 14 8 17 8 19c0 1.7 1.3 3 3 3 .8 0 1-.5 1-1.5V19c0-.6.4-1 1-1s1 .4 1 1v1.5c0 1 .2 1.5 1 1.5 1.7 0 3-1.3 3-3 0-2-.5-5-1.2-7.5C17.6 10 18 8.5 18 7c0-3-3-5-6-5z"/></svg>
+                </div>
+            }
+            <div>
+                <div class="consent-doc-clinic">@Model.ClinicaNombre</div>
+                <h2 class="consent-doc-title">@Model.TituloDocumento</h2>
+            </div>
+        </div>
+        <div class="consent-doc-meta">
+            <div class="consent-meta-item">
+                <span class="consent-meta-label">Paciente</span>
+                <span class="consent-meta-value">@Model.PacienteNombre</span>
+            </div>
+            <div class="consent-meta-item">
+                <span class="consent-meta-label">Doctor</span>
+                <span class="consent-meta-value">@Model.DoctorNombre</span>
+            </div>
+            <div class="consent-meta-item">
+                <span class="consent-meta-label">Generado</span>
+                <span class="consent-meta-value">@Model.FechaGeneracion</span>
+            </div>
+            <div class="consent-meta-item">
+                <span class="consent-meta-label">Estado</span>
+                @{
+                    var estadoClass = Model.Estado switch {
+                        EstadoConsentimiento.Firmado => "consent-estado-firmado",
+                        EstadoConsentimiento.Rechazado => "consent-estado-rechazado",
+                        EstadoConsentimiento.Cancelado => "consent-estado-cancelado",
+                        _ => "consent-estado-pendiente"
+                    };
+                    var estadoLabel = Model.Estado switch {
+                        EstadoConsentimiento.Firmado => "Firmado",
+                        EstadoConsentimiento.Rechazado => "Rechazado",
+                        EstadoConsentimiento.Cancelado => "Cancelado",
+                        _ => "Pendiente"
+                    };
+                }
+                <span class="consent-estado @estadoClass">@estadoLabel</span>
+            </div>
+        </div>
+        <div class="consent-doc-body">
+            <div class="consent-doc-text">@Model.TextoFinal</div>
+        </div>
+    </div>
+
+    @if (yaFirmado)
+    {
+        <div class="consent-signed-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            Este documento ya fue firmado
+        </div>
+        <a asp-action="VerDocumento" asp-route-id="@Model.ConsentimientoId" class="odon-btn odon-btn-primary">
+            Ver documento firmado
+        </a>
+        <a asp-action="Expediente" asp-controller="Atencion" asp-route-id="@Model.CitaId" class="odon-btn odon-btn-secondary ms-2">
+            Volver a cita
+        </a>
+    }
+    else
+    {
+        @* Sección de firma *@
+        <div class="consent-sign-section" id="signSection">
+            <div class="consent-sign-title">Firma digital del paciente</div>
+
+            <div class="consent-canvas-wrap" id="canvasWrap">
+                <canvas id="signatureCanvas" height="180"></canvas>
+                <div class="consent-canvas-placeholder" id="canvasPlaceholder">Firme aquí con su dedo o ratón</div>
+            </div>
+            <div class="consent-sign-toolbar">
+                <span class="consent-sign-hint">Use el espacio de arriba para capturar la firma</span>
+                <button type="button" class="consent-btn-clear" id="btnClear">Limpiar firma</button>
+            </div>
+
+            <div class="consent-name-row">
+                <label class="odon-label">Nombre del firmante</label>
+                <input type="text" id="nombreFirmante" class="odon-input" placeholder="Nombre completo de quien firma" />
+                <div class="small text-muted mt-1">Si firma un representante autorizado, indique su nombre.</div>
+            </div>
+
+            <label class="consent-check-row" style="margin-top:1.25rem">
+                <input type="checkbox" id="chkConfirma" />
+                <span>He leído el documento completo y acepto su contenido voluntariamente.</span>
+            </label>
+
+            <div class="consent-actions mt-3">
+                <button type="button" class="odon-btn odon-btn-primary" id="btnGuardarFirma" disabled>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                    Confirmar firma
+                </button>
+                <form asp-action="Rechazar" asp-route-id="@Model.ConsentimientoId" method="post" class="d-inline"
+                      onsubmit="return confirm('¿Confirma que el paciente rechaza este consentimiento?')">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="odon-btn odon-btn-danger">Rechazar</button>
+                </form>
+                <a asp-action="Expediente" asp-controller="Atencion" asp-route-id="@Model.CitaId" class="odon-btn odon-btn-secondary">
+                    Cancelar
+                </a>
+            </div>
+            <div id="firmaMsg" class="small mt-2" style="display:none"></div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+    (function () {
+        const canvas = document.getElementById('signatureCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const wrap = document.getElementById('canvasWrap');
+        const placeholder = document.getElementById('canvasPlaceholder');
+        const btnClear = document.getElementById('btnClear');
+        const btnGuardar = document.getElementById('btnGuardarFirma');
+        const chk = document.getElementById('chkConfirma');
+        const msgEl = document.getElementById('firmaMsg');
+        let drawing = false, hasDrawing = false;
+
+        function resize() {
+            const rect = wrap.getBoundingClientRect();
+            canvas.width = rect.width;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        function getPos(e) {
+            const r = canvas.getBoundingClientRect();
+            if (e.touches) {
+                return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
+            }
+            return { x: e.clientX - r.left, y: e.clientY - r.top };
+        }
+
+        canvas.addEventListener('mousedown', start);
+        canvas.addEventListener('touchstart', start, { passive: false });
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('mouseup', stop);
+        canvas.addEventListener('mouseleave', stop);
+        canvas.addEventListener('touchend', stop);
+
+        function start(e) { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+        function stop() { drawing = false; ctx.beginPath(); }
+        function draw(e) {
+            if (!drawing) return;
+            e.preventDefault();
+            const p = getPos(e);
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineTo(p.x, p.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            if (!hasDrawing) { hasDrawing = true; wrap.classList.add('has-drawing'); }
+            updateBtn();
+        }
+
+        btnClear.addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hasDrawing = false;
+            wrap.classList.remove('has-drawing');
+            updateBtn();
+        });
+
+        chk.addEventListener('change', updateBtn);
+
+        function updateBtn() {
+            btnGuardar.disabled = !(hasDrawing && chk.checked);
+        }
+
+        btnGuardar.addEventListener('click', async () => {
+            if (!hasDrawing || !chk.checked) return;
+            const nombre = document.getElementById('nombreFirmante').value.trim();
+            const dataUrl = canvas.toDataURL('image/png');
+
+            btnGuardar.disabled = true;
+            btnGuardar.textContent = 'Guardando...';
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+            try {
+                const res = await fetch('@Url.Action("GuardarFirma", "Consentimiento")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+                    body: new URLSearchParams({
+                        consentimientoId: '@Model.ConsentimientoId',
+                        firmaBase64: dataUrl,
+                        nombreFirmante: nombre,
+                        __RequestVerificationToken: token
+                    })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    window.location = data.redirectUrl;
+                } else {
+                    msgEl.style.display = 'block';
+                    msgEl.className = 'small mt-2 text-danger';
+                    msgEl.textContent = data.msg ?? 'Error al guardar la firma.';
+                    btnGuardar.disabled = false;
+                    btnGuardar.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Confirmar firma';
+                }
+            } catch {
+                msgEl.style.display = 'block';
+                msgEl.className = 'small mt-2 text-danger';
+                msgEl.textContent = 'Error de conexión.';
+                btnGuardar.disabled = false;
+            }
+        });
+    })();
+    </script>
+    @Html.AntiForgeryToken()
+}

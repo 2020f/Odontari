@@ -8,6 +8,9 @@
     var returnDoctorId = ViewBag.ReturnDoctorId as string ?? "";
     var returnPacienteId = ViewBag.ReturnPacienteId as string ?? "";
     var returnMotivo = ViewBag.ReturnMotivo as string ?? "";
+    var esDoctorModal = ViewBag.EsDoctor is bool ed && ed;
+    // Para Doctor: ReturnDoctorId ya contiene su propio userId (forzado en VistaDinamica)
+    var doctorIdFijo = esDoctorModal ? returnDoctorId : "";
 }
 <div class="agenda-modal-card" role="dialog" aria-modal="true" aria-labelledby="modalNuevaCitaTitle">
     <h2 class="agenda-modal-title" id="modalNuevaCitaTitle">Nueva cita</h2>
@@ -34,20 +37,37 @@
         </div>
         <div class="agenda-modal-field">
             <label for="ModalDoctorId" class="agenda-modal-label">Doctor</label>
-            <select name="DoctorId" id="ModalDoctorId" class="agenda-modal-input" required>
-                <option value="">Seleccione doctor</option>
-                @foreach (var d in doctores)
-                {
-                    <option value="@d.Id">@(d.NombreCompleto ?? d.Nombre ?? d.Id)</option>
-                }
-            </select>
+            @if (esDoctorModal)
+            {
+                @* Doctor: campo bloqueado, solo ve su propio nombre *@
+                <select id="ModalDoctorId" class="agenda-modal-input" disabled>
+                    @foreach (var d in doctores)
+                    {
+                        if (d.Id == doctorIdFijo)
+                        {
+                            <option value="@d.Id" selected>@(d.NombreCompleto ?? d.Nombre ?? d.Id)</option>
+                        }
+                    }
+                </select>
+                <input type="hidden" name="DoctorId" value="@doctorIdFijo" />
+            }
+            else
+            {
+                <select name="DoctorId" id="ModalDoctorId" class="agenda-modal-input" required>
+                    <option value="">Seleccione doctor</option>
+                    @foreach (var d in doctores)
+                    {
+                        <option value="@d.Id">@(d.NombreCompleto ?? d.Nombre ?? d.Id)</option>
+                    }
+                </select>
+            }
         </div>
-        <div class="agenda-modal-field agenda-modal-datetime">
+        <div class="agenda-modal-field">
             <label class="agenda-modal-label">Fecha y hora</label>
-            <div class="agenda-modal-datetime-row">
-                <input type="date" id="ModalFecha" class="agenda-modal-input" value="@fechaHoraDefault.ToString("yyyy-MM-dd")" required />
-                <input type="time" id="ModalHora" class="agenda-modal-input" value="@fechaHoraDefault.ToString("HH:mm")" required />
-            </div>
+            <button type="button" class="odp-trigger" id="pickerTriggerModal" aria-label="Seleccionar fecha y hora">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                <span class="odp-trigger-text placeholder">Seleccionar fecha y hora</span>
+            </button>
         </div>
         <div class="agenda-modal-field">
             <label for="ModalDuracion" class="agenda-modal-label">Duración en consultorio</label>

@@ -1,4 +1,36 @@
 /* Registrar pago — estilo coherente con área Clínica */
+
+/* Resumen grid (4 celdas) */
+.cobrar-resumen-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem 1.5rem;
+  margin-bottom: .25rem;
+}
+
+.cobrar-resumen-item-new {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+}
+
+.cobrar-resumen-valor {
+  font-size: .9rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.cobrar-saldo-highlight {
+  background: #f0f7fa;
+  border: 1px solid #bde0ea;
+  border-radius: 8px;
+  padding: .5rem .75rem;
+}
+
+.cobrar-saldo-valor {
+  color: #0A4174;
+  font-size: 1rem;
+}
 .cobrar-page {
   --odon: #001D39;
   --odon-hover: #0A4174;

@@ -11,15 +11,14 @@ public class HistorialPagosPdfService
 {
     private static readonly CultureInfo Ci = CultureInfo.GetCultureInfo("es-DO");
 
-    public byte[] GeneratePdf(List<HistorialPagoItemViewModel> items, DateTime? desde, DateTime? hasta, string? metodoPago = null)
+    public byte[] GeneratePdf(List<HistorialPagoItemViewModel> items, DateTime? desde, DateTime? hasta, string? metodoPago = null, string? nombreClinica = null)
     {
         QuestPDF.Settings.License = LicenseType.Community;
 
-        var titulo = "Historial de pagos";
-        var filtros = "";
-        if (desde.HasValue) filtros += $"Desde: {desde.Value:dd/MM/yyyy} ";
-        if (hasta.HasValue) filtros += $"Hasta: {hasta.Value:dd/MM/yyyy} ";
-        if (!string.IsNullOrWhiteSpace(metodoPago)) filtros += $"Método: {metodoPago}";
+        var filtros = new List<string>();
+        if (desde.HasValue) filtros.Add($"Desde: {desde.Value:dd/MM/yyyy}");
+        if (hasta.HasValue) filtros.Add($"Hasta: {hasta.Value:dd/MM/yyyy}");
+        if (!string.IsNullOrWhiteSpace(metodoPago)) filtros.Add($"Método: {metodoPago}");
 
         var doc = Document.Create(container =>
         {
@@ -31,9 +30,30 @@ public class HistorialPagosPdfService
 
                 page.Header().Column(col =>
                 {
-                    col.Item().Text(titulo).Bold().FontSize(14);
-                    if (!string.IsNullOrWhiteSpace(filtros)) col.Item().Text(filtros).FontSize(9);
-                    col.Item().Text($"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}").FontSize(8).Italic();
+                    // Banda principal — nombre de clínica o título del reporte
+                    col.Item()
+                       .Background("#1B3A5C")
+                       .PaddingHorizontal(14).PaddingVertical(10)
+                       .Column(inner =>
+                       {
+                           if (!string.IsNullOrWhiteSpace(nombreClinica))
+                               inner.Item().Text(nombreClinica)
+                                   .Bold().FontSize(16).FontColor("#FFFFFF");
+                           inner.Item().Text("Historial de Pagos")
+                               .Bold()
+                               .FontSize(string.IsNullOrWhiteSpace(nombreClinica) ? 16f : 10f)
+                               .FontColor(string.IsNullOrWhiteSpace(nombreClinica) ? "#FFFFFF" : "#96BEE6");
+                       });
+
+                    // Franja de filtros y metadatos
+                    col.Item()
+                       .Background("#EEF3FA")
+                       .PaddingHorizontal(14).PaddingVertical(4)
+                       .Text((filtros.Count > 0 ? string.Join("   ·   ", filtros) + "   ·   " : "") + $"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}")
+                       .FontSize(7.5f).FontColor("#3A5A80");
+
+                    // Línea separadora
+                    col.Item().Height(1.5f).Background("#1B3A5C");
                 });
 
                 page.Content().PaddingVertical(10).Table(t =>

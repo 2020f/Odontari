@@ -277,6 +277,7 @@
   border-radius: 8px;
   font-size: 0.75rem;
   text-decoration: none;
+  border: none;
   color: #1a252f;
   border-left: 4px solid currentColor;
   overflow: hidden;
@@ -537,4 +538,145 @@
 .agenda-modal-btn-primary:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Drawer de detalle de cita (slide-in desde la derecha)
+   ══════════════════════════════════════════════════════════ */
+.cita-drawer-backdrop {
+  position: fixed; inset: 0; z-index: 1050;
+  background: rgba(10,25,40,0.35);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.cita-drawer-backdrop.open { opacity: 1; pointer-events: all; }
+
+.cita-drawer {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  z-index: 1051;
+  width: 380px; max-width: 100vw;
+  background: #fff;
+  box-shadow: -6px 0 32px rgba(20,50,80,0.16);
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+  overflow: hidden;
+}
+.cita-drawer.open { transform: translateX(0); }
+
+/* Cabecera del drawer */
+.cita-drawer-header {
+  padding: 20px 22px 16px;
+  background: linear-gradient(135deg, #376897 0%, #2d5a80 100%);
+  color: #fff;
+  flex-shrink: 0;
+}
+.cita-drawer-header-top {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+}
+.cita-drawer-title {
+  font-size: 18px; font-weight: 800; line-height: 1.2;
+  margin: 0; flex: 1;
+}
+.cita-drawer-close {
+  background: rgba(255,255,255,0.15); border: none; border-radius: 8px;
+  color: #fff; width: 32px; height: 32px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+  transition: background 0.15s;
+}
+.cita-drawer-close:hover { background: rgba(255,255,255,0.28); }
+.cita-drawer-fecha {
+  font-size: 13px; opacity: 0.85; margin-top: 6px;
+}
+.cita-drawer-badge {
+  display: inline-block; margin-top: 10px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+  background: rgba(255,255,255,0.2); color: #fff;
+}
+
+/* Cuerpo del drawer */
+.cita-drawer-body {
+  flex: 1; overflow-y: auto; padding: 20px 22px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.cita-drawer-body::-webkit-scrollbar { width: 4px; }
+.cita-drawer-body::-webkit-scrollbar-thumb { background: #b0c8df; border-radius: 4px; }
+
+.cita-drawer-section {
+  background: #f7fafd; border-radius: 12px; padding: 14px 16px;
+}
+.cita-drawer-section-title {
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 1px; color: #83b3dc; margin: 0 0 10px;
+}
+.cita-drawer-row {
+  display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px;
+}
+.cita-drawer-row:last-child { margin-bottom: 0; }
+.cita-drawer-row-icon {
+  color: #376897; flex-shrink: 0; margin-top: 1px;
+}
+.cita-drawer-row-label {
+  font-size: 11px; color: #83b3dc; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.4px;
+}
+.cita-drawer-row-val {
+  font-size: 14px; color: #1a2e45; font-weight: 500;
+}
+.cita-drawer-motivo-text {
+  font-size: 14px; color: #1a2e45; line-height: 1.5;
+  white-space: pre-wrap;
+}
+.cita-drawer-motivo-empty {
+  font-size: 13px; color: #9dafc2; font-style: italic;
+}
+
+/* Pie del drawer */
+.cita-drawer-footer {
+  padding: 14px 22px;
+  border-top: 1.5px solid #e8eef5;
+  flex-shrink: 0; display: flex; gap: 10px;
+}
+.cita-drawer-btn-edit {
+  flex: 1; padding: 11px; border: none; border-radius: 11px;
+  background: #376897; color: #fff;
+  font-size: 14px; font-weight: 700; cursor: pointer; text-decoration: none;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: background 0.15s;
+}
+.cita-drawer-btn-edit:hover { background: #2d5a80; color: #fff; }
+.cita-drawer-btn-close {
+  flex: 1; padding: 11px; border: 1.5px solid #dce6f0; border-radius: 11px;
+  background: #fff; color: #6b8aaa;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: background 0.12s;
+}
+.cita-drawer-btn-close:hover { background: #f0f4f8; }
+
+/* Skeleton loader */
+.cita-drawer-skeleton {
+  display: flex; flex-direction: column; gap: 12px; padding: 20px 22px;
+}
+.cita-drawer-skel-line {
+  background: linear-gradient(90deg, #e8eef5 25%, #f4f8fb 50%, #e8eef5 75%);
+  background-size: 200% 100%;
+  border-radius: 8px; height: 14px;
+  animation: skel-shimmer 1.4s infinite;
+}
+.cita-drawer-skel-line.tall { height: 22px; width: 60%; }
+.cita-drawer-skel-line.short { width: 40%; }
+@keyframes skel-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Bloque de cita clickeable (quitar cursor pointer del <a>) */
+.agenda-dinamica-block-btn {
+  cursor: pointer;
+  background: none; border: none; padding: 0;
+  display: block; width: 100%; text-align: left;
+  color: inherit; font: inherit;
+  grid-row: span var(--span, 1);
 }

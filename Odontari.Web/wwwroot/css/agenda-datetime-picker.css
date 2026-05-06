@@ -1,0 +1,353 @@
+/* ============================================================
+   Odontari DateTimePicker — estilos del selector de fecha/hora
+   ============================================================ */
+
+/* Overlay backdrop */
+.odp-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10100;
+    background: rgba(15, 28, 46, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+.odp-overlay.odp-open {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Panel principal */
+.odp-panel {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 12px 48px rgba(55, 104, 151, 0.22), 0 2px 8px rgba(0,0,0,0.08);
+    width: 380px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 40px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(16px) scale(0.97);
+    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.odp-overlay.odp-open .odp-panel {
+    transform: none;
+}
+
+/* Cabecera — muestra fecha y hora seleccionada */
+.odp-header {
+    background: linear-gradient(135deg, #376897 0%, #2d5a80 100%);
+    color: #fff;
+    padding: 22px 24px 18px;
+    flex-shrink: 0;
+}
+.odp-header-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    opacity: 0.72;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.odp-header-date {
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.9;
+    margin-bottom: 2px;
+}
+.odp-header-time {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    line-height: 1;
+}
+
+/* Tabs: Fecha / Hora */
+.odp-tabs {
+    display: flex;
+    border-bottom: 1.5px solid #e8eef5;
+    flex-shrink: 0;
+}
+.odp-tab {
+    flex: 1;
+    padding: 11px 8px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b8aaa;
+    cursor: pointer;
+    background: none;
+    border: none;
+    border-bottom: 2.5px solid transparent;
+    margin-bottom: -1.5px;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.odp-tab:hover { background: #f4f8fd; color: #376897; }
+.odp-tab.active { border-bottom-color: #376897; color: #376897; background: #f0f6ff; }
+
+/* Contenido dinámico del tab */
+.odp-tab-content {
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* ─── Calendario ─────────────────────────────────────── */
+.odp-calendar { padding: 16px 18px; }
+
+.odp-cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+.odp-cal-month {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a2e45;
+}
+.odp-cal-btn {
+    background: none;
+    border: 1.5px solid #dce6f0;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 18px;
+    color: #376897;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s, border-color 0.12s;
+    line-height: 1;
+}
+.odp-cal-btn:hover { background: #e8f0f9; border-color: #376897; }
+
+.odp-cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+}
+.odp-cal-dow {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #83b3dc;
+    padding: 4px 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.odp-cal-day {
+    text-align: center;
+    padding: 7px 2px;
+    font-size: 13px;
+    border-radius: 9px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: #1a2e45;
+    font-weight: 500;
+    transition: background 0.12s, color 0.12s;
+    line-height: 1;
+}
+.odp-cal-day:hover:not(:disabled):not(.odp-cal-day-selected) {
+    background: #e8f0f9;
+    color: #376897;
+}
+.odp-cal-day-other { color: #ccd8e6; }
+.odp-cal-day-today { font-weight: 800; color: #376897; }
+.odp-cal-day-today:not(.odp-cal-day-selected)::after {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 4px;
+    background: #376897;
+    border-radius: 50%;
+    margin: 2px auto 0;
+}
+.odp-cal-day-selected {
+    background: #376897 !important;
+    color: #fff !important;
+    font-weight: 700;
+}
+.odp-cal-day:disabled { color: #ccd8e6; cursor: not-allowed; }
+
+/* ─── Grid de horas ──────────────────────────────────── */
+.odp-time-section { padding: 16px 18px; }
+
+.odp-time-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+.odp-time-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a2e45;
+}
+.odp-fmt-toggle {
+    display: flex;
+    gap: 3px;
+    background: #eef3f9;
+    border-radius: 9px;
+    padding: 3px;
+}
+.odp-fmt-btn {
+    padding: 4px 11px;
+    font-size: 11px;
+    font-weight: 700;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    background: none;
+    color: #6b8aaa;
+    transition: background 0.12s, color 0.12s;
+}
+.odp-fmt-btn.active { background: #376897; color: #fff; }
+
+.odp-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 2px;
+}
+.odp-slots-grid::-webkit-scrollbar { width: 4px; }
+.odp-slots-grid::-webkit-scrollbar-track { background: #f0f4f8; border-radius: 4px; }
+.odp-slots-grid::-webkit-scrollbar-thumb { background: #b0c8df; border-radius: 4px; }
+
+.odp-slot {
+    padding: 8px 2px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1.5px solid #dce6f0;
+    border-radius: 9px;
+    cursor: pointer;
+    background: #fff;
+    color: #376897;
+    transition: background 0.12s, border-color 0.12s, color 0.12s, transform 0.08s;
+    line-height: 1.2;
+}
+.odp-slot:hover:not(:disabled):not(.odp-slot-selected) {
+    background: #e8f0f9;
+    border-color: #376897;
+    transform: translateY(-1px);
+}
+.odp-slot-selected {
+    background: #376897 !important;
+    border-color: #376897 !important;
+    color: #fff !important;
+}
+.odp-slot:disabled {
+    cursor: not-allowed;
+}
+/* Ocupado — ya tiene cita */
+.odp-slot-busy {
+    background: #fff5f5 !important;
+    border-color: #fca5a5 !important;
+    color: #ef4444 !important;
+    text-decoration: line-through;
+}
+/* Hora ya pasada (hoy, antes de la hora actual) */
+.odp-slot-past {
+    background: #f7f9fb !important;
+    border-color: #e5eaef !important;
+    color: #c8d4e0 !important;
+    opacity: 0.55;
+}
+/* Fuera del horario del doctor */
+.odp-slot-outside {
+    background: #f7f9fb !important;
+    border-color: #e5eaef !important;
+    color: #bfc9d4 !important;
+}
+/* Cargando slots */
+.odp-slots-loading {
+    grid-column: 1/-1;
+    text-align: center;
+    color: #83b3dc;
+    font-size: 13px;
+    padding: 24px;
+}
+.odp-no-doctor-msg {
+    grid-column: 1/-1;
+    text-align: center;
+    color: #83b3dc;
+    font-size: 12px;
+    padding: 16px 8px;
+    line-height: 1.5;
+}
+
+/* ─── Pie del panel ──────────────────────────────────── */
+.odp-footer {
+    display: flex;
+    gap: 10px;
+    padding: 14px 18px;
+    border-top: 1.5px solid #e8eef5;
+    flex-shrink: 0;
+}
+.odp-btn-cancel {
+    flex: 1;
+    padding: 10px;
+    border: 1.5px solid #dce6f0;
+    border-radius: 11px;
+    background: #fff;
+    color: #6b8aaa;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+}
+.odp-btn-cancel:hover { background: #f0f4f8; border-color: #b0c4d8; }
+.odp-btn-confirm {
+    flex: 2;
+    padding: 10px;
+    border: none;
+    border-radius: 11px;
+    background: #376897;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.08s;
+}
+.odp-btn-confirm:hover:not(:disabled) { background: #2d5a80; transform: translateY(-1px); }
+.odp-btn-confirm:disabled { background: #83b3dc; cursor: not-allowed; }
+
+/* ─── Botón trigger (campo visible en el formulario) ─── */
+.odp-trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    border: 1.5px solid #dce6f0;
+    border-radius: 10px;
+    background: #fff;
+    color: #1a2e45;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.odp-trigger:hover, .odp-trigger:focus {
+    border-color: #376897;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(55, 104, 151, 0.12);
+}
+.odp-trigger svg { color: #376897; flex-shrink: 0; }
+.odp-trigger-text { flex: 1; color: #1a2e45; }
+.odp-trigger-text.placeholder { color: #9dafc2; }
+
+/* Responsive */
+@media (max-width: 420px) {
+    .odp-panel { border-radius: 16px 16px 0 0; align-self: flex-end; width: 100%; max-width: 100%; }
+    .odp-overlay { align-items: flex-end; }
+    .odp-slots-grid { grid-template-columns: repeat(3, 1fr); }
+}

@@ -29,8 +29,10 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.5rem;
   flex-wrap: wrap;
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid rgba(0,29,57,0.06);
+  margin-bottom: 0;
 }
 
 .odon-form-title {

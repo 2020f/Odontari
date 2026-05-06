@@ -1,0 +1,229 @@
+@model IEnumerable<Odontari.Web.ViewModels.PlantillaConsentimientoListViewModel>
+@using Odontari.Web.Models.Enums
+@{
+    ViewData["Title"] = "Consentimientos";
+    var documentos = ViewBag.Documentos as IEnumerable<Odontari.Web.ViewModels.ConsentimientoGeneradoListViewModel>
+        ?? Enumerable.Empty<Odontari.Web.ViewModels.ConsentimientoGeneradoListViewModel>();
+    var buscar = ViewBag.Buscar as string ?? "";
+    var tabActiva = ViewBag.TabActiva as string ?? "plantillas";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/consentimiento.css" asp-append-version="true" />
+}
+
+@if (TempData["Exito"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+        @TempData["Exito"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div></div>
+    <a asp-action="CrearPlantilla" class="odon-btn odon-btn-primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        Nueva plantilla
+    </a>
+</div>
+
+<div class="consent-admin-tabs">
+    <button class="consent-tab-btn @(tabActiva == "plantillas" ? "active" : "")"
+            onclick="switchTab('tabPlantillas', this)">
+        Plantillas (@Model.Count())
+    </button>
+    <button class="consent-tab-btn @(tabActiva == "documentos" ? "active" : "")"
+            onclick="switchTab('tabDocumentos', this)">
+        Documentos
+        @if (!string.IsNullOrEmpty(buscar))
+        {
+            <span>— "@buscar" (@documentos.Count())</span>
+        }
+        else
+        {
+            <span>(@documentos.Count())</span>
+        }
+    </button>
+</div>
+
+@* ── TAB PLANTILLAS ───────────────────────────────────────────────── *@
+<div id="tabPlantillas" class="consent-tab-panel @(tabActiva == "plantillas" ? "active" : "")">
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-3 d-block mx-auto opacity-25"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+            <p class="mb-0">No hay plantillas creadas.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Título visible</th>
+                        <th>Obligatorio</th>
+                        <th>Versión</th>
+                        <th>Estado</th>
+                        <th>Documentos</th>
+                        <th class="tbl-actions-cell"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td class="fw-500">@p.Nombre</td>
+                            <td class="text-muted">@p.Titulo</td>
+                            <td>@(p.EsObligatorio ? "Sí" : "No")</td>
+                            <td>v@p.Version</td>
+                            <td>
+                                @if (p.Activo)
+                                {
+                                    <span class="odon-badge odon-badge-active">Activa</span>
+                                }
+                                else
+                                {
+                                    <span class="odon-badge odon-badge-inactive">Inactiva</span>
+                                }
+                            </td>
+                            <td>
+                                @if (p.TotalDocumentos > 0)
+                                {
+                                    <a href="@Url.Action("Index", new { tab = "documentos" })" class="text-decoration-none">@p.TotalDocumentos</a>
+                                }
+                                else
+                                {
+                                    <span>0</span>
+                                }
+                            </td>
+                            <td class="tbl-actions-cell">
+                                <a asp-action="EditarPlantilla" asp-route-id="@p.Id" class="tbl-action tbl-action-edit">Editar</a>
+                                <form asp-action="TogglePlantilla" asp-route-id="@p.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="tbl-action @(p.Activo ? "tbl-action-toggle tbl-action-toggle-on" : "tbl-action-toggle tbl-action-toggle-off")">
+                                        @(p.Activo ? "Desactivar" : "Activar")
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@* ── TAB DOCUMENTOS ───────────────────────────────────────────────── *@
+<div id="tabDocumentos" class="consent-tab-panel @(tabActiva == "documentos" ? "active" : "")">
+
+    @* Barra de búsqueda *@
+    <form asp-action="Index" method="get" class="consent-search-bar mb-3">
+        <input type="hidden" name="tab" value="documentos" />
+        <div class="consent-search-inner">
+            <svg class="consent-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" name="buscar" value="@buscar"
+                   class="consent-search-input"
+                   placeholder="Buscar por nombre del paciente o doctor..." />
+            <button type="submit" class="odon-btn odon-btn-primary consent-search-btn">Buscar</button>
+            @if (!string.IsNullOrEmpty(buscar))
+            {
+                <a asp-action="Index" asp-route-tab="documentos" class="odon-btn odon-btn-secondary consent-search-clear">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    Limpiar
+                </a>
+            }
+        </div>
+        @if (!string.IsNullOrEmpty(buscar))
+        {
+            <div class="consent-search-result-info">
+                @documentos.Count() resultado(s) para <strong>"@buscar"</strong>
+            </div>
+        }
+    </form>
+
+    @if (!documentos.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            @if (!string.IsNullOrEmpty(buscar))
+            {
+                <p class="mb-0">No se encontraron documentos para <strong>"@buscar"</strong>.</p>
+            }
+            else
+            {
+                <p class="mb-0">No hay documentos generados aún.</p>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm" id="tablaDocumentos">
+                <thead>
+                    <tr>
+                        <th>Plantilla</th>
+                        <th>Paciente</th>
+                        <th>Doctor</th>
+                        <th>Firmante</th>
+                        <th>Estado</th>
+                        <th>Generado</th>
+                        <th>Firmado</th>
+                        <th class="tbl-actions-cell"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var d in documentos)
+                    {
+                        <tr>
+                            <td>@d.PlantillaNombre</td>
+                            <td class="fw-500">@d.PacienteNombre</td>
+                            <td>@d.DoctorNombre</td>
+                            <td>@(d.NombreFirmante ?? "—")</td>
+                            <td>
+                                @{
+                                    var estadoClass = d.Estado switch {
+                                        EstadoConsentimiento.Firmado   => "consent-estado-firmado",
+                                        EstadoConsentimiento.Rechazado => "consent-estado-rechazado",
+                                        EstadoConsentimiento.Cancelado => "consent-estado-cancelado",
+                                        _ => "consent-estado-pendiente"
+                                    };
+                                    var estadoLabel = d.Estado switch {
+                                        EstadoConsentimiento.Firmado   => "Firmado",
+                                        EstadoConsentimiento.Rechazado => "Rechazado",
+                                        EstadoConsentimiento.Cancelado => "Cancelado",
+                                        _ => "Pendiente"
+                                    };
+                                }
+                                <span class="consent-estado @estadoClass">@estadoLabel</span>
+                            </td>
+                            <td>@d.FechaGeneracion.ToString("dd/MM/yy HH:mm")</td>
+                            <td>@(d.FechaFirma?.ToString("dd/MM/yy HH:mm") ?? "—")</td>
+                            <td class="tbl-actions-cell">
+                                @if (d.Estado == EstadoConsentimiento.Firmado)
+                                {
+                                    <a asp-action="VerDocumento" asp-route-id="@d.Id" class="tbl-action tbl-action-view">Ver documento</a>
+                                }
+                                else if (d.Estado == EstadoConsentimiento.Pendiente)
+                                {
+                                    <a asp-action="Firmar" asp-route-id="@d.Id" class="tbl-action tbl-action-edit">Firmar</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.consent-tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.consent-tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+    </script>
+}

@@ -51,4 +51,8 @@ public class Clinica
     public ICollection<NCFRango> NCFRangos { get; set; } = new List<NCFRango>();
     public ICollection<NCFMovimiento> NCFMovimientos { get; set; } = new List<NCFMovimiento>();
     public ICollection<Factura> Facturas { get; set; } = new List<Factura>();
+
+    // Consentimiento Informado Digital
+    public ICollection<PlantillaConsentimiento> PlantillasConsentimiento { get; set; } = new List<PlantillaConsentimiento>();
+    public ICollection<ConsentimientoGenerado> ConsentimientosGenerados { get; set; } = new List<ConsentimientoGenerado>();
 }

@@ -28,6 +28,7 @@ public class PlanesController : Controller
                 MaxDoctores = p.MaxDoctores,
                 PermiteFacturacion = p.PermiteFacturacion,
                 PermiteOdontograma = p.PermiteOdontograma,
+                PermiteConsentimiento = p.PermiteConsentimiento,
                 Activo = p.Activo
             })
             .ToListAsync();
@@ -50,6 +51,7 @@ public class PlanesController : Controller
                 MaxDoctores = vm.MaxDoctores,
                 PermiteFacturacion = vm.PermiteFacturacion,
                 PermiteOdontograma = vm.PermiteOdontograma,
+                PermiteConsentimiento = vm.PermiteConsentimiento,
                 PermiteWhatsApp = vm.PermiteWhatsApp,
                 PermiteARS = vm.PermiteARS,
                 Activo = vm.Activo
@@ -73,6 +75,7 @@ public class PlanesController : Controller
             MaxDoctores = p.MaxDoctores,
             PermiteFacturacion = p.PermiteFacturacion,
             PermiteOdontograma = p.PermiteOdontograma,
+            PermiteConsentimiento = p.PermiteConsentimiento,
             PermiteWhatsApp = p.PermiteWhatsApp,
             PermiteARS = p.PermiteARS,
             Activo = p.Activo
@@ -86,6 +89,15 @@ public class PlanesController : Controller
         if (id != vm.Id) return NotFound();
         var p = await _db.Planes.FindAsync(id);
         if (p == null) return NotFound();
+
+        if (vm.MaxUsuarios < p.MaxUsuarios)
+            ModelState.AddModelError(nameof(vm.MaxUsuarios),
+                $"No se puede reducir el límite de usuarios (actual: {p.MaxUsuarios}). Las clínicas activas en este plan podrían ya estar usando ese cupo.");
+
+        if (vm.MaxDoctores < p.MaxDoctores)
+            ModelState.AddModelError(nameof(vm.MaxDoctores),
+                $"No se puede reducir el límite de doctores (actual: {p.MaxDoctores}). Las clínicas activas en este plan podrían ya estar usando ese cupo.");
+
         if (ModelState.IsValid)
         {
             p.Nombre = vm.Nombre;
@@ -94,6 +106,7 @@ public class PlanesController : Controller
             p.MaxDoctores = vm.MaxDoctores;
             p.PermiteFacturacion = vm.PermiteFacturacion;
             p.PermiteOdontograma = vm.PermiteOdontograma;
+            p.PermiteConsentimiento = vm.PermiteConsentimiento;
             p.PermiteWhatsApp = vm.PermiteWhatsApp;
             p.PermiteARS = vm.PermiteARS;
             p.Activo = vm.Activo;

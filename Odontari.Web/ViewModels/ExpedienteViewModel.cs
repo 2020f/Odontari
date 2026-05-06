@@ -19,6 +19,8 @@ public class HistorialEventoViewModel
     public DateTime FechaEvento { get; set; }
     public string TipoEvento { get; set; } = null!;
     public string? Descripcion { get; set; }
+    /// <summary>Nombre del usuario que generó el evento (null si no aplica o no se pudo resolver).</summary>
+    public string? AutorNombre { get; set; }
 }
 
 /// <summary>Request para guardar odontograma vía API.</summary>

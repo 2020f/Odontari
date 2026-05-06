@@ -4,17 +4,20 @@
     var odontogramaJson = ViewBag.OdontogramaEstadoJson as string ?? "{}";
     var pacienteId = ViewBag.PacienteId as int? ?? (Model != null ? Model.PacienteId : 0);
     var historial = ViewBag.Historial as IEnumerable<Odontari.Web.ViewModels.HistorialEventoViewModel> ?? Enumerable.Empty<Odontari.Web.ViewModels.HistorialEventoViewModel>();
+    var plantillasConsentimiento = ViewBag.PlantillasConsentimiento as IList<Odontari.Web.Models.PlantillaConsentimiento> ?? new List<Odontari.Web.Models.PlantillaConsentimiento>();
+    var consentimientosCita = ViewBag.ConsentimientosCita as IList<Odontari.Web.Models.ConsentimientoGenerado> ?? new List<Odontari.Web.Models.ConsentimientoGenerado>();
     var esInfantil = ViewBag.EsInfantil as bool? ?? false;
     var tipoOdontograma = ViewBag.TipoOdontograma as int? ?? 0;
-    ViewData["Title"] = "Expediente - " + Model.Paciente?.Nombre;
+    ViewData["Title"] = "Expediente - " + Model!.Paciente?.Nombre;
 }
 @section Styles {
     <link rel="stylesheet" href="~/css/odontograma.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/agenda-form.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/consentimiento.css" asp-append-version="true" />
 }
 
 @{
-    var estadoCita = Model.Estado;
+    var estadoCita = Model!.Estado;
     var estadoBadgeClass = estadoCita switch
     {
         Odontari.Web.Models.Enums.EstadoCita.EnAtencion => "atencion-estado-enatencion",
@@ -46,12 +49,12 @@
 <div class="atencion-header">
     <div class="atencion-header-top">
         <span class="atencion-header-label">Evaluación del paciente</span>
-        <h1 class="atencion-patient-name">@Model.Paciente?.Nombre @Model.Paciente?.Apellidos</h1>
+        <h1 class="atencion-patient-name">@Model!.Paciente?.Nombre @Model!.Paciente?.Apellidos</h1>
     </div>
     <div class="atencion-header-meta">
         <span class="atencion-cita-fecha">
             <span class="atencion-meta-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
-            Cita: @Model.FechaHora.ToString("dd/MM/yyyy HH:mm")
+            Cita: @Model!.FechaHora.ToString("dd/MM/yyyy HH:mm")
         </span>
         <span class="atencion-estado-badge @estadoBadgeClass">@estadoCita</span>
     </div>
@@ -143,6 +146,76 @@
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn btn-success">Finalizar atención (generar orden de cobro)</button>
             </form>
+        }
+
+        @* ─── Consentimientos informados de esta cita ─── *@
+        @if (plantillasConsentimiento.Any() || consentimientosCita.Any())
+        {
+            <hr class="mt-4" />
+            <h3 class="mb-2">Consentimientos informados</h3>
+
+            @if (consentimientosCita.Any())
+            {
+                <div class="table-responsive mb-3">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr><th>Plantilla</th><th>Estado</th><th>Firmado</th><th></th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in consentimientosCita)
+                            {
+                                <tr>
+                                    <td>@c.Plantilla?.Titulo</td>
+                                    <td>
+                                        @{
+                                            var cls2 = c.Estado switch {
+                                                Odontari.Web.Models.Enums.EstadoConsentimiento.Firmado   => "consent-estado-firmado",
+                                                Odontari.Web.Models.Enums.EstadoConsentimiento.Rechazado => "consent-estado-rechazado",
+                                                Odontari.Web.Models.Enums.EstadoConsentimiento.Cancelado => "consent-estado-cancelado",
+                                                _ => "consent-estado-pendiente"
+                                            };
+                                            var lbl2 = c.Estado switch {
+                                                Odontari.Web.Models.Enums.EstadoConsentimiento.Firmado   => "Firmado",
+                                                Odontari.Web.Models.Enums.EstadoConsentimiento.Rechazado => "Rechazado",
+                                                Odontari.Web.Models.Enums.EstadoConsentimiento.Cancelado => "Cancelado",
+                                                _ => "Pendiente"
+                                            };
+                                        }
+                                        <span class="consent-estado @cls2">@lbl2</span>
+                                    </td>
+                                    <td>@(c.FechaFirma?.ToString("dd/MM/yy HH:mm") ?? "—")</td>
+                                    <td>
+                                        @if (c.Estado == Odontari.Web.Models.Enums.EstadoConsentimiento.Firmado)
+                                        {
+                                            <a asp-area="Clinica" asp-controller="Consentimiento" asp-action="VerDocumento" asp-route-id="@c.Id" class="btn btn-sm btn-outline-secondary">Ver</a>
+                                        }
+                                        else if (c.Estado == Odontari.Web.Models.Enums.EstadoConsentimiento.Pendiente)
+                                        {
+                                            <a asp-area="Clinica" asp-controller="Consentimiento" asp-action="Firmar" asp-route-id="@c.Id" class="btn btn-sm btn-outline-primary">Firmar</a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (plantillasConsentimiento.Any())
+            {
+                <form asp-area="Clinica" asp-controller="Consentimiento" asp-action="Generar" method="post" class="d-flex align-items-center gap-2">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="citaId" value="@Model.Id" />
+                    <select name="plantillaId" class="form-control d-inline-block w-auto" required>
+                        <option value="">-- Seleccionar plantilla --</option>
+                        @foreach (var p in plantillasConsentimiento)
+                        {
+                            <option value="@p.Id">@p.Nombre</option>
+                        }
+                    </select>
+                    <button type="submit" class="btn btn-outline-info btn-sm">Generar consentimiento</button>
+                </form>
+            }
         }
     </div>
 
