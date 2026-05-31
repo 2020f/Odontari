@@ -34,6 +34,8 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+!Odontari.Web/Areas/Saas/Views/Logs/
+!Odontari.Web/Areas/Saas/Views/Logs/**
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/

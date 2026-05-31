@@ -16,44 +16,93 @@
     </header>
 
     <div class="kpi-grid">
+        @* Clínicas activas — Verde *@
         <div class="kpi-card kpi-success">
-            <div class="kpi-header">
-                <span class="kpi-title">Clínicas activas</span>
-                <div class="kpi-icon">
+            <div class="kpi-body">
+                <div class="icon-pill">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 </div>
+                <div class="kpi-body-center">
+                    <span class="card-label">Clínicas activas</span>
+                    <p class="card-value">@clinicasActivas</p>
+                </div>
             </div>
-            <p class="kpi-value">@clinicasActivas</p>
-            <a asp-area="Saas" asp-controller="Clinicas" asp-action="Index" class="kpi-link">Ver clínicas →</a>
+            <div class="card-ghost-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <a asp-area="Saas" asp-controller="Clinicas" asp-action="Index" class="card-footer">
+                <div class="footer-icon-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </div>
+                <span class="footer-text">Ver todas las clínicas</span>
+                <span class="footer-arrow">›</span>
+            </a>
         </div>
+        @* Clínicas vencidas — Naranja *@
         <div class="kpi-card kpi-warning">
-            <div class="kpi-header">
-                <span class="kpi-title">Clínicas vencidas</span>
-                <div class="kpi-icon">
+            <div class="kpi-body">
+                <div class="icon-pill">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
+                <div class="kpi-body-center">
+                    <span class="card-label">Clínicas vencidas</span>
+                    <p class="card-value">@clinicasVencidas</p>
+                </div>
             </div>
-            <p class="kpi-value">@clinicasVencidas</p>
-            <a asp-area="Saas" asp-controller="Suscripciones" asp-action="Index" class="kpi-link">Renovar →</a>
+            <div class="card-ghost-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <a asp-area="Saas" asp-controller="Suscripciones" asp-action="Index" class="card-footer">
+                <div class="footer-icon-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <span class="footer-text">Gestionar renovaciones</span>
+                <span class="footer-arrow">›</span>
+            </a>
         </div>
+        @* Clínicas suspendidas — Morado *@
         <div class="kpi-card kpi-danger">
-            <div class="kpi-header">
-                <span class="kpi-title">Clínicas suspendidas</span>
-                <div class="kpi-icon">
+            <div class="kpi-body">
+                <div class="icon-pill">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
                 </div>
-            </div>
-            <p class="kpi-value">@clinicasSuspendidas</p>
-            <a asp-area="Saas" asp-controller="Suscripciones" asp-action="Index" class="kpi-link">Ver suscripciones →</a>
-        </div>
-        <div class="kpi-card kpi-info">
-            <div class="kpi-header">
-                <span class="kpi-title">MRR estimado</span>
-                <div class="kpi-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <div class="kpi-body-center">
+                    <span class="card-label">Clínicas suspendidas</span>
+                    <p class="card-value">@clinicasSuspendidas</p>
                 </div>
             </div>
-            <p class="kpi-value">@mrr.ToString("C2")</p>
+            <div class="card-ghost-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+            </div>
+            <a asp-area="Saas" asp-controller="Suscripciones" asp-action="Index" class="card-footer">
+                <div class="footer-icon-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                </div>
+                <span class="footer-text">Ver suscripciones</span>
+                <span class="footer-arrow">›</span>
+            </a>
+        </div>
+        @* MRR — Azul *@
+        <div class="kpi-card kpi-info">
+            <div class="kpi-body">
+                <div class="icon-pill">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <div class="kpi-body-center">
+                    <span class="card-label">MRR estimado</span>
+                    <p class="card-value">@mrr.ToString("C2")</p>
+                </div>
+            </div>
+            <div class="card-ghost-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="card-footer">
+                <div class="footer-icon-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <span class="footer-text">Sin cambios desde ayer</span>
+                <span class="footer-arrow">›</span>
+            </div>
         </div>
     </div>
 

@@ -32,24 +32,51 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Home/AccesoDenegado";
     options.Events = new Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationEvents
     {
-        OnRedirectToAccessDenied = ctx =>
+        OnRedirectToAccessDenied = async ctx =>
         {
             var path = ctx.Request.Path.Value ?? "";
-            var user = ctx.HttpContext.User;
+            var pathAndQuery = ctx.Request.PathBase + ctx.Request.Path + ctx.Request.QueryString;
+            var userPrincipal = ctx.HttpContext.User;
+            var userManager = ctx.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
+            var signInManager = ctx.HttpContext.RequestServices.GetRequiredService<SignInManager<ApplicationUser>>();
+            var user = await userManager.GetUserAsync(userPrincipal);
+            var roles = user != null
+                ? await userManager.GetRolesAsync(user)
+                : Array.Empty<string>();
+
             bool isClinica = path.StartsWith("/Clinica", StringComparison.OrdinalIgnoreCase);
             bool isSaas = path.StartsWith("/Saas", StringComparison.OrdinalIgnoreCase);
-            if (isClinica && (user.IsInRole(OdontariRoles.AdminClinica) || user.IsInRole(OdontariRoles.Recepcion) || user.IsInRole(OdontariRoles.Doctor) || user.IsInRole(OdontariRoles.Finanzas)))
+
+            if (user != null)
+            {
+                await signInManager.RefreshSignInAsync(user);
+            }
+
+            if (isClinica && roles.Any(r => OdontariRoles.RolesClinica.Contains(r)))
             {
                 ctx.Response.Redirect("/Clinica/Home/Index?accesoDenegado=1");
-                return Task.CompletedTask;
+                return;
             }
-            if (isSaas && user.IsInRole(OdontariRoles.SuperAdmin))
+
+            if (isClinica && roles.Contains(OdontariRoles.SuperAdmin))
+            {
+                ctx.Response.Redirect("/Saas/Dashboard/Index");
+                return;
+            }
+
+            if (isSaas && roles.Contains(OdontariRoles.SuperAdmin))
             {
                 ctx.Response.Redirect("/Saas/Dashboard/Index?accesoDenegado=1");
-                return Task.CompletedTask;
+                return;
             }
-            ctx.Response.Redirect("/Home/AccesoDenegado?ReturnUrl=" + Uri.EscapeDataString(path));
-            return Task.CompletedTask;
+
+            if (isSaas && user?.ClinicaId != null && roles.Any(r => OdontariRoles.RolesClinica.Contains(r)))
+            {
+                ctx.Response.Redirect("/Clinica/Home/Index");
+                return;
+            }
+
+            ctx.Response.Redirect("/Home/AccesoDenegado?ReturnUrl=" + Uri.EscapeDataString(pathAndQuery));
         }
     };
 });

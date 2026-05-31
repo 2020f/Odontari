@@ -1,0 +1,82 @@
+@model IEnumerable<AuditLog>
+@{
+    ViewData["Title"] = "Logs / Auditoria";
+    var clinicas = ViewBag.Clinicas as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    int? clinicaId = ViewBag.ClinicaId as int?;
+    DateTime? desde = ViewBag.Desde as DateTime?;
+    DateTime? hasta = ViewBag.Hasta as DateTime?;
+    string? accion = ViewBag.Accion as string;
+}
+
+<div class="saas-dashboard">
+    <header class="dashboard-hero">
+        <h1>Logs / Auditoria</h1>
+        <p class="dashboard-subtitle">Registro de acciones administrativas y actividad critica del sistema.</p>
+    </header>
+
+    <form asp-area="Saas" asp-controller="Logs" asp-action="Index" method="get" class="section-card" style="margin-top: 1.25rem;">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label" for="clinicaId">Clinica</label>
+                <select id="clinicaId" name="clinicaId" class="form-select">
+                    <option value="">Todas</option>
+                    @foreach (var c in clinicas)
+                    {
+                        <option value="@c.Id" selected="@(clinicaId == c.Id)">@c.Nombre</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="desde">Desde</label>
+                <input id="desde" name="desde" type="date" value="@desde?.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="hasta">Hasta</label>
+                <input id="hasta" name="hasta" type="date" value="@hasta?.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="accion">Accion</label>
+                <input id="accion" name="accion" value="@accion" class="form-control" />
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn-main btn-primary">Filtrar</button>
+                <a asp-area="Saas" asp-controller="Logs" asp-action="Index" class="btn-main btn-outline">Limpiar</a>
+            </div>
+        </div>
+    </form>
+
+    <div class="section-card activity-card" style="margin-top: 1.25rem;">
+        @if (Model!.Any())
+        {
+            <table class="activity-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Clinica</th>
+                        <th>Usuario</th>
+                        <th>Accion</th>
+                        <th>Entidad</th>
+                        <th>Detalle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model!)
+                    {
+                        <tr>
+                            <td class="cell-date">@log.CreadoAt.ToString("g")</td>
+                            <td>@(log.ClinicaId?.ToString() ?? "-")</td>
+                            <td>@(log.UserId ?? "-")</td>
+                            <td>@log.Accion</td>
+                            <td>@(log.Entidad ?? "-") @(log.EntidadId != null ? $"#{log.EntidadId}" : "")</td>
+                            <td>@(log.Detalle ?? "-")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="section-empty">No hay registros de auditoria con los filtros seleccionados.</p>
+        }
+    </div>
+</div>

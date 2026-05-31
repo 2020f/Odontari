@@ -7,10 +7,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
@@ -27,7 +25,11 @@ namespace Odontari.Web.Areas.Identity.Pages.Account
         private readonly IPuertaEntradaService _puertaEntrada;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IPuertaEntradaService puertaEntrada, ILogger<LoginModel> logger)
+        public LoginModel(
+            SignInManager<ApplicationUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            IPuertaEntradaService puertaEntrada,
+            ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -35,63 +37,31 @@ namespace Odontari.Web.Areas.Identity.Pages.Account
             _logger = logger;
         }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public string ReturnUrl { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [TempData]
         public string ErrorMessage { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public class InputModel
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
             [Required]
             [EmailAddress]
             public string Email { get; set; }
 
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
             [Required]
             [DataType(DataType.Password)]
             public string Password { get; set; }
 
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
             [Display(Name = "Remember me?")]
             public bool RememberMe { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task<IActionResult> OnGetAsync(string returnUrl = null)
         {
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -100,12 +70,23 @@ namespace Odontari.Web.Areas.Identity.Pages.Account
 
             returnUrl ??= Url.Content("~/");
 
-            // Clear the existing external cookie to ensure a clean login process
+            if (!ModelState.Any(m => m.Value?.Errors.Count > 0) &&
+                User.Identity?.IsAuthenticated == true)
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser != null)
+                {
+                    var currentRoles = await _userManager.GetRolesAsync(currentUser);
+                    return LocalRedirect(GetDefaultPanelUrl(currentUser, currentRoles));
+                }
+            }
+
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             ReturnUrl = returnUrl;
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -116,56 +97,103 @@ namespace Odontari.Web.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
                     var user = await _userManager.FindByEmailAsync(Input.Email);
-                    if (user != null)
+                    if (user == null)
                     {
-                        // Usuario de clínica: validar suscripción vigente antes de dejar entrar
-                        if (user.ClinicaId != null && !await _userManager.IsInRoleAsync(user, OdontariRoles.SuperAdmin))
+                        await _signInManager.SignOutAsync();
+                        ModelState.AddModelError(string.Empty, "No se pudo cargar el usuario. Intente iniciar sesion de nuevo.");
+                        return Page();
+                    }
+
+                    var roles = await _userManager.GetRolesAsync(user);
+
+                    if (user.ClinicaId != null && !roles.Contains(OdontariRoles.SuperAdmin))
+                    {
+                        var (puedeEntrar, motivoBloqueo) = await _puertaEntrada.ValidarAccesoPanelClinicaAsync(user.ClinicaId.Value);
+                        if (!puedeEntrar)
                         {
-                            var (puedeEntrar, motivoBloqueo) = await _puertaEntrada.ValidarAccesoPanelClinicaAsync(user.ClinicaId.Value);
-                            if (!puedeEntrar)
-                            {
-                                await _signInManager.SignOutAsync();
-                                ErrorMessage = motivoBloqueo ?? "Suscripción vencida (suspensión por vencimiento). Contacte al administrador para renovar.";
-                                return RedirectToPage();
-                            }
-                        }
-                        // Redirección multitenant: ir al panel correcto si vienen a la raíz
-                        var isRoot = string.IsNullOrEmpty(returnUrl) || returnUrl == "~/" || returnUrl == "/" || returnUrl == "/Index";
-                        if (isRoot)
-                        {
-                            if (await _userManager.IsInRoleAsync(user, OdontariRoles.SuperAdmin))
-                                return LocalRedirect("/Saas/Dashboard/Index");
-                            if (user.ClinicaId != null)
-                                return LocalRedirect("/Clinica/Home/Index");
+                            await _signInManager.SignOutAsync();
+                            ErrorMessage = motivoBloqueo ?? "Suscripcion vencida. Contacte al administrador para renovar.";
+                            return RedirectToPage();
                         }
                     }
-                    return LocalRedirect(returnUrl);
+
+                    await _signInManager.RefreshSignInAsync(user);
+                    return LocalRedirect(GetPostLoginUrl(returnUrl, user, roles));
                 }
+
                 if (result.RequiresTwoFactor)
                 {
                     return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
                 }
+
                 if (result.IsLockedOut)
                 {
                     _logger.LogWarning("User account locked out.");
                     return RedirectToPage("./Lockout");
                 }
-                else
+
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return Page();
+            }
+
+            return Page();
+        }
+
+        private string GetPostLoginUrl(string returnUrl, ApplicationUser user, IList<string> roles)
+        {
+            if (string.IsNullOrWhiteSpace(returnUrl) ||
+                !Url.IsLocalUrl(returnUrl) ||
+                IsRootUrl(returnUrl) ||
+                returnUrl.StartsWith("/Identity/Account/Login", StringComparison.OrdinalIgnoreCase) ||
+                returnUrl.StartsWith("/Home/AccesoDenegado", StringComparison.OrdinalIgnoreCase))
+            {
+                return GetDefaultPanelUrl(user, roles);
+            }
+
+            if (roles.Contains(OdontariRoles.SuperAdmin))
+            {
+                if (returnUrl.Equals("/Saas", StringComparison.OrdinalIgnoreCase) ||
+                    returnUrl.Equals("/Saas/", StringComparison.OrdinalIgnoreCase) ||
+                    returnUrl.StartsWith("/Clinica", StringComparison.OrdinalIgnoreCase))
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return Page();
+                    return "/Saas/Dashboard/Index";
                 }
             }
 
-            // If we got this far, something failed, redisplay form
-            return Page();
+            if (user.ClinicaId != null && roles.Any(r => OdontariRoles.RolesClinica.Contains(r)))
+            {
+                if (returnUrl.Equals("/Clinica", StringComparison.OrdinalIgnoreCase) ||
+                    returnUrl.Equals("/Clinica/", StringComparison.OrdinalIgnoreCase) ||
+                    returnUrl.StartsWith("/Saas", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "/Clinica/Home/Index";
+                }
+            }
+
+            return returnUrl;
+        }
+
+        private static string GetDefaultPanelUrl(ApplicationUser user, IList<string> roles)
+        {
+            if (roles.Contains(OdontariRoles.SuperAdmin))
+                return "/Saas/Dashboard/Index";
+
+            if (user.ClinicaId != null && roles.Any(r => OdontariRoles.RolesClinica.Contains(r)))
+                return "/Clinica/Home/Index";
+
+            return "/";
+        }
+
+        private static bool IsRootUrl(string returnUrl)
+        {
+            return returnUrl == "~/" ||
+                   returnUrl == "/" ||
+                   returnUrl.Equals("/Index", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

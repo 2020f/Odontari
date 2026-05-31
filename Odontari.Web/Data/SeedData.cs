@@ -19,7 +19,38 @@ public static class SeedData
     {
         const string email = "superadmin@odontari.com";
         var existing = await userManager.FindByEmailAsync(email);
-        if (existing != null) return;
+        if (existing != null)
+        {
+            var changed = false;
+            if (!existing.EmailConfirmed)
+            {
+                existing.EmailConfirmed = true;
+                changed = true;
+            }
+            if (!existing.Activo)
+            {
+                existing.Activo = true;
+                changed = true;
+            }
+            if (existing.ClinicaId != null)
+            {
+                existing.ClinicaId = null;
+                changed = true;
+            }
+            if (string.IsNullOrWhiteSpace(existing.NombreCompleto))
+            {
+                existing.NombreCompleto = "Super Administrador";
+                changed = true;
+            }
+
+            if (changed)
+                await userManager.UpdateAsync(existing);
+
+            if (!await userManager.IsInRoleAsync(existing, OdontariRoles.SuperAdmin))
+                await userManager.AddToRoleAsync(existing, OdontariRoles.SuperAdmin);
+
+            return;
+        }
 
         var user = new ApplicationUser
         {

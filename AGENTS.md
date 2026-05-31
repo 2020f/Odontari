@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
 
 ## Commands
 
@@ -36,10 +36,8 @@ Single web project: `Odontari.Web/`
 | Area | Purpose |
 |---|---|
 | `Areas/Clinica/` | All tenant-facing operations — the main app |
-| `Areas/Saas/` | SuperAdmin panel (plans, clinics, subscriptions, audit logs) |
+| `Areas/Saas/` | SuperAdmin panel (plans, clinics, subscriptions) |
 | `Areas/Identity/Pages/Account/` | Scaffolded Identity pages (Login, Register, ForgotPassword, ResendEmailConfirmation). Register/ForgotPassword/Resend are intentionally disabled — they render a styled notice instead of a functional form. |
-
-**Saas controller location:** Saas controllers live in `Controllers/Saas/` (not under `Areas/`), decorated with `[Area("Saas")]`. Views live under `Areas/Saas/Views/`. Saas controllers: `DashboardController`, `ClinicasController`, `PlanesController`, `SuscripcionesController`, `UsuariosClinicaController`, `UsuariosInternosController`, `LogsController` (audit log viewer — filters by clinic, date range, and action string).
 
 ### Multi-Tenant Pattern
 
@@ -279,7 +277,7 @@ An `OrdenCobro` is created when a `Cita` is marked `Finalizada`. A `Factura` (wi
 
 ### Odontari.Landing (separate project)
 
-`Odontari.Landing/` is a **Next.js 14 static site** (output: `"export"`) — completely independent of the ASP.NET Core backend. It has its own `CLAUDE.md` with full details. Commands: `npm run dev` / `npm run build`. Design tokens and component conventions are defined in `tailwind.config.ts` and `app/globals.css`.
+`Odontari.Landing/` is a **Next.js 14 static site** (output: `"export"`) — completely independent of the ASP.NET Core backend. It has its own `AGENTS.md` with full details. Commands: `npm run dev` / `npm run build`. Design tokens and component conventions are defined in `tailwind.config.ts` and `app/globals.css`.
 
 ### Reference Documentation
 
@@ -288,4 +286,3 @@ Consult before modifying these features:
 - `FASES_ODONTARI.md` — Project phases, test credentials, schema overview
 - `REUSO-logica-subida-fotos.md` — Azure Blob + SQL rollback pattern
 - `CHECKLIST_MULTITENANT_REVISION.md` — Multi-tenant compliance checklist
-- `planfacturacionelectronica.md` — Design plan for Dominican Republic e-CF electronic invoicing (not yet implemented). Extends `ModoFacturacion` with a third mode (`ElectronicaECF`); introduces `FacturaElectronica`, `FacturaElectronicaEvento`, and `ConfiguracionFacturaElectronica` models; provider abstraction (`IFacturacionElectronicaProvider`) supports both a certified API intermediary (Route A, recommended) and direct DGII integration (Route B).

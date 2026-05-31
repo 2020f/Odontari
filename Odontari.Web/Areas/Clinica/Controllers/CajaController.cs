@@ -69,10 +69,11 @@ public class CajaController : Controller
         if (orden.CitaId.HasValue)
         {
             var lista = await _db.ProcedimientosRealizados
-                .Where(pr => pr.CitaId == orden.CitaId.Value && pr.MarcadoRealizado)
+                .AsNoTracking()
+                .Where(pr => pr.CitaId == orden.CitaId.Value && pr.Cita!.ClinicaId == cid && pr.MarcadoRealizado)
                 .Include(pr => pr.Tratamiento)
                 .OrderBy(pr => pr.Tratamiento != null ? pr.Tratamiento.Nombre : "")
-                .Select(pr => new { pr.Tratamiento!.Nombre, pr.Notas, pr.PrecioAplicado })
+                .Select(pr => new { Nombre = pr.Tratamiento != null ? pr.Tratamiento.Nombre : "Tratamiento", pr.Notas, pr.PrecioAplicado })
                 .ToListAsync();
             procedimientos = lista.Select(p => (p.Nombre, p.Notas, Precio: p.PrecioAplicado)).ToList();
         }
@@ -105,7 +106,7 @@ public class CajaController : Controller
         orden.Estado = orden.MontoPagado >= orden.Total ? EstadoCobro.Pagado : EstadoCobro.Parcial;
         await _db.SaveChangesAsync();
 
-        var facturaId = await _facturaService.CrearFacturaSiNoExisteAsync(id, vm.MetodoPago, UserId);
+        var facturaId = await _facturaService.CrearFacturaSiNoExisteAsync(id, cid.Value, vm.MetodoPago, UserId);
         if (facturaId.HasValue)
             TempData["FacturaId"] = facturaId.Value;
         TempData["CajaMsg"] = "Pago registrado correctamente." + (facturaId.HasValue ? " Puede descargar la factura en esta página o en Historial de pagos." : "");
@@ -130,7 +131,8 @@ public class CajaController : Controller
         if (factura.OrdenCobro?.CitaId.HasValue == true)
         {
             var procs = await _db.ProcedimientosRealizados
-                .Where(pr => pr.CitaId == factura.OrdenCobro.CitaId && pr.MarcadoRealizado)
+                .AsNoTracking()
+                .Where(pr => pr.CitaId == factura.OrdenCobro.CitaId && pr.Cita!.ClinicaId == cid && pr.MarcadoRealizado)
                 .Include(pr => pr.Tratamiento)
                 .ToListAsync();
             foreach (var pr in procs)

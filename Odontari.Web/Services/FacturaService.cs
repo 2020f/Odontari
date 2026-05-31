@@ -15,7 +15,7 @@ public class FacturaService : IFacturaService
         _db = db;
     }
 
-    public async Task<int?> CrearFacturaSiNoExisteAsync(int ordenCobroId, string? formaPago, string? usuarioId, CancellationToken ct = default)
+    public async Task<int?> CrearFacturaSiNoExisteAsync(int ordenCobroId, int clinicaId, string? formaPago, string? usuarioId, CancellationToken ct = default)
     {
         // La transacción Serializable bloquea la lectura del MAX hasta que esta
         // operación complete, evitando que dos requests concurrentes tomen el mismo
@@ -28,7 +28,7 @@ public class FacturaService : IFacturaService
                 .Include(o => o.Factura)
                 .Include(o => o.Clinica)
                 .Include(o => o.Cita)
-                .FirstOrDefaultAsync(o => o.Id == ordenCobroId, ct);
+                .FirstOrDefaultAsync(o => o.Id == ordenCobroId && o.ClinicaId == clinicaId, ct);
 
             // Re-verificar dentro de la transacción: otro request puede haber creado la factura
             // en el tiempo entre la carga y la adquisición del lock.

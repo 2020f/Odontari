@@ -38,81 +38,176 @@
   margin-bottom: 2rem;
 }
 
+@keyframes kpiSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .saas-dashboard .kpi-card {
-  background: #fff;
-  border-radius: var(--saas-card-radius);
-  padding: 1.25rem 1.5rem;
-  box-shadow: var(--saas-card-shadow);
-  border: 1px solid rgba(30, 41, 59, 0.06);
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(30,41,59,0.08);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .saas-dashboard .kpi-card:hover {
-  box-shadow: var(--saas-card-shadow-hover);
+  box-shadow: 0 8px 32px rgba(30,41,59,0.14);
   transform: translateY(-2px);
 }
 
-.saas-dashboard .kpi-card .kpi-header {
+.saas-dashboard .kpi-grid .kpi-card:nth-child(1) { animation: kpiSlideUp 0.5s ease 0.05s both; }
+.saas-dashboard .kpi-grid .kpi-card:nth-child(2) { animation: kpiSlideUp 0.5s ease 0.15s both; }
+.saas-dashboard .kpi-grid .kpi-card:nth-child(3) { animation: kpiSlideUp 0.5s ease 0.25s both; }
+.saas-dashboard .kpi-grid .kpi-card:nth-child(4) { animation: kpiSlideUp 0.5s ease 0.35s both; }
+
+/* Body horizontal: ícono izquierda + label/número centro */
+.saas-dashboard .kpi-card .kpi-body {
+  padding: 26px 24px 20px 24px;
   display: flex;
+  flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
+  gap: 16px;
+  flex: 1;
+  min-height: 100px;
 }
 
-.saas-dashboard .kpi-card .kpi-title {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--saas-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin: 0;
-}
-
-.saas-dashboard .kpi-card .kpi-icon {
+/* Píldora del ícono principal */
+.saas-dashboard .kpi-card .icon-pill {
   width: 40px;
   height: 40px;
-  border-radius: 10px;
+  border-radius: 11px;
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-.saas-dashboard .kpi-card .kpi-icon svg {
-  width: 22px;
-  height: 22px;
+.saas-dashboard .kpi-card .icon-pill svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Centro: label + número */
+.saas-dashboard .kpi-card .kpi-body-center {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.saas-dashboard .kpi-card .card-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  display: block;
+}
+
+.saas-dashboard .kpi-card .card-value {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -2px;
+  line-height: 1;
+  margin: 0;
+}
+
+/* Ícono fantasma decorativo (esquina superior derecha) */
+.saas-dashboard .kpi-card .card-ghost-icon {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 90px;
+  height: 90px;
+  opacity: 0.13;
+  pointer-events: none;
+}
+
+.saas-dashboard .kpi-card .card-ghost-icon svg {
+  width: 90px;
+  height: 90px;
+}
+
+/* Footer sólido */
+.saas-dashboard .kpi-card .card-footer {
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  transition: filter 0.2s ease;
+}
+
+.saas-dashboard .kpi-card .card-footer:hover {
+  filter: brightness(1.08);
+}
+
+.saas-dashboard .kpi-card .footer-icon-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.saas-dashboard .kpi-card .footer-icon-circle svg {
+  width: 17px;
+  height: 17px;
+  stroke: #fff;
+}
+
+.saas-dashboard .kpi-card .footer-text {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 500;
   color: #fff;
 }
 
-.saas-dashboard .kpi-card .kpi-value {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--saas-text);
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  margin: 0 0 0.5rem 0;
+.saas-dashboard .kpi-card .footer-arrow {
+  color: rgba(255,255,255,0.85);
+  font-size: 22px;
+  line-height: 1;
 }
 
-.saas-dashboard .kpi-card .kpi-link {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: #6366f1;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  transition: color 0.2s ease, gap 0.2s ease;
-}
+/* ── Variantes de color por tarjeta ── */
 
-.saas-dashboard .kpi-card .kpi-link:hover {
-  color: #4f46e5;
-  gap: 6px;
-}
+/* Verde — kpi-success (Clínicas activas) */
+.saas-dashboard .kpi-card.kpi-success .kpi-body    { background: linear-gradient(135deg, #f0fdf4, #dcfce7); }
+.saas-dashboard .kpi-card.kpi-success .icon-pill svg { stroke: #22c55e; }
+.saas-dashboard .kpi-card.kpi-success .card-label  { color: #16a34a; }
+.saas-dashboard .kpi-card.kpi-success .card-value  { color: #14532d; }
+.saas-dashboard .kpi-card.kpi-success .card-ghost-icon { color: #22c55e; stroke: #22c55e; }
+.saas-dashboard .kpi-card.kpi-success .card-footer { background: #16a34a; }
 
-/* Variantes de color por KPI */
-.saas-dashboard .kpi-card.kpi-success .kpi-icon { background: linear-gradient(135deg, #10b981, #059669); }
-.saas-dashboard .kpi-card.kpi-warning .kpi-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
-.saas-dashboard .kpi-card.kpi-danger .kpi-icon { background: linear-gradient(135deg, #ef4444, #dc2626); }
-.saas-dashboard .kpi-card.kpi-info .kpi-icon { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+/* Naranja — kpi-warning (Clínicas vencidas) */
+.saas-dashboard .kpi-card.kpi-warning .kpi-body    { background: linear-gradient(135deg, #fff7ed, #ffedd5); }
+.saas-dashboard .kpi-card.kpi-warning .icon-pill svg { stroke: #f97316; }
+.saas-dashboard .kpi-card.kpi-warning .card-label  { color: #ea6c10; }
+.saas-dashboard .kpi-card.kpi-warning .card-value  { color: #7c2d12; }
+.saas-dashboard .kpi-card.kpi-warning .card-ghost-icon { color: #f97316; stroke: #f97316; }
+.saas-dashboard .kpi-card.kpi-warning .card-footer { background: #ea6c10; }
+
+/* Morado — kpi-danger (Clínicas suspendidas) */
+.saas-dashboard .kpi-card.kpi-danger .kpi-body     { background: linear-gradient(135deg, #f5f3ff, #ede9fe); }
+.saas-dashboard .kpi-card.kpi-danger .icon-pill svg  { stroke: #8b5cf6; }
+.saas-dashboard .kpi-card.kpi-danger .card-label   { color: #7c3aed; }
+.saas-dashboard .kpi-card.kpi-danger .card-value   { color: #2e1065; }
+.saas-dashboard .kpi-card.kpi-danger .card-ghost-icon { color: #8b5cf6; stroke: #8b5cf6; }
+.saas-dashboard .kpi-card.kpi-danger .card-footer  { background: #7c3aed; }
+
+/* Azul — kpi-info (MRR estimado) */
+.saas-dashboard .kpi-card.kpi-info .kpi-body       { background: linear-gradient(135deg, #eef4ff, #dbeafe); }
+.saas-dashboard .kpi-card.kpi-info .icon-pill svg  { stroke: #3b82f6; }
+.saas-dashboard .kpi-card.kpi-info .card-label     { color: #3d72e8; }
+.saas-dashboard .kpi-card.kpi-info .card-value     { color: #1e3a6e; }
+.saas-dashboard .kpi-card.kpi-info .card-ghost-icon { color: #3b82f6; stroke: #3b82f6; }
+.saas-dashboard .kpi-card.kpi-info .card-footer    { background: #3d72e8; }
 
 /* Secciones de listas */
 .saas-dashboard .dashboard-section {

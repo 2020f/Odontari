@@ -4,5 +4,5 @@ namespace Odontari.Web.Services;
 public interface IFacturaService
 {
     /// <summary>Si la orden no tiene factura, crea una (interna o fiscal según configuración de la clínica) y la asocia. Devuelve el Id de la factura creada o null si ya existía.</summary>
-    Task<int?> CrearFacturaSiNoExisteAsync(int ordenCobroId, string? formaPago, string? usuarioId, CancellationToken ct = default);
+    Task<int?> CrearFacturaSiNoExisteAsync(int ordenCobroId, int clinicaId, string? formaPago, string? usuarioId, CancellationToken ct = default);
 }

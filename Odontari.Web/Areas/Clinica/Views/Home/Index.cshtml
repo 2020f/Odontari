@@ -28,40 +28,104 @@
     </div>
 
     <div class="dashboard-metrics">
-        <div class="dashboard-metric-card">
-            <div>
-                <div class="metric-label">Citas hoy</div>
-                <div class="metric-value">@citasHoy.Count</div>
+        @* Citas hoy — Azul *@
+        <div class="dashboard-metric-card metric-citas">
+            <div class="mc-body">
+                <div class="mc-icon-pill">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <div class="mc-center">
+                    <span class="mc-label">Citas hoy</span>
+                    <p class="mc-value">@citasHoy.Count</p>
+                </div>
             </div>
+            <div class="mc-ghost" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <a asp-controller="Agenda" asp-action="Index" asp-route-fecha="@hoy" class="mc-footer">
+                <div class="mc-footer-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <span class="mc-footer-text">Ver agenda de hoy</span>
+                <span class="mc-footer-arrow">›</span>
+            </a>
         </div>
+        @* Pendientes de cobro — Verde *@
         <div class="dashboard-metric-card metric-cobro">
-            <div>
-                <div class="metric-label">Pendientes de cobro</div>
-                <div class="metric-value">@pendientesCobro.Count</div>
+            <div class="mc-body">
+                <div class="mc-icon-pill">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <div class="mc-center">
+                    <span class="mc-label">Pendientes de cobro</span>
+                    <p class="mc-value">@pendientesCobro.Count</p>
+                </div>
             </div>
+            <div class="mc-ghost" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <a asp-controller="Caja" asp-action="Index" class="mc-footer">
+                <div class="mc-footer-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <span class="mc-footer-text">Ir a caja</span>
+                <span class="mc-footer-arrow">›</span>
+            </a>
         </div>
         @if (esRecepcion && citasManana != null)
         {
-            <div class="dashboard-metric-card">
-                <div>
-                    <div class="metric-label">Citas mañana</div>
-                    <div class="metric-value">@citasManana.Count</div>
+            @* Citas mañana — Naranja *@
+            <div class="dashboard-metric-card metric-manana">
+                <div class="mc-body">
+                    <div class="mc-icon-pill">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg>
+                    </div>
+                    <div class="mc-center">
+                        <span class="mc-label">Citas mañana</span>
+                        <p class="mc-value">@citasManana.Count</p>
+                    </div>
                 </div>
+                <div class="mc-ghost" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg>
+                </div>
+                <a asp-controller="Agenda" asp-action="Index" asp-route-fecha="@manana" class="mc-footer">
+                    <div class="mc-footer-circle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg>
+                    </div>
+                    <span class="mc-footer-text">Ver agenda de mañana</span>
+                    <span class="mc-footer-arrow">›</span>
+                </a>
             </div>
         }
         @if (esRecepcion && doctoresStatus != null)
         {
             var libres   = doctoresStatus.Count(d => d.Estado == DoctorEstado.Libre);
             var ocupados = doctoresStatus.Count(d => d.Estado == DoctorEstado.Ocupado);
+            @* Doctores activos — Morado *@
             <div class="dashboard-metric-card metric-doctor">
-                <div>
-                    <div class="metric-label">Doctores activos</div>
-                    <div class="metric-value">@libres <span class="metric-value-sub">libres</span></div>
+                <div class="mc-body">
+                    <div class="mc-icon-pill">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <div class="mc-center">
+                        <span class="mc-label">Doctores activos</span>
+                        <p class="mc-value">@libres <span class="mc-value-sub">libres</span></p>
+                        @if (ocupados > 0)
+                        {
+                            <div class="metric-badge-ocupado">@ocupados en atención</div>
+                        }
+                    </div>
                 </div>
-                @if (ocupados > 0)
-                {
-                    <div class="metric-badge-ocupado">@ocupados en atención</div>
-                }
+                <div class="mc-ghost" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <div class="mc-footer">
+                    <div class="mc-footer-circle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <span class="mc-footer-text">Estado en tiempo real</span>
+                    <span class="mc-footer-arrow">›</span>
+                </div>
             </div>
         }
     </div>

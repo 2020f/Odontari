@@ -1,0 +1,7 @@
+[mcp_servers.obsidian]
+args = [
+    "-y",
+    "obsidian-mcp",
+    'C:\Users\srSkimberlyn\Desktop\agenda-inteligente\agenda inteligente',
+]
+command = "npx"

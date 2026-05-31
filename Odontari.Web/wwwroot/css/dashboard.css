@@ -30,62 +30,144 @@
 /* ─── Metric Cards ───────────────────────────────────────────── */
 .dashboard-metrics {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1rem;
   margin-bottom: 1.75rem;
 }
 
+@keyframes mcSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .dashboard-metric-card {
-  background: #fff;
-  border-radius: 12px;
-  border: 1px solid rgba(0,29,57,0.07);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 4px 12px rgba(0,29,57,0.04);
-  padding: 1.25rem 1.25rem 1.25rem 1.5rem;
-  position: relative;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(30,41,59,0.08);
   overflow: hidden;
-  transition: box-shadow 0.18s, transform 0.18s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: none;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-/* Left accent border on metric cards */
-.dashboard-metric-card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  border-radius: 12px 0 0 12px;
-  background: var(--odon-accent);
-}
-
-.dashboard-metric-card.metric-cobro::before {
-  background: #52a75e;
-}
+.dashboard-metric-card::before { display: none; }
 
 .dashboard-metric-card:hover {
-  box-shadow: 0 4px 16px rgba(0,29,57,0.08);
-  transform: translateY(-1px);
+  box-shadow: 0 8px 32px rgba(30,41,59,0.14);
+  transform: translateY(-2px);
 }
 
-.dashboard-metric-card .metric-label {
-  font-size: 0.72rem;
+.dashboard-metrics .dashboard-metric-card:nth-child(1) { animation: mcSlideUp 0.5s ease 0.05s both; }
+.dashboard-metrics .dashboard-metric-card:nth-child(2) { animation: mcSlideUp 0.5s ease 0.15s both; }
+.dashboard-metrics .dashboard-metric-card:nth-child(3) { animation: mcSlideUp 0.5s ease 0.25s both; }
+.dashboard-metrics .dashboard-metric-card:nth-child(4) { animation: mcSlideUp 0.5s ease 0.35s both; }
+
+.dashboard-metric-card .mc-body {
+  padding: 26px 24px 20px 24px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-height: 100px;
+}
+
+.dashboard-metric-card .mc-icon-pill {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.dashboard-metric-card .mc-icon-pill svg {
+  width: 20px;
+  height: 20px;
+}
+
+.dashboard-metric-card .mc-center {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.dashboard-metric-card .mc-label {
+  font-size: 10px;
   font-weight: 700;
-  color: rgba(0,29,57,0.42);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.5rem;
+  letter-spacing: 0.9px;
+  display: block;
 }
 
-.dashboard-metric-card .metric-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--odon);
+.dashboard-metric-card .mc-value {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -2px;
   line-height: 1;
-  letter-spacing: -0.02em;
+  margin: 0;
 }
 
-.dashboard-metric-card .metric-icon {
-  display: none; /* Replaced by border accent */
+.dashboard-metric-card .mc-ghost {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 90px;
+  height: 90px;
+  opacity: 0.13;
+  pointer-events: none;
+}
+
+.dashboard-metric-card .mc-ghost svg {
+  width: 90px;
+  height: 90px;
+}
+
+.dashboard-metric-card .mc-footer {
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  transition: filter 0.2s ease;
+}
+
+.dashboard-metric-card .mc-footer:hover {
+  filter: brightness(1.08);
+}
+
+.dashboard-metric-card .mc-footer-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dashboard-metric-card .mc-footer-circle svg {
+  width: 17px;
+  height: 17px;
+  stroke: #fff;
+}
+
+.dashboard-metric-card .mc-footer-text {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.dashboard-metric-card .mc-footer-arrow {
+  color: rgba(255,255,255,0.85);
+  font-size: 22px;
+  line-height: 1;
 }
 
 /* ─── Dashboard Cards ────────────────────────────────────────── */
@@ -226,31 +308,63 @@
 }
 
 /* ─── Metric card variants ───────────────────────────────────── */
-.dashboard-metric-card.metric-doctor::before {
-  background: #49769F;
-}
 
-.dashboard-metric-card .metric-value-sub {
+/* Azul — citas hoy */
+.dashboard-metric-card.metric-citas .mc-body    { background: linear-gradient(135deg, #eef4ff, #dbeafe); }
+.dashboard-metric-card.metric-citas .mc-icon-pill svg { stroke: #3b82f6; }
+.dashboard-metric-card.metric-citas .mc-label   { color: #3d72e8; }
+.dashboard-metric-card.metric-citas .mc-value   { color: #1e3a6e; }
+.dashboard-metric-card.metric-citas .mc-ghost   { color: #3b82f6; }
+.dashboard-metric-card.metric-citas .mc-footer  { background: #3d72e8; }
+
+/* Verde — cobro */
+.dashboard-metric-card.metric-cobro .mc-body    { background: linear-gradient(135deg, #f0fdf4, #dcfce7); }
+.dashboard-metric-card.metric-cobro .mc-icon-pill svg { stroke: #22c55e; }
+.dashboard-metric-card.metric-cobro .mc-label   { color: #16a34a; }
+.dashboard-metric-card.metric-cobro .mc-value   { color: #14532d; }
+.dashboard-metric-card.metric-cobro .mc-ghost   { color: #22c55e; }
+.dashboard-metric-card.metric-cobro .mc-footer  { background: #16a34a; }
+
+/* Naranja — citas mañana */
+.dashboard-metric-card.metric-manana .mc-body   { background: linear-gradient(135deg, #fff7ed, #ffedd5); }
+.dashboard-metric-card.metric-manana .mc-icon-pill svg { stroke: #f97316; }
+.dashboard-metric-card.metric-manana .mc-label  { color: #ea6c10; }
+.dashboard-metric-card.metric-manana .mc-value  { color: #7c2d12; }
+.dashboard-metric-card.metric-manana .mc-ghost  { color: #f97316; }
+.dashboard-metric-card.metric-manana .mc-footer { background: #ea6c10; }
+
+/* Morado — doctores */
+.dashboard-metric-card.metric-doctor .mc-body   { background: linear-gradient(135deg, #f5f3ff, #ede9fe); }
+.dashboard-metric-card.metric-doctor .mc-icon-pill svg { stroke: #8b5cf6; }
+.dashboard-metric-card.metric-doctor .mc-label  { color: #7c3aed; }
+.dashboard-metric-card.metric-doctor .mc-value  { color: #2e1065; }
+.dashboard-metric-card.metric-doctor .mc-ghost  { color: #8b5cf6; }
+.dashboard-metric-card.metric-doctor .mc-footer { background: #7c3aed; }
+
+/* Sub-texto del valor (ej: "libres") */
+.dashboard-metric-card .mc-value-sub {
   font-size: 1rem;
   font-weight: 500;
-  color: rgba(0,29,57,0.45);
   letter-spacing: 0;
+  opacity: 0.65;
 }
 
+/* Badge "en atención" */
 .dashboard-metric-card .metric-badge-ocupado {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
   padding: 0.18rem 0.55rem;
   border-radius: 20px;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  background: rgba(220,53,69,0.10);
-  color: #b02a37;
-  border: 1px solid rgba(220,53,69,0.20);
-  margin-top: 0.35rem;
+  background: rgba(220,53,69,0.18);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.3);
+  margin-top: 0.3rem;
+  width: fit-content;
 }
 
 /* ─── Card header extras ─────────────────────────────────────── */
