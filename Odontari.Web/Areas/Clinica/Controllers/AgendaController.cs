@@ -54,6 +54,7 @@ public class AgendaController : Controller
         }
 
         IQueryable<Cita> query = _db.Citas
+            .AsNoTracking()
             .Where(c => c.ClinicaId == cid && c.FechaHora >= inicio && c.FechaHora < fin && c.Estado != EstadoCita.Cancelada)
             .Include(c => c.Paciente)
             .Include(c => c.Doctor);
@@ -83,11 +84,11 @@ public class AgendaController : Controller
         ViewBag.EsDoctor = esDoctor;
         ViewBag.PuedeEditarCita = User.IsInRole(OdontariRoles.AdminClinica) || User.IsInRole(OdontariRoles.Recepcion);
 
-        var roleDoctorId = await _db.Roles.Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
-        var doctorIds = await _db.UserRoles.Where(ur => ur.RoleId == roleDoctorId).Select(ur => ur.UserId).ToListAsync();
-        ViewBag.Doctores = await _db.Users.Where(u => u.ClinicaId == cid && doctorIds.Contains(u.Id)).Select(u => new { u.Id, NombreCompleto = u.NombreCompleto ?? u.Email }).ToListAsync();
-        ViewBag.Pacientes = await _db.Pacientes.Where(p => p.ClinicaId == cid && p.Activo).OrderBy(p => p.Nombre).Select(p => new { p.Id, Nombre = p.Nombre + " " + (p.Apellidos ?? "") }).ToListAsync();
-        var motivosDistinct = await _db.Citas.Where(c => c.ClinicaId == cid && c.Motivo != null && c.Motivo != "").Select(c => c.Motivo).Distinct().OrderBy(m => m).Take(50).ToListAsync();
+        var roleDoctorId = await _db.Roles.AsNoTracking().Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
+        var doctorIds = await _db.UserRoles.AsNoTracking().Where(ur => ur.RoleId == roleDoctorId).Select(ur => ur.UserId).ToListAsync();
+        ViewBag.Doctores = await _db.Users.AsNoTracking().Where(u => u.ClinicaId == cid && doctorIds.Contains(u.Id)).Select(u => new { u.Id, NombreCompleto = u.NombreCompleto ?? u.Email }).ToListAsync();
+        ViewBag.Pacientes = await _db.Pacientes.AsNoTracking().Where(p => p.ClinicaId == cid && p.Activo).OrderBy(p => p.Nombre).Select(p => new { p.Id, Nombre = p.Nombre + " " + (p.Apellidos ?? "") }).ToListAsync();
+        var motivosDistinct = await _db.Citas.AsNoTracking().Where(c => c.ClinicaId == cid && c.Motivo != null && c.Motivo != "").Select(c => c.Motivo).Distinct().OrderBy(m => m).Take(50).ToListAsync();
         ViewBag.Motivos = motivosDistinct;
 
         ViewBag.DoctorIdSel = doctorId;
@@ -163,11 +164,11 @@ public class AgendaController : Controller
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         ViewBag.EsDoctor = esDoctor;
         ViewBag.DoctorIdLogueado = esDoctor ? userId : null;
-        ViewBag.Pacientes = await _db.Pacientes.Where(p => p.ClinicaId == cid && p.Activo).OrderBy(p => p.Nombre).Select(p => new { p.Id, Nombre = p.Nombre + " " + (p.Apellidos ?? "") }).ToListAsync();
-        var roleDoctorIdCreate = await _db.Roles.Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
-        var doctorIdsCreate = await _db.UserRoles.Where(ur => ur.RoleId == roleDoctorIdCreate).Select(ur => ur.UserId).ToListAsync();
-        ViewBag.Doctores = await _db.Users.Where(u => u.ClinicaId == cid && doctorIdsCreate.Contains(u.Id)).Select(u => new { u.Id, Nombre = u.NombreCompleto ?? u.Email ?? u.Id }).ToListAsync();
-        var vm = new CitaEditViewModel { FechaHora = fechaHora ?? DateTime.Now.Date.AddHours(9), DuracionMinutos = 30 };
+        ViewBag.Pacientes = await _db.Pacientes.AsNoTracking().Where(p => p.ClinicaId == cid && p.Activo).OrderBy(p => p.Nombre).Select(p => new { p.Id, Nombre = p.Nombre + " " + (p.Apellidos ?? "") }).ToListAsync();
+        var roleDoctorIdCreate = await _db.Roles.AsNoTracking().Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
+        var doctorIdsCreate = await _db.UserRoles.AsNoTracking().Where(ur => ur.RoleId == roleDoctorIdCreate).Select(ur => ur.UserId).ToListAsync();
+        ViewBag.Doctores = await _db.Users.AsNoTracking().Where(u => u.ClinicaId == cid && doctorIdsCreate.Contains(u.Id)).Select(u => new { u.Id, Nombre = u.NombreCompleto ?? u.Email ?? u.Id }).ToListAsync();
+        var vm = new CitaEditViewModel { FechaHora = fechaHora ?? DateTime.UtcNow.AddHours(-4).Date.AddHours(9), DuracionMinutos = 30 };
         if (esDoctor && userId != null) vm.DoctorId = userId;
         return View(vm);
     }
@@ -397,8 +398,8 @@ public class AgendaController : Controller
         var cita = await _db.Citas.Where(c => c.ClinicaId == cid && c.Id == id).FirstOrDefaultAsync();
         if (cita == null) return NotFound();
         cita.Estado = estado;
-        if (estado == EstadoCita.EnAtencion) cita.InicioAtencionAt = DateTime.Now;
-        if (estado == EstadoCita.Finalizada) cita.FinAtencionAt = DateTime.Now;
+        if (estado == EstadoCita.EnAtencion) cita.InicioAtencionAt = DateTime.UtcNow.AddHours(-4);
+        if (estado == EstadoCita.Finalizada) cita.FinAtencionAt = DateTime.UtcNow.AddHours(-4);
 
         // Registrar en Histograma
         var uid = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -417,12 +418,12 @@ public class AgendaController : Controller
     {
         var cid = ClinicaId;
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
-        var c = await _db.Citas.Include(c => c.Paciente).Include(c => c.Doctor).FirstOrDefaultAsync(c => c.ClinicaId == cid && c.Id == id);
+        var c = await _db.Citas.AsNoTracking().Include(c => c.Paciente).Include(c => c.Doctor).FirstOrDefaultAsync(c => c.ClinicaId == cid && c.Id == id);
         if (c == null) return NotFound();
-        ViewBag.Pacientes = await _db.Pacientes.Where(p => p.ClinicaId == cid && p.Activo).OrderBy(p => p.Nombre).Select(p => new { p.Id, Nombre = p.Nombre + " " + (p.Apellidos ?? "") }).ToListAsync();
-        var roleDoctorId4 = await _db.Roles.Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
-        var doctorIds4 = await _db.UserRoles.Where(ur => ur.RoleId == roleDoctorId4).Select(ur => ur.UserId).ToListAsync();
-        ViewBag.Doctores = await _db.Users.Where(u => u.ClinicaId == cid && doctorIds4.Contains(u.Id)).Select(u => new { u.Id, Nombre = u.NombreCompleto ?? u.Email ?? u.Id }).ToListAsync();
+        ViewBag.Pacientes = await _db.Pacientes.AsNoTracking().Where(p => p.ClinicaId == cid && p.Activo).OrderBy(p => p.Nombre).Select(p => new { p.Id, Nombre = p.Nombre + " " + (p.Apellidos ?? "") }).ToListAsync();
+        var roleDoctorId4 = await _db.Roles.AsNoTracking().Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
+        var doctorIds4 = await _db.UserRoles.AsNoTracking().Where(ur => ur.RoleId == roleDoctorId4).Select(ur => ur.UserId).ToListAsync();
+        ViewBag.Doctores = await _db.Users.AsNoTracking().Where(u => u.ClinicaId == cid && doctorIds4.Contains(u.Id)).Select(u => new { u.Id, Nombre = u.NombreCompleto ?? u.Email ?? u.Id }).ToListAsync();
         var duracion = c.DuracionMinutos > 0 ? c.DuracionMinutos : 30;
         return View(new CitaEditViewModel { Id = c.Id, PacienteId = c.PacienteId, DoctorId = c.DoctorId, FechaHora = c.FechaHora, DuracionMinutos = duracion, Motivo = c.Motivo });
     }
@@ -489,10 +490,10 @@ public class AgendaController : Controller
                 }
             }
         }
-        ViewBag.Pacientes = await _db.Pacientes.Where(p => p.ClinicaId == cid && p.Activo).OrderBy(p => p.Nombre).Select(p => new { p.Id, Nombre = p.Nombre + " " + (p.Apellidos ?? "") }).ToListAsync();
-        var roleDoctorId5 = await _db.Roles.Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
-        var doctorIds5 = await _db.UserRoles.Where(ur => ur.RoleId == roleDoctorId5).Select(ur => ur.UserId).ToListAsync();
-        ViewBag.Doctores = await _db.Users.Where(u => u.ClinicaId == cid && doctorIds5.Contains(u.Id)).Select(u => new { u.Id, Nombre = u.NombreCompleto ?? u.Email ?? u.Id }).ToListAsync();
+        ViewBag.Pacientes = await _db.Pacientes.AsNoTracking().Where(p => p.ClinicaId == cid && p.Activo).OrderBy(p => p.Nombre).Select(p => new { p.Id, Nombre = p.Nombre + " " + (p.Apellidos ?? "") }).ToListAsync();
+        var roleDoctorId5 = await _db.Roles.AsNoTracking().Where(r => r.Name == OdontariRoles.Doctor).Select(r => r.Id).FirstOrDefaultAsync();
+        var doctorIds5 = await _db.UserRoles.AsNoTracking().Where(ur => ur.RoleId == roleDoctorId5).Select(ur => ur.UserId).ToListAsync();
+        ViewBag.Doctores = await _db.Users.AsNoTracking().Where(u => u.ClinicaId == cid && doctorIds5.Contains(u.Id)).Select(u => new { u.Id, Nombre = u.NombreCompleto ?? u.Email ?? u.Id }).ToListAsync();
         return View(vm);
     }
 }

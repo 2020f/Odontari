@@ -168,7 +168,7 @@ public class AtencionController : Controller
             return RedirectToAction(nameof(Expediente), new { id = pr.CitaId });
         }
         pr.MarcadoRealizado = true;
-        pr.RealizadoAt = DateTime.Now;
+        pr.RealizadoAt = DateTime.UtcNow.AddHours(-4);
         _db.HistorialClinico.Add(new HistorialClinico { PacienteId = pr.Cita!.PacienteId, ClinicaId = pr.Cita.ClinicaId, CitaId = pr.CitaId, FechaEvento = DateTime.UtcNow, TipoEvento = "Procedimiento realizado", Descripcion = pr.Tratamiento?.Nombre ?? "Tratamiento", UsuarioId = UserId });
         await _db.SaveChangesAsync();
         return RedirectToAction(nameof(Expediente), new { id = pr.CitaId });
@@ -220,7 +220,7 @@ public class AtencionController : Controller
             return RedirectToAction(nameof(Index), new { fecha = cita.FechaHora.Date });
 
         cita.Estado = EstadoCita.Finalizada;
-        cita.FinAtencionAt = DateTime.Now;
+        cita.FinAtencionAt = DateTime.UtcNow.AddHours(-4);
 
         var total = cita.ProcedimientosRealizados.Where(pr => pr.MarcadoRealizado).Sum(pr => pr.PrecioAplicado);
         if (total > 0)
@@ -237,7 +237,7 @@ public class AtencionController : Controller
                     Total = total,
                     MontoPagado = 0,
                     Estado = EstadoCobro.Pendiente,
-                    CreadoAt = DateTime.Now
+                    CreadoAt = DateTime.UtcNow.AddHours(-4)
                 });
             }
         }

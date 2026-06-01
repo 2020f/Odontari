@@ -97,7 +97,7 @@ public class CajaController : Controller
         {
             OrdenCobroId = id,
             Monto = vm.Monto,
-            FechaPago = DateTime.Now,
+            FechaPago = DateTime.UtcNow.AddHours(-4),
             MetodoPago = vm.MetodoPago,
             Referencia = vm.Referencia,
             RegistradoPorUserId = UserId

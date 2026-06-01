@@ -103,7 +103,7 @@ public class FacturaService : IFacturaService
                 NCFTipoId = ncfTipoId,
                 NCF = ncf,
                 Estado = EstadoFactura.Emitida,
-                FechaEmision = DateTime.Now,
+                FechaEmision = DateTime.UtcNow.AddHours(-4),
                 Subtotal = subtotal,
                 Itbis = itbis,
                 Total = total,

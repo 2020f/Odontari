@@ -43,14 +43,14 @@ public class PersonalController : Controller
         var cid = await _clinicaActual.GetClinicaIdActualAsync();
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
 
-        var users = await _db.Users.Where(u => u.ClinicaId == cid).ToListAsync();
+        var users = await _db.Users.AsNoTracking().Where(u => u.ClinicaId == cid).ToListAsync();
         var userIds = users.Select(u => u.Id).ToList();
         var userRoles = userIds.Any()
-            ? await _db.UserRoles.Where(ur => userIds.Contains(ur.UserId)).ToListAsync()
+            ? await _db.UserRoles.AsNoTracking().Where(ur => userIds.Contains(ur.UserId)).ToListAsync()
             : new List<IdentityUserRole<string>>();
         var roleIds = userRoles.Select(ur => ur.RoleId).Distinct().ToList();
         var roles = roleIds.Any()
-            ? await _db.Roles.Where(r => roleIds.Contains(r.Id)).ToDictionaryAsync(r => r.Id, r => r.Name ?? "")
+            ? await _db.Roles.AsNoTracking().Where(r => roleIds.Contains(r.Id)).ToDictionaryAsync(r => r.Id, r => r.Name ?? "")
             : new Dictionary<string, string>();
 
         var list = users.Select(u =>

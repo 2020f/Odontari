@@ -28,7 +28,7 @@ public class ConsentimientoController : Controller
 
     private async Task<bool> PlanPermiteConsentimientoAsync(int clinicaId)
     {
-        var clinica = await _db.Clinicas.Include(c => c.Plan).FirstOrDefaultAsync(c => c.Id == clinicaId);
+        var clinica = await _db.Clinicas.AsNoTracking().Include(c => c.Plan).FirstOrDefaultAsync(c => c.Id == clinicaId);
         return clinica?.Plan?.PermiteConsentimiento ?? false;
     }
 
@@ -45,6 +45,7 @@ public class ConsentimientoController : Controller
             return RedirectToAction("VistaNoPermitida", "Home", new { area = "Clinica", vista = "Consentimiento" });
 
         var plantillas = await _db.PlantillasConsentimiento
+            .AsNoTracking()
             .Where(p => p.ClinicaId == cid)
             .OrderByDescending(p => p.FechaCreacion)
             .Select(p => new PlantillaConsentimientoListViewModel
@@ -60,9 +61,9 @@ public class ConsentimientoController : Controller
             })
             .ToListAsync();
 
-        var query = _db.ConsentimientosGenerados
-            .Where(c => c.ClinicaId == cid)
-            .AsQueryable();
+        IQueryable<ConsentimientoGenerado> query = _db.ConsentimientosGenerados
+            .AsNoTracking()
+            .Where(c => c.ClinicaId == cid);
 
         var buscarTrim = buscar?.Trim();
         if (!string.IsNullOrEmpty(buscarTrim))
@@ -240,8 +241,8 @@ public class ConsentimientoController : Controller
             .Replace("{CEDULA}", cita.Paciente?.Cedula ?? "—")
             .Replace("{EDAD}", edad)
             .Replace("{DOCTOR}", doctor?.NombreCompleto ?? doctor?.Email ?? "—")
-            .Replace("{FECHA}", DateTime.Now.ToString("dd/MM/yyyy"))
-            .Replace("{HORA}", DateTime.Now.ToString("HH:mm"))
+            .Replace("{FECHA}", DateTime.UtcNow.AddHours(-4).ToString("dd/MM/yyyy"))
+            .Replace("{HORA}", DateTime.UtcNow.AddHours(-4).ToString("HH:mm"))
             .Replace("{CLINICA}", clinica?.Nombre ?? "—");
 
         var doc = new ConsentimientoGenerado

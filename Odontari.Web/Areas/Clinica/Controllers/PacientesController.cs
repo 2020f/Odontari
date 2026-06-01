@@ -27,7 +27,7 @@ public class PacientesController : Controller
     {
         var cid = ClinicaId;
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
-        var query = _db.Pacientes.Where(p => p.ClinicaId == cid);
+        var query = _db.Pacientes.AsNoTracking().Where(p => p.ClinicaId == cid);
         if (!string.IsNullOrWhiteSpace(q))
             query = query.Where(p => p.Nombre.Contains(q) || (p.Apellidos != null && p.Apellidos.Contains(q)) || (p.Cedula != null && p.Cedula.Contains(q)) || (p.Telefono != null && p.Telefono.Contains(q)));
         var list = await query.OrderBy(p => p.Nombre).Select(p => new PacienteListViewModel
@@ -93,7 +93,7 @@ public class PacientesController : Controller
     {
         var cid = ClinicaId;
         if (cid == null) return RedirectToAction("SinClinica", "Home", new { area = "Clinica" });
-        var p = await _db.Pacientes.Where(x => x.ClinicaId == cid && x.Id == id).FirstOrDefaultAsync();
+        var p = await _db.Pacientes.AsNoTracking().Where(x => x.ClinicaId == cid && x.Id == id).FirstOrDefaultAsync();
         if (p == null) return NotFound();
         var vm = new PacienteEditViewModel
         {

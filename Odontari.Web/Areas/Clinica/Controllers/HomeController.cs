@@ -31,6 +31,7 @@ public class HomeController : Controller
         var hoy = DateTime.Today;
         var manana = hoy.AddDays(1);
         IQueryable<Models.Cita> queryCitas = _db.Citas
+            .AsNoTracking()
             .Where(c => c.ClinicaId == cid && c.FechaHora >= hoy && c.FechaHora < manana && c.Estado != Models.Enums.EstadoCita.Cancelada)
             .Include(c => c.Paciente)
             .Include(c => c.Doctor);
@@ -42,6 +43,7 @@ public class HomeController : Controller
         }
         ViewBag.CitasHoy = await queryCitas.OrderBy(c => c.FechaHora).ToListAsync();
         ViewBag.PendientesCobro = await _db.OrdenesCobro
+            .AsNoTracking()
             .Where(o => o.ClinicaId == cid && (o.Estado == Models.Enums.EstadoCobro.Pendiente || o.Estado == Models.Enums.EstadoCobro.Parcial))
             .Include(o => o.Paciente)
             .Take(10)
@@ -56,21 +58,24 @@ public class HomeController : Controller
 
             // Obtener IDs de doctores activos de esta clínica
             var roleDoctorId = await _db.Roles
+                .AsNoTracking()
                 .Where(r => r.Name == OdontariRoles.Doctor)
                 .Select(r => r.Id)
                 .FirstOrDefaultAsync();
 
             var doctorIds = roleDoctorId != null
-                ? await _db.UserRoles.Where(ur => ur.RoleId == roleDoctorId).Select(ur => ur.UserId).ToListAsync()
+                ? await _db.UserRoles.AsNoTracking().Where(ur => ur.RoleId == roleDoctorId).Select(ur => ur.UserId).ToListAsync()
                 : new List<string>();
 
             var doctores = await _db.Users
+                .AsNoTracking()
                 .Where(u => u.ClinicaId == cid && doctorIds.Contains(u.Id) && u.Activo)
                 .OrderBy(u => u.NombreCompleto)
                 .ToListAsync();
 
             // Citas de hoy activas para determinar estado del doctor
             var citasHoyActivas = await _db.Citas
+                .AsNoTracking()
                 .Where(c => c.ClinicaId == cid
                          && c.FechaHora >= hoy
                          && c.FechaHora < manana
@@ -134,6 +139,7 @@ public class HomeController : Controller
 
             // Citas del día siguiente (filtradas por ClinicaId — multi-tenant)
             ViewBag.CitasManana = await _db.Citas
+                .AsNoTracking()
                 .Where(c => c.ClinicaId == cid
                          && c.FechaHora >= mananaStart
                          && c.FechaHora < mananaEnd
